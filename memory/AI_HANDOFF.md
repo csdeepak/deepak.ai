@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 8) — Brand Identity & Visual DNA
+
+- **What I did:** Authored `docs/14-BRAND_IDENTITY.md` (14 sections: brand narrative, personality dials, visual DNA, typography identity, motion personality, logo direction, icon language, photography direction, illustration charter, Dex brand sheet, brand voice + banned vocabulary, design vocabulary, brand anti-patterns, 5–10yr evolution policy; appendix mapping what's ruled elsewhere vs new). Logged D-024. Synced docs index, ROADMAP, CURRENT_STATE, CHANGELOG.
+- **Why:** The identity layer above the DSVL needed articulation before logo execution, copywriting, and hi-fi design; prior docs are immutable, so this builds on rather than replaces.
+- **Key calls:** Rejected the brief's navigation renaming ("Journey" etc.) — vocabulary rule: plain places, coined inventions (D-024); wordmark-first + dL monogram, dot reserved for Dex; drawn SVG line = the *entire* illustration range; motion temperament = mechanical, with Dex's breathing as the only living element (dilution barred); no generative/AI imagery anywhere; brand evolution rides major versions with the 2026→2031 recognition test.
+- **State:** All design + brand documentation complete. Version = `v0.1.0-alpha`.
+- **Next:** Phase 4 — tech-stack ratification (`docs/06`) + token spec; then `07`, `09`, `10`, P0 specs; logo execution per `14` §6 whenever design capacity exists.
+- **Open questions:** "Dex" name veto (still pending, now referenced by two docs — decide before implementation); monogram choice ("dL" vs "D."); exact accent hue.
+
 ### 2026-07-05 (session 7) — Master Wireframe Specification
 
 - **What I did:** Authored `docs/13-WIREFRAME_SPEC.md`: 5 screen archetypes; structural specs for ~26 screens (public, admin, overlays, errors) with ASCII layouts for anchors (Landing, Project Detail, /ai centerpiece, Palette, Admin Dashboard, Admin Editor); layout/component/interaction inventories; responsive blueprint; cross-cutting loading/empty/error states; implementation notes for hi-fi design. Logged D-023. Updated docs index, ROADMAP (Phase 3 complete), CURRENT_STATE, CHANGELOG.

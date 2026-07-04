@@ -21,6 +21,12 @@ Phase 3 complete (IA + Wireframes). Next: Phase 4 — Technical Foundation (tech
   - Full structural specs with ASCII layouts for anchor screens (Landing, Project Detail, /ai, Palette, Admin Dashboard, Admin Editor)
   - Component / interaction / layout inventories; responsive blueprint; loading/empty/error states
   - Brief's 12-section landing reconciled onto D-022's 8 sections (nothing lost — merged/deferred)
+- **Brand Identity & Visual DNA** — [`../docs/14-BRAND_IDENTITY.md`](../docs/14-BRAND_IDENTITY.md) (D-024)
+  - Narrative ("canonical"), personality dials, visual DNA (hairline + dot, human-hand-on-machine-grid tension)
+  - Logo direction: wordmark-first + dL monogram; the dot stays exclusively Dex's
+  - Vocabulary rule: plain names for places, coined names for inventions (nav renaming rejected)
+  - Brand voice system + banned vocabulary; drawn-line as sole illustration language
+  - Honesty ethic hardened: no generative/AI-enhanced imagery anywhere; evolution rides major versions
 
 ## In Progress
 
