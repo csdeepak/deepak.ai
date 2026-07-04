@@ -127,6 +127,30 @@ Each decision uses:
 - **Decision:** One strongly-authenticated (MFA-ready) admin identity; model `users`/`roles` in the schema with permission checks at module boundaries, but ship no RBAC UI. v2 bookmarks use anonymous tokens, not accounts.
 - **Consequences:** Multi-role support becomes a data/UI addition later, not a re-architecture; minimal auth/PII surface now. See §9.
 
+## D-015 — The Twin represents Deepak; it never impersonates him
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The brief frames the AI as "a digital extension of Deepak." Speaking first-person-as-Deepak would make every model error fabricated testimony in his voice — and PRD G4 treats assistant trust as binary.
+- **Decision:** The Twin is a named presence (name chosen in the design-language phase) that speaks as itself, about Deepak, always with source citations; introduces itself honestly; declines off-domain questions in-character with variant copy.
+- **Consequences:** Preserves trust and personality simultaneously; citation UX becomes a core feature of the conversation surface; persona rules become functional requirements in `specs/ai-assistant.md`. See `docs/12` §0.2, §7.
+
+## D-016 — Motion doctrine: teach-structure yes, perform no
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The XA brief listed 15 candidate animation techniques; the PRD's pillar is restraint and timelessness, and the 90-second goal cannot absorb an immersion tax.
+- **Decision:** Adopt the XA verdicts (`docs/12` §6): invest in shared-element transitions, SVG line drawing, micro-interactions, subtle page transitions, vertical storytelling, selective scrollytelling (landing only), restrained hero, micro animated icons, and exactly two ambient instances. Reject 3D rendering (default), liquid glass, horizontal-scroll pages, magnetic interactions, and cursor effects. Timing doctrine: feedback ≤200ms, transitions 200–350ms, narrative ≤600ms, nothing blocking.
+- **Consequences:** `docs/08` implements these verdicts; rejected techniques require an XA amendment to revisit; reduced-motion parity is a release criterion.
+
+## D-017 — Navigation: persistent slim nav + command palette + contextual graph
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The "Personal OS" identity needs a navigation model that rewards fluency without hiding basic wayfinding.
+- **Decision:** Persistent condensing top bar (hides only in long-form reading, scroll-up returns it); global search merged into a `Cmd/Ctrl+K` command palette (nav + search + actions + Twin hand-off) with a visible trigger; Twin globally accessible via one consistent presence mark; contextual cross-links as the primary navigation layer. Palette is an accelerator, never the only path.
+- **Consequences:** Palette content sources and relation taxonomy must be specified in `docs/04`; keyboard-first becomes structural. See `docs/12` §4.
+
 ---
 
 _Add new decisions below, incrementing the ID._

@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 4) — Experience Architecture (XA)
+
+- **What I did:** Authored `docs/12-EXPERIENCE_ARCHITECTURE.md` (experience vision, 7-stage visitor journey, per-page purposes for all 14 surfaces + admin, navigation philosophy, motion philosophy, 15 animation-technique verdicts, full Digital Twin experience design, emotional journey, information flow, 10 interaction principles, accessibility strategy, risks, future ideas, downstream-obligations appendix). Logged D-015…D-017. Added binding-note headers to `docs/03` and `docs/08`. Updated docs index, CURRENT_STATE, ROADMAP, CHANGELOG.
+- **Why:** Complete experience definition must precede visual design and wireframes; the XA now binds `docs/03`, `04`, and `08`.
+- **Key calls:** Twin represents-never-impersonates, speaks as itself with citations (D-015); calm-premium motion doctrine — rejected 3D/liquid-glass/cursor-effects/magnetic/horizontal-scroll, invested in shared-element + SVG + micro-interactions (D-016); persistent slim nav + Cmd/K palette + contextual graph as primary navigation (D-017); v1.0 designed complete with graceful Twin absence.
+- **State:** XA approved at document level; Phase 2 (Design System) in progress; Version = `v0.1.0-alpha`.
+- **Next:** `docs/03-DESIGN_LANGUAGE.md` (visual system, Twin name/identity, glass call, contrast targets) → `docs/08` → `docs/04`.
+- **Open questions:** Twin's name; light/dark strategy; typography; concrete tech stack — all owned by upcoming phases.
+
 ### 2026-07-05 (session 3) — System Architecture
 
 - **What I did:** Authored `docs/11-SYSTEM_ARCHITECTURE.md` (20 sections, trade-off analysis, Markdown diagrams, 3 appendices). Logged decisions D-007…D-014. Rewrote `memory/ARCHITECTURE.md` from "undecided" to the decided architecture. Reframed `docs/06-TECH_STACK.md` as awaiting ratification. Updated docs index, CURRENT_STATE, CHANGELOG.

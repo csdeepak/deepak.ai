@@ -17,8 +17,9 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 - [x] Draft feature list and priorities (P0/P1/P2 tiers)
 - [x] Complete `docs/02-PRODUCT.md` (PRD — single source of truth)
 
-## Phase 2 — Design System *(next)*
+## Phase 2 — Design System *(in progress)*
 
+- [x] Experience Architecture (`docs/12-EXPERIENCE_ARCHITECTURE.md`) — journeys, navigation, motion doctrine, Twin experience
 - [ ] Establish design language (`docs/03-DESIGN_LANGUAGE.md`)
 - [ ] Define animation guidelines (`docs/08-ANIMATION_GUIDELINES.md`)
 - [ ] Define component guidelines (`docs/07-COMPONENT_GUIDELINES.md`)

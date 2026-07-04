@@ -1,6 +1,7 @@
 # 08 — Animation Guidelines
 
 > Status: Draft template. Fill in during the Design System phase.
+> **Bound by** [`12-EXPERIENCE_ARCHITECTURE.md`](12-EXPERIENCE_ARCHITECTURE.md): implements the motion philosophy (XA §5), the technique verdicts (XA §6 — rejected techniques need an XA amendment), the timing doctrine (feedback ≤200ms · transitions 200–350ms · narrative ≤600ms), and reduced-motion parity (XA §11).
 
 ## Motion Principles
 

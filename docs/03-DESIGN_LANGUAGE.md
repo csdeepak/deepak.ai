@@ -1,6 +1,7 @@
 # 03 — Design Language
 
 > Status: Draft template. Fill in during the Design System phase.
+> **Bound by** [`12-EXPERIENCE_ARCHITECTURE.md`](12-EXPERIENCE_ARCHITECTURE.md): must serve "quiet confidence," name and visually define the Twin, make the final glass-morphism call (XA §6), and set contrast targets (≥ WCAG AA).
 
 ## Design Principles
 
