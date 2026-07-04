@@ -14,6 +14,16 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 5) — Design System & Visual Language (DSVL)
+
+- **What I did:** Authored `docs/03-DESIGN_LANGUAGE.md` in full (15 sections: brand identity, typography, color philosophy, layout, component language, iconography, glass call, motion tokens, 3D charter, photography, data viz, accessibility, responsive behavior, 25 design laws, 15 anti-patterns). Ratified `docs/08-ANIMATION_GUIDELINES.md` (tokens, context rules, Dex motion, reduced-motion parity mapping, performance rules). Logged D-018…D-020. Synced memory + roadmap + changelog.
+- **Why:** XA obligations (quiet confidence, Twin identity, glass call, contrast targets) were owed to `docs/03`; motion tokens made ratifying `docs/08` in the same pass natural, completing most of Phase 2.
+- **Key calls:** "Graphite & Paper" + exactly one accent (D-018); **Twin named Dex, embodied as a breathing presence dot — no face ever** (D-019); glass on two surfaces only, liquid glass permanently dead, 3D dormant charter, no synthetic likenesses (D-020); Inter + JetBrains Mono only (serif considered, rejected); light default with first-class dark.
+- **Deliberately deferred:** exact token values (hex ramp, px sizes, shadow recipe, icon library, syntax/data-viz hue sets) → ratified with the tech stack; `docs/07` component *engineering* conventions → tech-stack phase.
+- **State:** Phase 2 essentially complete; Version = `v0.1.0-alpha`.
+- **Next:** `docs/04-INFORMATION_ARCHITECTURE.md` (routes, content model, relation taxonomy, palette sources) → wireframes → tech-stack ratification + token spec.
+- **Open questions:** Owner veto pending on the name "Dex"; exact accent hue value; concrete stack.
+
 ### 2026-07-05 (session 4) — Experience Architecture (XA)
 
 - **What I did:** Authored `docs/12-EXPERIENCE_ARCHITECTURE.md` (experience vision, 7-stage visitor journey, per-page purposes for all 14 surfaces + admin, navigation philosophy, motion philosophy, 15 animation-technique verdicts, full Digital Twin experience design, emotional journey, information flow, 10 interaction principles, accessibility strategy, risks, future ideas, downstream-obligations appendix). Logged D-015…D-017. Added binding-note headers to `docs/03` and `docs/08`. Updated docs index, CURRENT_STATE, ROADMAP, CHANGELOG.

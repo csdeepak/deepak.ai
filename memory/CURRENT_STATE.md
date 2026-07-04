@@ -6,31 +6,35 @@
 
 ## Current Phase
 
-Experience Design (Phase 2 — Design System, in progress: XA complete, visual design language next)
+Design System (Phase 2 — nearly complete: XA + Design Language + Animation Guidelines done; component guidelines deferred to tech-stack ratification)
 
 ## Completed
 
 - Repository initialized (structure, conventions, documentation system)
-- **PRD** — [`../docs/02-PRODUCT.md`](../docs/02-PRODUCT.md) (product source of truth); vision + P0/P1/P2 tiers
-- **System Architecture** — [`../docs/11-SYSTEM_ARCHITECTURE.md`](../docs/11-SYSTEM_ARCHITECTURE.md) (technical source of truth); decisions D-007…D-014
-- **Experience Architecture** — [`../docs/12-EXPERIENCE_ARCHITECTURE.md`](../docs/12-EXPERIENCE_ARCHITECTURE.md) (experience source of truth); decisions D-015…D-017
-  - Visitor journey (7 stages) + per-page purposes for all 14 surfaces + admin
-  - Navigation: persistent slim nav + Cmd/K command palette + contextual graph (D-017)
-  - Motion doctrine + 15 technique verdicts — ~half rejected by name (D-016)
-  - Digital Twin experience: represents-never-impersonates, cited answers, retrieval-gated declines, graceful absence in v1.0 (D-015)
-  - Accessibility strategy: reduced-motion parity, keyboard-first, screen-reader narrative
+- **PRD** — [`../docs/02-PRODUCT.md`](../docs/02-PRODUCT.md); vision + P0/P1/P2 tiers (D-004…D-006)
+- **System Architecture** — [`../docs/11-SYSTEM_ARCHITECTURE.md`](../docs/11-SYSTEM_ARCHITECTURE.md) (D-007…D-014)
+- **Experience Architecture** — [`../docs/12-EXPERIENCE_ARCHITECTURE.md`](../docs/12-EXPERIENCE_ARCHITECTURE.md) (D-015…D-017)
+- **Design System & Visual Language** — [`../docs/03-DESIGN_LANGUAGE.md`](../docs/03-DESIGN_LANGUAGE.md) (D-018…D-020)
+  - "Graphite & Paper" neutrals + exactly one accent (indicator-LED blue); ≥95% neutral per view
+  - Two type families: Inter (variable) + JetBrains Mono; no serif
+  - Depth = surface tiers + hairlines; one shadow token (overlays only)
+  - **The Twin is named Dex** — presence dot, no face, ever (D-019)
+  - Glass finalized: palette + Dex panel only; liquid glass permanently rejected (D-020)
+  - 3D dormant charter; no synthetic likenesses — photography only
+  - 25 binding design laws + 15 anti-patterns
+- **Animation Guidelines ratified** — [`../docs/08-ANIMATION_GUIDELINES.md`](../docs/08-ANIMATION_GUIDELINES.md): motion tokens, context rules, Dex motion, reduced-motion parity mapping, performance rules
 
 ## In Progress
 
-- Phase 2 — Design System (next artifact: `docs/03-DESIGN_LANGUAGE.md`)
+- Nothing active; Phase 3 (Information Architecture & Wireframes) is next
 
 ## Next Steps
 
-1. Design Language (`docs/03`) — visual system, Twin name + identity, glass-morphism call, contrast targets
-2. Animation Guidelines (`docs/08`) — implement XA motion doctrine + technique verdicts
-3. Information Architecture (`docs/04`) — routes, content model, relation taxonomy, palette sources
-4. Ratify tech stack (`docs/06`); drill-down `09`/`10`
+1. Information Architecture (`docs/04`) — routes, content model, relation taxonomy, palette sources (owes XA §9 + DSVL §4 application)
+2. Wireframes (Phase 3)
+3. Ratify tech stack (`docs/06`) + token specification (exact hex/px values) + `docs/07` component engineering conventions
+4. Drill-down `09-DATABASE_PLAN.md` / `10-DEPLOYMENT.md`
 
 ## Notes
 
-No application code, framework, or dependencies exist yet — by design. Three sources of truth now govern all future work: PRD (product) → `docs/11` (system) → `docs/12` (experience). `docs/03`, `04`, and `08` carry explicit obligations from the XA appendix.
+No application code yet — by design. Four sources of truth now govern: PRD (product) → `docs/11` (system) → `docs/12` (experience) → `docs/03` (design). Exact design-token values are deliberately deferred to tech-stack ratification; the *rules* are binding now.
