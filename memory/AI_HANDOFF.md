@@ -14,6 +14,16 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 3) — System Architecture
+
+- **What I did:** Authored `docs/11-SYSTEM_ARCHITECTURE.md` (20 sections, trade-off analysis, Markdown diagrams, 3 appendices). Logged decisions D-007…D-014. Rewrote `memory/ARCHITECTURE.md` from "undecided" to the decided architecture. Reframed `docs/06-TECH_STACK.md` as awaiting ratification. Updated docs index, CURRENT_STATE, CHANGELOG.
+- **Why:** Product (PRD) was defined; the system needed a decided, documented architecture before design/IA and before any implementation.
+- **Key calls:** Modular monolith (no microservices); PostgreSQL as single datastore incl. `pgvector` + FTS; AI = RAG with retrieval-gated domain restriction; GitHub cached (not live); Postgres FTS first; managed PaaS; object storage + CDN; single admin auth with dormant RBAC.
+- **Reversibility stance:** Locked the data layer now (expensive to reverse); deferred framework + hosting *vendor* picks to `docs/06` (cheap to reverse behind interfaces).
+- **State:** Architecture approved at document level; Version = `v0.1.0-alpha`.
+- **Next:** Design System → Information Architecture → ratify concrete tech stack (`docs/06`) → drill-down DB/deployment docs.
+- **Open questions:** Framework/language, LLM & embedding models, and specific vendors are intentionally deferred to `docs/06` (Appendix B of `docs/11`).
+
 ### 2026-07-05 (session 2) — Product Definition (PRD)
 
 - **What I did:** Authored the full PRD in `docs/02-PRODUCT.md` (18 sections + strategic assessment + feature-disposition appendix). Filled `docs/01-VISION.md` from it. Prioritized the feature catalog in `docs/05-FEATURES.md` into P0/P1/P2 tiers. Logged product decisions D-004–D-006. Updated ROADMAP, CHANGELOG, CURRENT_STATE, FEATURE_STATUS.

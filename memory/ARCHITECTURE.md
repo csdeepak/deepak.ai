@@ -1,42 +1,50 @@
 # Architecture
 
-> The current architectural understanding of Deepak Labs. Keep this in sync with reality; record the reasoning for changes in [`DECISIONS.md`](DECISIONS.md).
+> Summary of the current architecture. **The authoritative document is [`../docs/11-SYSTEM_ARCHITECTURE.md`](../docs/11-SYSTEM_ARCHITECTURE.md).** Record the reasoning for changes in [`DECISIONS.md`](DECISIONS.md).
 
-## Current State
+## Shape
 
-The architecture is intentionally minimal. No framework, runtime, or data layer has been chosen. The repository is structured as a monorepo to accommodate future applications and shared packages.
+**Modular monolith.** One deployable application, internally partitioned into strongly-bounded modules mapping to the PRD's content types and capabilities. Background work (GitHub sync, news ingestion, embeddings, digests, scheduled publishing) runs as scheduled jobs / async workers on the same codebase and datastore. Microservices are explicitly avoided; modules are *extractable* along their boundaries if ever needed.
 
 ## Structural Model
 
 ```
-deepak.ai/
-├── apps/        # deployable applications (none yet)
-├── packages/    # shared libraries (none yet)
-├── docs/        # architecture & product docs
-├── memory/      # AI context system
-├── specs/       # feature specifications
-├── prompts/     # reusable AI prompts
-├── scripts/     # automation
-└── assets/      # static & design assets
+apps/web    → public site (SSR/SSG, SEO-first)
+apps/admin  → admin console (authenticated CMS)
+packages/   → ui · content (schemas) · config · sdk (shared)
+
+Shared core: content service · media service · auth · caching
+Data: PostgreSQL (+ pgvector + full-text search) · object storage + CDN
+Runtime: app tier + background workers (cron + job queue)
 ```
 
-## Dependency Direction
+## Decided (see DECISIONS.md D-007…D-014)
 
-Applications depend on packages. Packages never depend on applications. Shared logic is extracted into `packages/`.
+- **D-007** — Modular monolith, not microservices.
+- **D-008** — PostgreSQL as the single relational system of record.
+- **D-009** — AI assistant = RAG with `pgvector` (vectors in the same Postgres).
+- **D-010** — GitHub data cached with scheduled refresh (not live per request).
+- **D-011** — Postgres full-text search first; dedicated engine only on evidence.
+- **D-012** — Managed PaaS + managed services; no self-hosted orchestration.
+- **D-013** — Object storage + CDN for media; no blobs in the database.
+- **D-014** — Single admin auth now; RBAC modeled in schema, dormant.
 
-## Decided
+## Key Strategies (quick reference)
 
-- Monorepo layout (see `D-001`).
-- Documentation-first workflow (see `D-002`).
+- **AI:** RAG, corpus = published content + resume + future docs, event-driven re-embedding on publish, three-layer domain restriction (retrieval gating → system prompt → optional classifier), source-cited answers.
+- **News (v2 "Radar"):** simple scheduled ingest → normalize → categorize (rules first, AI later) → store; anonymous bookmarks; weekly digest job.
+- **Caching:** CDN edge + app data cache + DB indexes; invalidation driven by the publish event.
+- **Search:** Postgres FTS behind a swappable `SearchIndex` interface.
 
-## Undecided (TBD)
+## Dependency Rules
 
-- Frontend framework and language
-- Backend / services
-- Database and data layer (see [`../docs/09-DATABASE_PLAN.md`](../docs/09-DATABASE_PLAN.md))
-- AI assistant architecture
-- Deployment and infrastructure (see [`../docs/10-DEPLOYMENT.md`](../docs/10-DEPLOYMENT.md))
+Apps → packages (never the reverse). Content modules share one content-core (CRUD, drafts, scheduling, versioning, media). AI and Search consume content **read-only**. News, GitHub, Analytics are the loosely-coupled edge (first extraction candidates).
 
-## References
+## Deferred to `06-TECH_STACK.md` (Technical Foundation phase)
 
-Detailed technical documentation lives in [`../docs/`](../docs). Decisions are logged in [`DECISIONS.md`](DECISIONS.md).
+Concrete framework/language, LLM & embedding models, specific PaaS/storage/CDN vendors, auth implementation, and ops tooling. The architecture depends only on their *capabilities*, not on specific vendors.
+
+## Undecided elsewhere
+
+- Design language (`../docs/03-DESIGN_LANGUAGE.md`) — next phase.
+- Information architecture detail (`../docs/04-INFORMATION_ARCHITECTURE.md`).

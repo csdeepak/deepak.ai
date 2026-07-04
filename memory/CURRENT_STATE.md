@@ -6,24 +6,24 @@
 
 ## Current Phase
 
-Product Definition (Phase 1 — Product Ideation, largely complete)
+Architecture Design (Phase 4 groundwork completed ahead of design/IA phases)
 
 ## Completed
 
-- Repository created and initialized (structure, conventions, documentation system)
-- **PRD authored** — [`../docs/02-PRODUCT.md`](../docs/02-PRODUCT.md) is now the product source of truth
-- Vision defined — [`../docs/01-VISION.md`](../docs/01-VISION.md)
-- Feature catalog prioritized into tiers — [`../docs/05-FEATURES.md`](../docs/05-FEATURES.md)
-  - **P0 (v1.0):** canonical record + core CMS
-  - **P1 (v1.5):** AI Assistant, knowledge base admin, Gallery, deep GitHub
-  - **P2 (v2.0):** News Platform ("Radar"), bookmarks, weekly digest
+- Repository initialized (structure, conventions, documentation system)
+- **PRD** authored — [`../docs/02-PRODUCT.md`](../docs/02-PRODUCT.md) (product source of truth)
+- Vision defined; feature catalog prioritized into P0/P1/P2 tiers
+- **System Architecture Document** authored — [`../docs/11-SYSTEM_ARCHITECTURE.md`](../docs/11-SYSTEM_ARCHITECTURE.md) (technical source of truth), all 20 sections + trade-offs + diagrams
+- Architecture decisions logged — D-007…D-014
+- `memory/ARCHITECTURE.md` updated to reflect decided architecture
+- `docs/06-TECH_STACK.md` reframed as "awaiting ratification"
 
-## Key Product Decisions (see DECISIONS.md)
+## Architecture at a glance (see docs/11)
 
-- AI Assistant sequenced to v1.5 (cold-start dependency on content corpus)
-- News rescoped as personal "Radar," deferred to v2.0
-- Posts are technical publishing — no social mechanics
-- Added: search, RSS, SEO/structured data, CV download, privacy-respecting analytics
+- Modular monolith; PostgreSQL (+pgvector+FTS) single datastore; object storage + CDN for media
+- AI = RAG grounded in corpus, retrieval-gated domain restriction, pgvector, event-driven re-embedding
+- GitHub = cached + scheduled refresh; News (v2) = simple scheduled pipeline
+- Managed PaaS + managed services; single admin auth with dormant RBAC schema
 
 ## In Progress
 
@@ -33,8 +33,9 @@ Product Definition (Phase 1 — Product Ideation, largely complete)
 
 1. Design System (`docs/03-DESIGN_LANGUAGE.md`, `docs/08-ANIMATION_GUIDELINES.md`)
 2. Information Architecture & Wireframes (`docs/04-INFORMATION_ARCHITECTURE.md`)
-3. Flesh out P0 feature specs in `specs/` from the PRD
+3. Ratify concrete tech stack (`docs/06-TECH_STACK.md`) — framework, LLM/embedding models, vendors
+4. Drill-down docs: `09-DATABASE_PLAN.md`, `10-DEPLOYMENT.md` (detailed plans from the architecture)
 
 ## Notes
 
-No application code, framework, or dependencies exist yet — by design. Implementation begins only after the Technical Foundation phase.
+No application code, framework, or dependencies exist yet — by design. Architecture is approved at the document level; implementation waits on tech-stack ratification.

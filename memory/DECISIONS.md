@@ -63,6 +63,70 @@ Each decision uses:
 - **Decision:** Keep the feature but rescope it as a personal "Radar" (what Deepak tracks), defer to v2.0, and gate launch on a demonstrated ≥2-month curation habit. Feed auto-hides when stale.
 - **Consequences:** Protects the core product's freshness guarantee; bookmark and digest features inherit the deferral.
 
+## D-007 — Modular monolith (not microservices)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** One maintainer, decade horizon, personal budget. Microservices multiply operational surface for no benefit at this scale.
+- **Decision:** Build a modular monolith — one deployable app with strongly-bounded internal modules; background work as scheduled jobs/workers on the same codebase and datastore.
+- **Consequences:** Simple to reason about, deploy, and debug. Shares a failure/deploy domain (mitigated by CI, small release cadence). Modules are extractable along boundaries later (News, then AI) if load ever demands it. Ratified in `docs/11-SYSTEM_ARCHITECTURE.md` §1.
+
+## D-008 — PostgreSQL as the single relational system of record
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Content is inherently relational (cross-linking graph); the lifecycle needs ACID; a solo maintainer benefits from fewer systems.
+- **Decision:** One PostgreSQL database as the system of record, also hosting AI vectors (`pgvector`) and full-text search.
+- **Consequences:** One managed system covers content + search + vectors. Mature, boring, decade-safe. Alternatives (NoSQL, headless CMS SaaS, multiple specialized stores) rejected as premature/misfit. See §7.
+
+## D-009 — AI assistant = RAG with pgvector
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Assistant must answer only from Deepak's corpus, stay current, and never fabricate (PRD absolute constraint).
+- **Decision:** Retrieval-Augmented Generation grounded in published content + resume + future docs; vectors in `pgvector` (same Postgres); event-driven re-embedding on publish; three-layer domain restriction (retrieval gating → system prompt → optional classifier); source-cited answers.
+- **Consequences:** Instant knowledge updates, no fine-tuning cost, cited answers, cost-controlled by retrieval gating. Vector backend swappable behind an interface if scale demands. Fine-tuning and dedicated vector DBs rejected/deferred. See §11.
+
+## D-010 — GitHub data cached with scheduled refresh (not live)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** GitHub data changes slowly and is supporting content; live per-request fetches add latency, hit rate limits, and couple site availability to GitHub's.
+- **Decision:** Sync on a schedule (optionally augmented by push webhooks) into a Postgres cache; public pages read only from the cache.
+- **Consequences:** Fast, resilient (survives GitHub outages), rate-limit-safe; freshness is minutes–hours (ample). See §13.
+
+## D-011 — Postgres full-text search first; dedicated engine later
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Site-wide search over a personal corpus (hundreds–low-thousands of docs) does not justify a search cluster initially.
+- **Decision:** Use Postgres full-text search behind a swappable `SearchIndex` interface; migrate to a dedicated engine only on evidence of need.
+- **Consequences:** Zero extra infrastructure now; clean upgrade path later. See §8.
+
+## D-012 — Managed PaaS + managed services (not self-hosted/k8s)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** For one maintainer, operational simplicity is the priority; ops burden must not consume the maintenance budget.
+- **Decision:** Deploy on a managed platform with managed Postgres, object storage, and CDN; background jobs on the platform's cron/worker facility. No Kubernetes, no self-managed VPS as the core.
+- **Consequences:** Backups/patching/recovery handled by providers; app stays portable across PaaS vendors (boring infra avoids lock-in). Specific vendors ratified in `docs/10-DEPLOYMENT.md`. See §16.
+
+## D-013 — Object storage + CDN for media (no DB blobs)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Binary media in the database bloats storage, slows backups, and prevents edge delivery/optimization.
+- **Decision:** Store originals in S3-compatible object storage (references in Postgres); serve optimized variants via an image CDN.
+- **Consequences:** Cheap, durable, fast delivery; provider swappable behind the media service interface. See §10.
+
+## D-014 — Single admin auth now; RBAC schema future-ready
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Only Deepak administers the system; the public site needs no visitor accounts (PRD non-goal). "Role-based permissions (future-ready)" is required without building unused UI.
+- **Decision:** One strongly-authenticated (MFA-ready) admin identity; model `users`/`roles` in the schema with permission checks at module boundaries, but ship no RBAC UI. v2 bookmarks use anonymous tokens, not accounts.
+- **Consequences:** Multi-role support becomes a data/UI addition later, not a re-architecture; minimal auth/PII surface now. See §9.
+
 ---
 
 _Add new decisions below, incrementing the ID._
