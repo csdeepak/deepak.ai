@@ -151,6 +151,30 @@ Each decision uses:
 - **Decision:** Persistent condensing top bar (hides only in long-form reading, scroll-up returns it); global search merged into a `Cmd/Ctrl+K` command palette (nav + search + actions + Twin hand-off) with a visible trigger; Twin globally accessible via one consistent presence mark; contextual cross-links as the primary navigation layer. Palette is an accelerator, never the only path.
 - **Consequences:** Palette content sources and relation taxonomy must be specified in `docs/04`; keyboard-first becomes structural. See `docs/12` §4.
 
+## D-018 — Design language ratified: "Graphite & Paper" with one accent
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The XA required a visual system serving "quiet confidence"; the brand must avoid developer-portfolio and cyberpunk clichés while remaining recognizable for a decade.
+- **Decision:** Ratify `docs/03-DESIGN_LANGUAGE.md`: cool-neutral graphite/paper ramp; exactly one accent hue (precise "indicator-LED" blue); four reserved semantic colors; depth via surface tiers + hairlines (one shadow token, overlays only); two type families only (Inter variable + JetBrains Mono, no serif); 4px spacing scale; light mode default with first-class dark mode; 25 binding design laws + anti-pattern list. Exact token values ratified with the tech stack.
+- **Consequences:** All future design/implementation is bound by the laws; recognition strategy relies on chromatic discipline (≥95% neutral per view), the hairline system, and the drawn-SVG illustration language.
+
+## D-019 — The Twin is named Dex; its body is a dot
+
+- **Date:** 2026-07-05
+- **Status:** Accepted (owner may veto the name before implementation)
+- **Context:** The XA (D-015) obligated the design language to name the Twin and define its visual identity without inviting uncanny impersonation.
+- **Decision:** Name: **Dex** (Deepak + index). Visual identity: a small accent-colored presence dot with sub-perceptual breathing — no face, no avatar, no character illustration, ever. The dot's breathing deepens when thinking; it is the product's only permitted animation loop.
+- **Consequences:** "Dex" and the dot become long-term brand equity; `specs/ai-assistant.md` inherits the persona + visual rules; any future avatar proposal contradicts D-015/D-019 and needs both amended.
+
+## D-020 — Glass finalized (two surfaces); 3D dormant charter; no synthetic likeness
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** XA §6 left the final glass call to the design language and rejected decorative 3D; the portrait question needed a hard answer.
+- **Decision:** Glassmorphism (frosted, high-tint, readability-first) on exactly two surfaces: command palette and Dex panel; liquid glass permanently rejected. 3D appears only when the subject itself is 3D (research artifacts), under a technical-illustrative charter (matte graphite materials, orthographic-leaning user-controlled camera, no auto-spin). Explicitly forbidden: 3D portraits, AI-generated/retouched portraiture, Dex-with-a-face — photography is the only likeness medium.
+- **Consequences:** GPU/contrast/maintenance costs stay bounded; the "honest evidence" identity is protected at the likeness level; any 3D exception requires its own spec.
+
 ---
 
 _Add new decisions below, incrementing the ID._
