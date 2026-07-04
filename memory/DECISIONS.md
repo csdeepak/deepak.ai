@@ -199,6 +199,14 @@ Each decision uses:
 - **Decision:** Ratify `docs/13-WIREFRAME_SPEC.md`: five screen archetypes (Index, Detail, Single-surface, Tool, Overlay) carry all screens with per-screen deltas; the brief's 12 landing items are mapped onto D-022's 8 sections (Identity+Mission→Hero; Experience Snapshot+GitHub→Current Focus; News→v2 slot); a closed sticky-region list (nav, admin rail, admin table headers, editor publish bar — nothing else); no sticky TOC on posts; load-more over infinite scroll; admin mobile is triage-grade by design; media-library alt-text required before use; admin settings includes full content export (JSON+markdown).
 - **Consequences:** High-fidelity design proceeds without structural assumptions; the four grammar-setting screens (Landing, Project Detail, Post Detail, Admin Editor) are designed and reviewed first; structural changes to any screen require a decision entry.
 
+## D-024 — Brand identity ratified: wordmark-first, plain-names vocabulary, honesty ethic
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The brand layer above the DSVL needed articulation (narrative, voice, logo direction, vocabulary); the brief proposed renaming navigation ("Projects"→"Engineering", "Timeline"→"Journey"), conflicting with IA D-021 and the PRD's plain-language tone.
+- **Decision:** Ratify `docs/14-BRAND_IDENTITY.md`. Key rulings: wordmark-first identity with "dL"/"D." monogram for favicon/avatars — the presence dot remains exclusively Dex's and may never serve as site favicon; **vocabulary rule: plain names for places, coined names only for inventions** (Radar and Dex are the models; navigation renaming rejected); one illustration language (the drawn SVG line) as the brand's entire illustrative range; brand voice system with a banned-vocabulary list (passionate/journey/seamless/etc.); photography honesty ethic extended — no generative fill or AI enhancement on any imagery; motion temperament: mechanical precision with Dex's breathing as the sole organic/living element; identity evolution rides major versions with the 2026→2031 recognition test.
+- **Consequences:** All future copy, marks, and external representation are bound; coined names enter the vocabulary table only via decision entries; any second "living" animation element would dilute Dex and is barred; logo execution is a future task constrained to the two approved symbolic directions (hairline frame, node-and-edge).
+
 ---
 
 _Add new decisions below, incrementing the ID._
