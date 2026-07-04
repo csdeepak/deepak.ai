@@ -20,9 +20,10 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 ## Phase 2 — Design System *(in progress)*
 
 - [x] Experience Architecture (`docs/12-EXPERIENCE_ARCHITECTURE.md`) — journeys, navigation, motion doctrine, Twin experience
-- [ ] Establish design language (`docs/03-DESIGN_LANGUAGE.md`)
-- [ ] Define animation guidelines (`docs/08-ANIMATION_GUIDELINES.md`)
-- [ ] Define component guidelines (`docs/07-COMPONENT_GUIDELINES.md`)
+- [x] Establish design language (`docs/03-DESIGN_LANGUAGE.md`) — DSVL: color, type, components, laws, anti-patterns; Twin named Dex
+- [x] Define animation guidelines (`docs/08-ANIMATION_GUIDELINES.md`) — motion tokens, parity mapping, performance rules
+- [ ] Define component guidelines (`docs/07-COMPONENT_GUIDELINES.md`) — deferred to tech-stack ratification (engineering conventions)
+- [ ] Token specification (exact hex/px values) — ratified with tech stack
 
 ## Phase 3 — Wireframes & Information Architecture
 
