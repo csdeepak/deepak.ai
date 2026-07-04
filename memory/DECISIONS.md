@@ -191,6 +191,14 @@ Each decision uses:
 - **Decision:** Landing = Hero (mission lives in the hero sentence) · Featured Work · Research Highlight · Current Focus · Latest Posts · Dex Preview (v1.5 only) · Contact strip · Footer. News preview appears only when Radar ships.
 - **Consequences:** Protects the 90-second goal and graceful absence; adding landing sections requires amending D-022.
 
+## D-023 — Wireframe specification ratified on a 5-archetype system
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** ~26 screens needed wireframe-level specification without 26 redundant essays; the brief's 12-section landing conflicted with D-022.
+- **Decision:** Ratify `docs/13-WIREFRAME_SPEC.md`: five screen archetypes (Index, Detail, Single-surface, Tool, Overlay) carry all screens with per-screen deltas; the brief's 12 landing items are mapped onto D-022's 8 sections (Identity+Mission→Hero; Experience Snapshot+GitHub→Current Focus; News→v2 slot); a closed sticky-region list (nav, admin rail, admin table headers, editor publish bar — nothing else); no sticky TOC on posts; load-more over infinite scroll; admin mobile is triage-grade by design; media-library alt-text required before use; admin settings includes full content export (JSON+markdown).
+- **Consequences:** High-fidelity design proceeds without structural assumptions; the four grammar-setting screens (Landing, Project Detail, Post Detail, Admin Editor) are designed and reviewed first; structural changes to any screen require a decision entry.
+
 ---
 
 _Add new decisions below, incrementing the ID._
