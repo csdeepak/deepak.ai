@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 7) — Master Wireframe Specification
+
+- **What I did:** Authored `docs/13-WIREFRAME_SPEC.md`: 5 screen archetypes; structural specs for ~26 screens (public, admin, overlays, errors) with ASCII layouts for anchors (Landing, Project Detail, /ai centerpiece, Palette, Admin Dashboard, Admin Editor); layout/component/interaction inventories; responsive blueprint; cross-cutting loading/empty/error states; implementation notes for hi-fi design. Logged D-023. Updated docs index, ROADMAP (Phase 3 complete), CURRENT_STATE, CHANGELOG.
+- **Why:** Final Phase 3 artifact — hi-fi design and implementation need screen-level structure with zero assumptions.
+- **Key calls:** Brief's 12-section landing reconciled onto D-022's 8 (mapping table, nothing lost); archetype system over per-screen essays; closed sticky-region list; no sticky TOC on posts; load-more over infinite scroll (footer reachability); admin mobile = triage-grade deliberately; alt-text required at media-library level; full content export in admin settings (own-your-data insurance); /ai context panel fed by retrieval-graph traversal; reserved future slots marked (voice, history, series, demo embeds).
+- **State:** Phase 3 complete. All design documentation done. Version = `v0.1.0-alpha`.
+- **Next:** Phase 4 — ratify tech stack (`docs/06`) + token spec; then `07`, `09`, `10`, P0 specs; hi-fi starts with the four grammar-setters.
+- **Open questions:** "Dex" name veto still pending; exact accent hue; stack/vendor picks — all Phase 4.
+
 ### 2026-07-05 (session 6) — Information Architecture & UX Blueprint
 
 - **What I did:** Authored `docs/04-INFORMATION_ARCHITECTURE.md` in full: sitemap/route map, content model + closed relation taxonomy, navigation architecture (4-lane bar, lane-tabs, footer-as-sitemap, palette sources, keyboard grammar), shared page grammar + hierarchies, per-page blueprints for ~20 surfaces (goals/questions/priority/CTA/sections/scroll/a11y/responsive/perf), 9 user flows, search architecture (1 index, 4 skins), Dex placement strategy, empty states, error states, mobile-intentional design, future scalability. Logged D-021, D-022.
