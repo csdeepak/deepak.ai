@@ -20,6 +20,7 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`10-DEPLOYMENT.md`](10-DEPLOYMENT.md) | Hosting, CI/CD, environments. |
 | [`11-SYSTEM_ARCHITECTURE.md`](11-SYSTEM_ARCHITECTURE.md) | Cross-cutting system architecture (the technical source of truth). |
 | [`12-EXPERIENCE_ARCHITECTURE.md`](12-EXPERIENCE_ARCHITECTURE.md) | Experience architecture — journeys, navigation, motion, and the Twin (the experience source of truth). |
+| [`13-WIREFRAME_SPEC.md`](13-WIREFRAME_SPEC.md) | Master wireframe specification — every screen's structure, layout, states, and interactions. |
 
 ## Conventions
 
