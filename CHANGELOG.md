@@ -9,7 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
-- Reserved for upcoming changes.
+- Product Requirements Document (`docs/02-PRODUCT.md`) — the single source of truth for product scope, with strategic assessment, personas, prioritization tiers, metrics, risks, and constraints.
+- Vision document completed (`docs/01-VISION.md`).
+- Feature catalog prioritized into P0/P1/P2 tiers (`docs/05-FEATURES.md`).
+- Product decisions D-004–D-006 logged (phased delivery; Posts as publishing, not social; News rescoped as "Radar" and deferred to v2.0).
+
+### Changed
+- `ROADMAP.md` — Phases 0–1 marked complete; Phase 5 restructured around PRD tiers.
+- `memory/` files synchronized (CURRENT_STATE, AI_HANDOFF, FEATURE_STATUS, DECISIONS).
 
 ## [0.1.0-alpha] — Repository Initialization
 

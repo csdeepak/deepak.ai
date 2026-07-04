@@ -4,20 +4,20 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 
 ---
 
-## Phase 0 — Repository Initialization *(current)*
+## Phase 0 — Repository Initialization
 
 - [x] Create repository structure
 - [x] Establish documentation foundation
 - [x] Define conventions and standards
-- [ ] Finalize product direction
+- [x] Finalize product direction
 
-## Phase 1 — Product Ideation
+## Phase 1 — Product Ideation *(complete)*
 
-- [ ] Define product scope and audience
-- [ ] Draft feature list and priorities
-- [ ] Complete `docs/02-PRODUCT.md`
+- [x] Define product scope and audience
+- [x] Draft feature list and priorities (P0/P1/P2 tiers)
+- [x] Complete `docs/02-PRODUCT.md` (PRD — single source of truth)
 
-## Phase 2 — Design System
+## Phase 2 — Design System *(next)*
 
 - [ ] Establish design language (`docs/03-DESIGN_LANGUAGE.md`)
 - [ ] Define animation guidelines (`docs/08-ANIMATION_GUIDELINES.md`)
@@ -36,8 +36,11 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 
 ## Phase 5 — Feature Implementation
 
-- [ ] Implement features per `specs/`
-- [ ] Gallery, Projects, Posts, Publications, Timeline, Skills, AI Assistant, News, Admin Dashboard
+Per the PRD's tiers (`docs/02-PRODUCT.md` §10):
+
+- [ ] **v1.0 (P0):** Landing, About, Projects, Publications, Posts, Timeline, Skills, Contact, GitHub (display), core Admin CMS, SEO/RSS/search, basic analytics
+- [ ] **v1.5 (P1):** AI Assistant + knowledge base admin, Gallery, deep GitHub integration, full analytics
+- [ ] **v2.0 (P2):** News "Radar", bookmarks, weekly digest
 
 ## Phase 6 — Launch & Iteration
 
