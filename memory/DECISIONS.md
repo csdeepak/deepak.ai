@@ -175,6 +175,22 @@ Each decision uses:
 - **Decision:** Glassmorphism (frosted, high-tint, readability-first) on exactly two surfaces: command palette and Dex panel; liquid glass permanently rejected. 3D appears only when the subject itself is 3D (research artifacts), under a technical-illustrative charter (matte graphite materials, orthographic-leaning user-controlled camera, no auto-spin). Explicitly forbidden: 3D portraits, AI-generated/retouched portraiture, Dex-with-a-face — photography is the only likeness medium.
 - **Consequences:** GPU/contrast/maintenance costs stay bounded; the "honest evidence" identity is protected at the likeness level; any 3D exception requires its own spec.
 
+## D-021 — Information architecture ratified: 4-lane nav, 3-level depth, closed relation taxonomy
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Wireframes and specs need a binding structural blueprint; the XA obligated `docs/04` to define routes, content model, relation taxonomy, and palette sources.
+- **Decision:** Ratify `docs/04-INFORMATION_ARCHITECTURE.md`: full route map (public/utility/private) with permanent kebab-case URLs; page hierarchy capped at 3 levels; global nav carries exactly 4 lanes (Work · Research · Posts · About) with lane-tabs for siblings and the footer as sitemap-of-record; closed relation taxonomy (`implements`, `writes-about`, `produced`, `evidences`, `depicts`, `references`) with bidirectional traversal and never-empty related trails; priority-order-equals-DOM-order as a binding layout law; search = one FTS index with four skins (palette, /search page, scoped filters, Dex-semantic).
+- **Consequences:** Wireframes build from §5 blueprints without structural debate; new features must fit "content type + typed relations + at most one lane-tab"; relation-kind additions require a decision entry.
+
+## D-022 — Landing carries 8 sections; News preview and Mission section cut from v1
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The IA brief's example landing listed 11 sections including a Mission section and News preview; News is v2 (D-006) and the PRD's tone forbids mission-statement marketing sections.
+- **Decision:** Landing = Hero (mission lives in the hero sentence) · Featured Work · Research Highlight · Current Focus · Latest Posts · Dex Preview (v1.5 only) · Contact strip · Footer. News preview appears only when Radar ships.
+- **Consequences:** Protects the 90-second goal and graceful absence; adding landing sections requires amending D-022.
+
 ---
 
 _Add new decisions below, incrementing the ID._
