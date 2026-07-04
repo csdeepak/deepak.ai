@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 6) — Information Architecture & UX Blueprint
+
+- **What I did:** Authored `docs/04-INFORMATION_ARCHITECTURE.md` in full: sitemap/route map, content model + closed relation taxonomy, navigation architecture (4-lane bar, lane-tabs, footer-as-sitemap, palette sources, keyboard grammar), shared page grammar + hierarchies, per-page blueprints for ~20 surfaces (goals/questions/priority/CTA/sections/scroll/a11y/responsive/perf), 9 user flows, search architecture (1 index, 4 skins), Dex placement strategy, empty states, error states, mobile-intentional design, future scalability. Logged D-021, D-022.
+- **Why:** The XA obligated `docs/04` to make the graph concrete; wireframes need a structural blueprint detailed enough to build from.
+- **Key calls:** `/search` page as the palette's visible twin (palette never sole path); 4 nav lanes with everything else via lane-tabs/footer/palette; landing cut to 8 sections — Mission merged into hero, News preview deferred to v2 (D-022); priority-order = DOM order = mobile order as a binding law; semantic search *is* Dex (no duplicate UI); relation taxonomy is a closed set of 6 kinds (D-021).
+- **State:** IA complete; wireframes are the remaining Phase 3 artifact; Version = `v0.1.0-alpha`.
+- **Next:** Wireframes (start: Landing, Project detail, Post detail, Admin editor — the four grammars); then tech-stack ratification + token spec; `09` imports the entity/relation model.
+- **Open questions:** none structural; visual questions belong to wireframes; "Dex" name veto still pending with owner.
+
 ### 2026-07-05 (session 5) — Design System & Visual Language (DSVL)
 
 - **What I did:** Authored `docs/03-DESIGN_LANGUAGE.md` in full (15 sections: brand identity, typography, color philosophy, layout, component language, iconography, glass call, motion tokens, 3D charter, photography, data viz, accessibility, responsive behavior, 25 design laws, 15 anti-patterns). Ratified `docs/08-ANIMATION_GUIDELINES.md` (tokens, context rules, Dex motion, reduced-motion parity mapping, performance rules). Logged D-018…D-020. Synced memory + roadmap + changelog.
