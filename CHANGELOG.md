@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Design decisions D-018–D-020 logged (design language ratified; Twin named Dex with presence-dot identity; glass finalized to two surfaces with liquid glass permanently rejected + 3D dormant charter).
 - Information Architecture & UX Blueprint (`docs/04-INFORMATION_ARCHITECTURE.md`) — sitemap/routes, content model with closed relation taxonomy, navigation architecture, page blueprints for ~20 surfaces, 9 user flows, search architecture, Dex placement, empty/error states, mobile-intentional design.
 - IA decisions D-021–D-022 logged (4-lane nav + 3-level depth + relation taxonomy; landing capped at 8 sections with Mission/News-preview cuts).
+- Master Wireframe Specification (`docs/13-WIREFRAME_SPEC.md`) — 5 screen archetypes, structural specs for ~26 screens with ASCII layouts, component/interaction/layout inventories, responsive blueprint, cross-cutting loading/empty/error states, implementation notes for high-fidelity design.
+- Wireframe decision D-023 logged (archetype system; brief's 12-section landing reconciled onto D-022's 8; closed sticky list; load-more over infinite scroll; triage-grade mobile admin; alt-text enforced at media library; full content export in admin settings).
 
 ### Changed
 - `ROADMAP.md` — Phases 0–1 marked complete; Phase 5 restructured around PRD tiers.

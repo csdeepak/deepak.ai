@@ -25,10 +25,10 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 - [ ] Define component guidelines (`docs/07-COMPONENT_GUIDELINES.md`) — deferred to tech-stack ratification (engineering conventions)
 - [ ] Token specification (exact hex/px values) — ratified with tech stack
 
-## Phase 3 — Wireframes & Information Architecture *(in progress)*
+## Phase 3 — Wireframes & Information Architecture *(complete)*
 
 - [x] Complete `docs/04-INFORMATION_ARCHITECTURE.md` — sitemap, relation taxonomy, page blueprints, user flows, error/empty states, mobile
-- [ ] Wireframe core surfaces — start: Landing, Project detail, Post detail, Admin editor
+- [x] Wireframe all surfaces (`docs/13-WIREFRAME_SPEC.md`) — 5 archetypes, ~26 screens, states, interactions, responsive blueprint
 
 ## Phase 4 — Technical Foundation
 
