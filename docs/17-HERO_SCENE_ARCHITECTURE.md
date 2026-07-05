@@ -4,6 +4,7 @@
 > **Owner:** Deepak (Experience) · Authored as Executive Creative Director / Scene Architect, **on the owner's superseding directive (D-030)**.
 > **Supersedes (in hero scope only):** D-020's likeness ban, D-026's typographic-hero ratification, D-027's concurrence, D-016's 3D-as-decoration default. **Everything else stands** — see §0.
 > **This is a design document.** No engine, library, or code is chosen here; implementation is a later ratification.
+> **Creative deepening:** [`18-HERO_SCENE_BIBLE.md`](18-HERO_SCENE_BIBLE.md) (D-032) — per-object design, Twin style system, Dex life cycle, camera/lighting/particle/motion bibles, full scroll timeline. Three refinements to this document are made there (separation light, time-of-day lighting, particle taxonomy).
 
 ---
 
