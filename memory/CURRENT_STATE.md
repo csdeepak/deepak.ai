@@ -27,6 +27,11 @@ Phase 3 complete (IA + Wireframes). Next: Phase 4 — Technical Foundation (tech
   - Vocabulary rule: plain names for places, coined names for inventions (nav renaming rejected)
   - Brand voice system + banned vocabulary; drawn-line as sole illustration language
   - Honesty ethic hardened: no generative/AI-enhanced imagery anywhere; evolution rides major versions
+- **Design Token System & Component Architecture** — [`../docs/15-DESIGN_TOKENS.md`](../docs/15-DESIGN_TOKENS.md) (D-025)
+  - All non-color token values ratified (spacing, sizing, type scale, radius, z-bands, motion, delays, focus, a11y floors)
+  - Three-tier color architecture (primitive→semantic→component; primitives private) — **hex values still pending stack ratification**
+  - Per-domain color groups rejected; `chart.*` is the only hue-minting set; Avatar rejected → `Portrait`
+  - 24 component families under universal contracts; one overlay behavior; Cards+Rows only; closed-sets governance
 
 ## In Progress
 

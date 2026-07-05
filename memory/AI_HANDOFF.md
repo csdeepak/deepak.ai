@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 9) — Design Token System & Component Architecture
+
+- **What I did:** Authored `docs/15-DESIGN_TOKENS.md`: naming convention (dot-notation, framework-agnostic); all foundation tokens with concrete non-color values (spacing/sizing/containers/grid/breakpoints/radius/elevation/borders/blur/opacity/z-bands/type scale/icons/motion/delays/focus/a11y); three-tier color architecture with semantic groups (hex deferred to stack); 16 motion recipes with reduced-motion equivalents; layering contracts; component architecture for 24 families with universal contracts and composition hierarchy; governance model (closed sets, additions ledger, deprecation policy, review heuristics). Logged D-025. Synced index, ROADMAP, CURRENT_STATE, CHANGELOG.
+- **Why:** DSVL's deferred token item needed a formal home before engineering; component contracts needed defining before `07` and implementation.
+- **Key calls:** Per-domain color groups (Research/News/Analytics/Admin) rejected per D-018 — density/iconography differentiate, never hue; `ai.presence` aliases the accent (dot = accent = brand equity); no `color.secondary` (aliasing over multiplication); Avatar family rejected → `Portrait` (D-019); one overlay contract for all modal surfaces; Cards+Rows are the only two content-display families; z reserved band kept for the brief's AR layer with recorded skepticism.
+- **State:** Design system infrastructure complete. Only hex values + type-family confirmation remain, gated on Phase 4. Version = `v0.1.0-alpha`.
+- **Next:** Phase 4 — tech-stack ratification (`docs/06`): framework, LLM/embedding models, vendors, token format, **hex ratification**; then `07` (inherits `15` §6–7), `09`, `10`, P0 specs.
+- **Open questions:** "Dex" name veto (pending, three docs now reference it); monogram "dL" vs "D."; accent hue value; stack picks.
+
 ### 2026-07-05 (session 8) — Brand Identity & Visual DNA
 
 - **What I did:** Authored `docs/14-BRAND_IDENTITY.md` (14 sections: brand narrative, personality dials, visual DNA, typography identity, motion personality, logo direction, icon language, photography direction, illustration charter, Dex brand sheet, brand voice + banned vocabulary, design vocabulary, brand anti-patterns, 5–10yr evolution policy; appendix mapping what's ruled elsewhere vs new). Logged D-024. Synced docs index, ROADMAP, CURRENT_STATE, CHANGELOG.
