@@ -23,6 +23,7 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`13-WIREFRAME_SPEC.md`](13-WIREFRAME_SPEC.md) | Master wireframe specification — every screen's structure, layout, states, and interactions. |
 | [`14-BRAND_IDENTITY.md`](14-BRAND_IDENTITY.md) | Brand identity & visual DNA — narrative, voice, vocabulary, logo direction, Dex's brand sheet. |
 | [`15-DESIGN_TOKENS.md`](15-DESIGN_TOKENS.md) | Design token system & component architecture — foundations, color architecture, component contracts. |
+| [`16-LANDING_REVIEW.md`](16-LANDING_REVIEW.md) | Landing page design review — scorecard, findings, amendments (84/100, Approved with Changes). |
 
 ## Conventions
 
