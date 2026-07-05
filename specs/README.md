@@ -21,6 +21,7 @@ Every specification follows this structure:
 
 | Spec | Feature |
 | --- | --- |
+| [`landing.md`](landing.md) | **Landing page — Specified (Sprint 1 master spec).** |
 | [`gallery.md`](gallery.md) | Media/image gallery. |
 | [`projects.md`](projects.md) | Projects showcase. |
 | [`posts.md`](posts.md) | Blog / writing. |
