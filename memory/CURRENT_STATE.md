@@ -40,7 +40,11 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 
 Creative direction complete — [`../docs/18-HERO_SCENE_BIBLE.md`](../docs/18-HERO_SCENE_BIBLE.md) (D-032): recency-as-proximity spatial thesis; Twin style system (matte-ceramic, eyes-suggested, no eye contact, no close-ups) with a **likeness gate — reference images of Deepak do not exist in the repo yet and are required for gate #1**; Dex life cycle incl. citation-trail illumination; luminance-not-hue graph logic + growth-on-publish; five-shot camera grammar, no idle camera; particles-as-information (4 data-event types, ambient sparkle refused); 5%-step scroll bible; cut-order documented for scope pressure.
 
-## Sprint H-01 shipped: hero runtime foundation (latest)
+## Personal OS Runtime architecture (latest — docs only)
+
+**[`../docs/23-PERSONAL_OS_RUNTIME.md`](../docs/23-PERSONAL_OS_RUNTIME.md) (D-038):** the permanent runtime spine. A two-plane **Kernel** — Event Bus (facts/choreography) + Capability Registry (typed queries) — coordinates ten runtimes; no module imports another (only kernel-owned contracts). Overrode the brief's "event-bus-only" instruction with reasons (queries ≠ fire-and-forget). Single-writer law; Accessibility is the one runtime that never degrades (the floor). **Explicitly a target skeleton adopted incrementally — not a rewrite**; the shipped Hero Runtime becomes an unmodified client; existing stores (`ui-store`, `hero-store`, `ContentService`, next-themes, MotionConfig) become runtime faces by rename-and-formalize. No code this session.
+
+## Sprint H-01 shipped: hero runtime foundation
 
 **`features/hero-scene/` is real, building code** (D-037, `v0.4.0-alpha`): tier gate → scroll/pointer bridges → camera rail (code-authored 5-station stand-in, manifest-swappable for `cam_rail.glb`) → perf governor (DPR-first + shedding + recovery) → anchor projector → focus proxies/overlay → error ladder (boundary + context-loss guard) → asset manifest/loader contracts → placeholder objects (instanced graph in 2 draw calls, Twin capsule, breathing Dex, particles-render-nothing with emitter API). Verified: build clean, zero warnings, **three.js absent from all First Load JS**, landing untouched. Lives at **`/dev/hero`** (404s in production). Every future object is a swap, not a rework.
 

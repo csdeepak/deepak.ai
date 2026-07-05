@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
-- Reserved for upcoming changes.
+- Personal OS Runtime architecture (`docs/23-PERSONAL_OS_RUNTIME.md`, D-038) — the permanent runtime spine: a two-plane Kernel (Event Bus for choreography + Capability Registry for typed queries) coordinating ten runtimes (Experience, Knowledge, Motion, Navigation, AI/Dex, Content, Analytics, Theme, Accessibility, + Bus). Includes the event catalog, capability contracts, event-flow choreographies, the single-writer ownership law, data/state ownership map grounded in the codebase, bulkhead failure recovery with the floor principle, open/closed extension strategy, and an incremental adoption plan. The brief's "event bus only" instruction is overridden with reasons (queries need request→response, not fire-and-forget); the Hero Runtime is reclassified as an unmodified client of this OS.
 
 ## [0.4.0-alpha] — Sprint H-01: Hero Runtime Foundation
 
