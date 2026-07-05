@@ -27,6 +27,18 @@
 - **Shape:** modular monolith; app + workers *(D-007)*
 - **Hosting model:** managed PaaS *(D-012)*
 
+## Hero scene runtime (ratified — D-036)
+
+| Concern | Choice | Why |
+| --- | --- | --- |
+| 3D engine | **three.js via React Three Fiber** (+ minimal drei subset) | Scene graph = component tree (docs/17 §2 maps 1:1); Suspense-native streaming; composes with the React/Zustand stack. ≈220–280 KB gz, inside the ≤350 KB tier budget, lazy after LCP, Tier 1/2 only |
+| In-scene tweens | **GSAP** (lazy, inside the scene chunk) | One-shot events on uniforms/props (births, glance, Dex approach, citation traces) — the "reserved for draw-ins" promise landing |
+| Camera | Baked Blender rail (`cam_rail.glb`), runtime-scrubbed | Authored cinematography; no tween library re-animates it |
+| DOM motion | **Motion** (unchanged) | Hard rule: one property, one owner; GSAP never touches DOM |
+| Asset formats | glTF + Draco + KTX2, self-hosted decoders, versioned CDN manifest | Per docs/21 pipeline |
+
+Architecture: [`22-HERO_RUNTIME_ARCHITECTURE.md`](22-HERO_RUNTIME_ARCHITECTURE.md).
+
 ## Still to ratify (future sessions)
 
 - **Database access layer / ORM** — with `docs/09-DATABASE_PLAN.md`.
