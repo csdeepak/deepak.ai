@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Token decision D-025 logged (three-tier architecture; per-domain color groups rejected; Avatar rejected for Portrait; one overlay contract; Cards+Rows as the only content-display families; closed-sets governance).
 - Sprint 1: Landing Page master specification (`specs/landing.md`) — the first Specified feature: 8-beat narrative storyboard, deep section specs with hero fully detailed, scroll choreography, motion strategy with numeric budget, content strategy, independent mobile design, accessibility checklist, performance budget, implementation notes.
 - Landing decision D-026 logged (typographic hero with the drawn graph motif replacing the requested 3D portrait; 85vh hero; ambient field declined; ≤3 narrative motions per session; claims-in-S1-only rule).
+- Landing Page design review (`docs/16-LANDING_REVIEW.md`) — full scorecard (84/100), deep per-section review, hero/motion/AI/performance/accessibility/originality reviews, risk analysis, verdict: Approved with Changes.
+- Landing spec amended to v1.1 (R1–R6): chevron cut; graph-motif guardrails + kill criterion; v1.0 ending choreographed; identity-sentence test protocol; hero staleness rule; S2/S5 differentiation, peek clamps, palette hint, Dex-offline state (D-027).
 
 ### Changed
 - `ROADMAP.md` — Phases 0–1 marked complete; Phase 5 restructured around PRD tiers.
