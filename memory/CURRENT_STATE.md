@@ -40,7 +40,11 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 
 Creative direction complete — [`../docs/18-HERO_SCENE_BIBLE.md`](../docs/18-HERO_SCENE_BIBLE.md) (D-032): recency-as-proximity spatial thesis; Twin style system (matte-ceramic, eyes-suggested, no eye contact, no close-ups) with a **likeness gate — reference images of Deepak do not exist in the repo yet and are required for gate #1**; Dex life cycle incl. citation-trail illumination; luminance-not-hue graph logic + growth-on-publish; five-shot camera grammar, no idle camera; particles-as-information (4 data-event types, ambient sparkle refused); 5%-step scroll bible; cut-order documented for scope pressure.
 
-## Runtime architecture ratified + engine chosen (latest)
+## Sprint H-01 shipped: hero runtime foundation (latest)
+
+**`features/hero-scene/` is real, building code** (D-037, `v0.4.0-alpha`): tier gate → scroll/pointer bridges → camera rail (code-authored 5-station stand-in, manifest-swappable for `cam_rail.glb`) → perf governor (DPR-first + shedding + recovery) → anchor projector → focus proxies/overlay → error ladder (boundary + context-loss guard) → asset manifest/loader contracts → placeholder objects (instanced graph in 2 draw calls, Twin capsule, breathing Dex, particles-render-nothing with emitter API). Verified: build clean, zero warnings, **three.js absent from all First Load JS**, landing untouched. Lives at **`/dev/hero`** (404s in production). Every future object is a swap, not a rework.
+
+## Runtime architecture ratified + engine chosen
 
 **[`../docs/22-HERO_RUNTIME_ARCHITECTURE.md`](../docs/22-HERO_RUNTIME_ARCHITECTURE.md) (D-036):** engine = **React Three Fiber** (closes the docs/06 queue item). The scene is an enhancement layer — DOM complete before/without the canvas; tier gate before any 3D byte; refs-not-state for 60fps values; native scroll scrubs the baked Blender rail; graph in 2 draw calls; error ladder resolves every failure to a designed lesser tier. **The hero implementation sprint is now unblocked on the engineering side** — only assets (photo-gated Twin) and budget remain owner-gated; bench/rail/procedural-scene work can begin.
 
