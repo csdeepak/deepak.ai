@@ -1,6 +1,6 @@
 # Version
 
-**Current Version:** `v0.2.0-alpha`
+**Current Version:** `v0.3.0-alpha`
 
 ---
 
@@ -23,6 +23,7 @@ Deepak Labs uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH[
 
 | Version         | Stage | Summary                                                      |
 | --------------- | ----- | ------------------------------------------------------------ |
+| `v0.3.0-alpha`  | alpha | Sprint 1: landing page implemented (gated on content + release tests). |
 | `v0.2.0-alpha`  | alpha | Complete documentation stack (PRD → tokens) + frontend foundation (Sprint 0). |
 | `v0.1.0-alpha`  | alpha | Repository initialization.                                    |
 

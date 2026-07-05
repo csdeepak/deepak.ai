@@ -11,6 +11,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - Reserved for upcoming changes.
 
+## [0.3.0-alpha] — Sprint 1: Landing Page Implementation
+
+### Added
+- Landing page implemented per `specs/landing.md` v1.1: Hero (CSS-only entrance, graph motif with once-per-session draw-in under R2 guardrails, R5 staleness rule), Featured Work, Research Highlight, Current Focus, Latest Posts, Contact strip (v1.0 resolution beat per R3), sitemap-of-record Footer with build-date freshness stamp.
+- Reusable additions: `CopyButton` (flagship micro-interaction), `ThemeToggle`, CSS `animate-entrance` utility, local `ContentService` implementation over typed `content/` files, proper 404 page per IA error grammar.
+- Implementation patterns logged as D-029 (CSS-first LCP, Motion pathLength over GSAP for the motif, data-driven graceful absence, build-date stamps).
+
+### Changed
+- Nav shell: 4 lanes + theme toggle; footer shell replaced by the real Footer.
+- Landing sections self-hide until real content exists — no fake data renders anywhere.
+
+### Notes
+- Not rendered by design: Dex Preview (v1.5, D-004) and News slot (v2, D-006) — graceful absence.
+- Public release gated on: real content, R4 identity-sentence tests, R2 motif hallway test.
+
 ## [0.2.0-alpha] — Documentation Stack + Frontend Foundation
 
 ### Added — Sprint 0: Frontend Foundation
