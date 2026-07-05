@@ -170,7 +170,7 @@ Each decision uses:
 ## D-020 — Glass finalized (two surfaces); 3D dormant charter; no synthetic likeness
 
 - **Date:** 2026-07-05
-- **Status:** Accepted
+- **Status:** **Partially superseded by D-030/D-031** — the 3D-portrait ban is lifted for the hero scene (stylized only); photoreal/AI-imagery bans and glass rules remain in force
 - **Context:** XA §6 left the final glass call to the design language and rejected decorative 3D; the portrait question needed a hard answer.
 - **Decision:** Glassmorphism (frosted, high-tint, readability-first) on exactly two surfaces: command palette and Dex panel; liquid glass permanently rejected. 3D appears only when the subject itself is 3D (research artifacts), under a technical-illustrative charter (matte graphite materials, orthographic-leaning user-controlled camera, no auto-spin). Explicitly forbidden: 3D portraits, AI-generated/retouched portraiture, Dex-with-a-face — photography is the only likeness medium.
 - **Consequences:** GPU/contrast/maintenance costs stay bounded; the "honest evidence" identity is protected at the likeness level; any 3D exception requires its own spec.
@@ -218,7 +218,7 @@ Each decision uses:
 ## D-026 — Landing master spec ratified: typographic hero with the graph motif
 
 - **Date:** 2026-07-05
-- **Status:** Accepted
+- **Status:** **Superseded in hero scope by D-030/D-031** — the typographic hero is retained verbatim as Tier 0 fallback; S2–S8 and all non-hero rulings stand
 - **Context:** Sprint 1 required a build-ready landing spec; the brief requested a 3D portrait hero (banned by D-020), cursor interactions (banned by D-016), and 13 sections (capped at 8 by D-022).
 - **Decision:** Ratify `specs/landing.md`. Key rulings: hero is typographic + the **drawn graph motif** (an abstracted rendering of the actual content graph — the product thesis drawn; also the node-and-edge logo direction at full scale); no portrait on the landing — the photograph lives in About; hero is 85vh (next section peeks — the honest scroll cue), left-anchored (document, not poster); XA's optional ambient hero field declined for v1; motion budget fixed at ≤3 narrative-class moments per session (2 draw-ins + 1 Dex breath-deepen); claims live in S1 only — S2–S6 are exclusively evidence; no client-side data fetch above S6; typographic project cards in v1 (imagery deferred pending art-direction spec).
 - **Consequences:** Hi-fi design and implementation proceed without assumptions; the graph motif is the sprint's main craft task; a fourth narrative motion requires killing one of the three; deviations during build require a decision entry before deviating.
@@ -226,7 +226,7 @@ Each decision uses:
 ## D-027 — Landing review: Approved with Changes (84/100); amendments R1–R6 applied
 
 - **Date:** 2026-07-05
-- **Status:** Accepted
+- **Status:** Accepted; **hero-scope findings superseded by D-030/D-031** — the review's discipline (budgets, kill criteria, staleness/copy gates) carries into docs/17
 - **Context:** The landing spec (D-026) underwent an adversarial design review (`docs/16-LANDING_REVIEW.md`) before hi-fi/build.
 - **Decision:** Verdict **Approved with Changes, 84/100**. Applied to `specs/landing.md` (now v1.1): **R1** hero scroll chevron cut (the 85vh peek is the cue; the chevron duplicated it); **R2** graph-motif art-direction guardrails (asymmetric layout, drawn character, 7–12 node hard cap, zero post-draw motion, compositor-safe draw) + hallway-test **kill criterion** with the typographic-only hero as pre-approved fallback + S1/S3 differentiation rule (theme figure, not second constellation); **R3** v1.0 ending choreographed — S7 absorbs the resolution beat, the footer freshness stamp is v1.0's quiet reveal; **R4** identity-sentence release protocol (10-second test + read-aloud test as release gates); **R5** hero staleness rule (stamp renders ≤30 days only); **R6** batch — S2/S5 visual differentiation requirement, hero-peek viewport clamps, one-time palette discovery hint, S6 Dex-offline state (chips hidden, never dead). Rejected in review: Contact in nav lanes (D-021 holds); CV CTA demotion; removing S3's motif (put on notice as the motion budget's first eviction candidate instead).
 - **Consequences:** The spec is build-ready at v1.1; the hallway test is scheduled early in hi-fi while the kill is cheapest; the review's revised priority list becomes the build order; critical risks (motif cliché, hero staleness, sentence failure) now have named mitigations and owners.
@@ -246,6 +246,22 @@ Each decision uses:
 - **Context:** Implementing specs/landing.md v1.1 introduced reusable patterns that future pages inherit.
 - **Decision:** (1) **CSS-only entrance for LCP content** — the hero text animates via a CSS keyframe utility (`animate-entrance`), zero hydration on the LCP path; ScrollReveal (Motion) is reserved for below-the-fold sections. (2) **Motion `pathLength` for the graph motif draw-in, not GSAP** — the choreography is simple enough that loading GSAP would violate the landing JS budget for no gain; GSAP stays reserved for the timeline's richer draw. (3) **Data-driven graceful absence** — landing preview sections self-hide when their content is empty (no fake data, no empty-states on previews); the page grows as real content is added. (4) **Footer stamp = build date** — for a statically generated site, build time is last-updated; an honest freshness stamp by construction. (5) Draw-in once-per-session via `sessionStorage`. Conflicts in the sprint brief (3D placeholder, scroll cue, 13 sections, per-word headline animation) were resolved by standing law (D-020/D-022/D-026/D-027), not reinvented.
 - **Consequences:** Landing implemented and building statically (150 kB first-load; LCP unblocked by JS); sections await real content + R4 copy protocol + the R2 hallway test before public release; the four patterns above are the defaults for future page sprints.
+
+## D-030 — Owner supersession: the hero becomes an interactive 3D scene
+
+- **Date:** 2026-07-05
+- **Status:** Accepted (owner directive)
+- **Context:** The owner directed that the hero fundamentally change from a webpage hero to an interactive 3D scene containing a stylized 3D representation of Deepak — overriding the standing rejections in D-020 (likeness ban), D-026 (typographic hero), and D-027 (review concurrence). The architect surfaced the conflict and the owner ruled.
+- **Decision:** Supersede, **in hero scope only**: D-020's 3D-portrait ban is lifted for a *stylized, non-photoreal* representation (the photoreal/AI-generated-imagery bans remain everywhere); D-026's typographic hero is demoted from primary to **Tier 0 fallback** (retained verbatim, already shipped); D-016's 3D-as-decoration default is amended for the hero scene only. Risks recorded on the record: uncanny valley (mitigated by a binding stylization mandate + hallway-test kill gates), maintenance organism (one maintainer owning a 3D pipeline), performance (hard tier budgets), and scope gravity (act-structure fence). **Vocabulary amendment (Brand §12):** "the Twin" = the 3D representation of Deepak; "Dex" remains the AI entity — never conflated.
+- **Consequences:** D-031 designs the scene; the Sprint 1 hero becomes the permanent graceful-degradation tier and the no-3D-bytes path for low-power/save-data/RM visitors; any future photoreal drift violates the surviving clause of D-020.
+
+## D-031 — Hero Scene Architecture
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** D-030 sanctioned the 3D hero; the scene needed a complete architecture before any asset or engine spend.
+- **Decision:** Ratify `docs/17-HERO_SCENE_ARCHITECTURE.md`: a scene-graph hero (Environment · data-driven KnowledgeGraph from real content · the Twin at a workbench, stylized-sculptural with a three-pose state machine · Dex as a luminous spatial entity preserving D-015/D-019 · scroll-scrubbed camera rail with five acts · single-key lighting · DOM-overlay text always). Binding laws: all text is DOM (never 3D-rendered); identity legible at scroll-zero in every tier; scroll position = camera position (bidirectional, no auto-play); zero camera roll; graph nodes are real content with true counts; three-tier ladder (Full / Lite / Tier 0 = shipped Sprint 1 hero) gated **before** engine download; reduced-motion = five composed keyframe stations; hard budgets as release criteria (≤350KB gz lazy-after-LCP, ≤150k tris, ≤100 draw calls, LCP unchanged from Tier 0); asset pipeline with two owner sign-off gates (concept, blockout) before production spend; hallway-test kill gates for uncanny and particle-cliché reads.
+- **Consequences:** Engine/library ratification joins the docs/06 queue; `specs/landing.md` §2.1 is superseded (S2–S8 unchanged); the scene is the product's first real asset-production cost — owner sizes budget before gate #1; the "one living thing" rule expands to a governed ambient budget (≤3 simultaneous ambient motions per frame).
 
 ---
 
