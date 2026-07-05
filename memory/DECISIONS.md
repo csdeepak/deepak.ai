@@ -287,6 +287,14 @@ Each decision uses:
 - **Decision:** Ratify `docs/20-HERO_MOODBOARD.md`: uber-material family with concrete roughness targets (graphite 0.85–0.95, ceramic Twin 0.8 with no edge pass, vellum as the only translucency); lighting rig in Kelvin (key 4300K baseline with 5000→3600K time-of-day, task pool 3200K at +1 stop, separation hairlight ≤15% key); 35mm fixed lens, filmic curve, no auto-exposure; **the governed trio** — depth is atmospheric-first (f/4 assist at Study only), **bloom banned** (in-shader falloff instead), **reflections functionally absent** (roughness floor 0.6, no SSR); ≥55% negative space at every rest frame; DOM-only typography with drawn leader-line annotations; licensed micro-detail set incl. the "ink-wet" live-line transition (8% brighter first 400ms), with grime/grain/aberration explicitly banned; 16-tile reference photography list; 8-point acceptance checklist (incl. grayscale-legibility and the tile-16 Tier-0 continuity test).
 - **Consequences:** Look-dev has pass/fail criteria, not vibes; ±10% artistic latitude beyond which changes return to review; gate #1 frames are judged against the acceptance checklist.
 
+## D-035 — Blender production pipeline ratified
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Asset production needed an executable handbook for a Blender artist, with the Blender/runtime boundary made explicit before any modeling begins.
+- **Decision:** Ratify `docs/21-HERO_BLENDER_PIPELINE.md`. Core ruling: **the .blend is not the scene** — Blender authors only the Twin (LOD0–2 + rig + 5 clips), the bench set (bench/tools/dock), and the camera rail; graph nodes/edges, Dex, atmosphere, lighting, and all signature shaders (construction-line pass, halos, vellum) are runtime/procedural and must never be modeled. Locked specifics: collection-equals-export-unit structure with `_WIP`/`_REF` quarantine; `{ASSET}_{part}_{LODn}` naming with zero-default-names QC; 23-deform-bone rig (cap 24, seated rest pose, deform-only export, no facial bones); five animation clips (seamless 4s breath, two shifts, 0.8s head-only glance, hand adjust) all returning to base pose; camera rail keyed frames 0–100 = scroll 0–100% with the five framings as markers; hard budgets (Twin ≤60k/25k/8k tris, bench set ≤10k, shipped textures ≤8MB expected ~5, per-GLB size targets); export chain = Blender glTF → gltf-transform (prune/dedup/Draco 14-10-12/KTX2) → validator zero-errors; HDRI is look-dev-only and never ships; production start order ends with the Twin (gated on owner reference photos).
+- **Consequences:** A Blender artist can start today on the bench set and camera rail; gate #2 (blockout) is unblocked with primitive stand-ins; the Twin remains the only photo-gated asset; QC is scriptable (budget sums, naming lint, validator).
+
 ---
 
 _Add new decisions below, incrementing the ID._
