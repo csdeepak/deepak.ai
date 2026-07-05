@@ -37,6 +37,8 @@ Phase 3 complete (IA + Wireframes). Next: Phase 4 — Technical Foundation (tech
   - 13 requested sections reconciled to the 8 ratified (D-022 mapping); 3D portrait + cursor effects rejected per standing law
   - Hero: typographic + the **drawn graph motif** (real content graph, abstracted); 85vh, left-anchored; no ambient field in v1
   - Full section specs (S1–S8), scroll choreography, motion budget (≤3 narrative moments/session), content strategy, mobile-independent design, a11y checklist, perf budget (LCP = H1 text <1.5s, CLS 0)
+- **Landing design review** — [`../docs/16-LANDING_REVIEW.md`](../docs/16-LANDING_REVIEW.md) (D-027): **84/100, Approved with Changes**; amendments R1–R6 applied → spec v1.1
+  - Motif guardrails + hallway-test kill criterion (typographic fallback pre-approved); v1.0 ending choreographed (footer stamp = the quiet reveal); chevron cut; hero staleness rule; identity-sentence test gates; S6 offline state
 
 ## In Progress
 

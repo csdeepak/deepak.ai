@@ -9,7 +9,7 @@
 
 | Feature | Spec | Status | Notes |
 | --- | --- | --- | --- |
-| Landing Page | [`../specs/landing.md`](../specs/landing.md) | **Specified** | Sprint 1 master spec complete (D-026); awaiting stack for build. |
+| Landing Page | [`../specs/landing.md`](../specs/landing.md) | **Specified · review-approved** | Spec v1.1 — design review passed 84/100, amendments R1–R6 applied (D-026, D-027); awaiting stack for build. |
 | About + CV download | — | Planned | |
 | Projects | [`../specs/projects.md`](../specs/projects.md) | Planned | Template only. |
 | Publications | [`../specs/publications.md`](../specs/publications.md) | Planned | Template only. |

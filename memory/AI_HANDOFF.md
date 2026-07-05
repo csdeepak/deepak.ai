@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 11) — Landing Page Design Review
+
+- **What I did:** Conducted an adversarial design review of `specs/landing.md` as `docs/16-LANDING_REVIEW.md` (16-category scorecard, deep per-section review with Apple/Linear/Anthropic keep-tests, hero/motion/AI/performance/a11y/originality reviews, risk analysis). Verdict: **Approved with Changes, 84/100**. Applied amendments R1–R6 to the spec (now v1.1). Logged D-027. Synced docs index, FEATURE_STATUS, CHANGELOG.
+- **Why:** The spec establishes the whole product's design language; it needed hostile review before hi-fi, not validation.
+- **Key findings:** C1 — the graph motif is one art-direction failure from the particles.js cliché → guardrails + hallway-test kill criterion with typographic fallback pre-approved; C2 — v1.0 ships without its S6 climax, unchoreographed → S7 absorbs the resolution, footer stamp = v1.0's quiet reveal; the spec's own chevron contradicted its own peek argument → cut; hero staleness failure mode was undefined → ≤30d stamp rule; identity sentence had no test → 10-second + read-aloud release gates. Rejected: Contact-in-nav, CV demotion, S3 motif removal (on notice instead).
+- **State:** Landing spec v1.1, review-approved, build-ready pending stack. Version = `v0.1.0-alpha`.
+- **Next:** Phase 4 tech-stack ratification remains the sole blocker for build; hallway test scheduled early in hi-fi; review's priority list = build order.
+- **Open questions:** unchanged (Dex name, monogram, accent hue — due at ratification).
+
 ### 2026-07-05 (session 10) — Sprint 1: Landing Page Master Specification
 
 - **What I did:** Authored `specs/landing.md` — the first fleshed-out feature spec: brief reconciliation (13→8 sections per D-022/D-023; 3D portrait rejected per D-020; cursor effects rejected per D-016), landing IA + storyboard (8-beat narrative arc), deep section specs S1–S8 (hero fully detailed: opening experience, headline philosophy, graph-motif concept, CTAs, keyboard, transitions), scroll choreography table, motion strategy with per-technique justifications + a numeric motion budget, content strategy (source + messaging intent per section), independent mobile design, a11y checklist, perf budget, implementation notes, future evolution. Logged D-026. Updated specs index, FEATURE_STATUS (Landing → Specified), CURRENT_STATE, CHANGELOG.
