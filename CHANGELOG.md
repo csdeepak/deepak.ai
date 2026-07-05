@@ -27,6 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Wireframe decision D-023 logged (archetype system; brief's 12-section landing reconciled onto D-022's 8; closed sticky list; load-more over infinite scroll; triage-grade mobile admin; alt-text enforced at media library; full content export in admin settings).
 - Brand Identity & Visual DNA (`docs/14-BRAND_IDENTITY.md`) — brand narrative, personality dials, visual DNA, typography/motion identity, logo direction (wordmark-first + monogram), icon/photography/illustration charters, Dex brand sheet, brand voice with banned vocabulary, design vocabulary (plain places, coined inventions), brand anti-patterns, 5–10 year evolution policy.
 - Brand decision D-024 logged (wordmark-first with dL monogram; dot reserved for Dex; navigation renaming rejected; drawn-line as sole illustration language; no generative/AI-enhanced imagery anywhere).
+- Design Token System & Component Architecture (`docs/15-DESIGN_TOKENS.md`) — framework-agnostic foundations (spacing, sizing, type, radius, z-bands, motion, delays, focus, a11y — all non-color values ratified), three-tier color token architecture (hex deferred), motion recipes with reduced-motion equivalents, layering contracts, component architecture for 24 families with universal contracts, composition rules, governance model.
+- Token decision D-025 logged (three-tier architecture; per-domain color groups rejected; Avatar rejected for Portrait; one overlay contract; Cards+Rows as the only content-display families; closed-sets governance).
 
 ### Changed
 - `ROADMAP.md` — Phases 0–1 marked complete; Phase 5 restructured around PRD tiers.
