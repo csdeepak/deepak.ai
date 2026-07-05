@@ -14,6 +14,13 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 19) — Hero Runtime Architecture (engine ratified)
+
+- **What I did:** Authored `docs/22-HERO_RUNTIME_ARCHITECTURE.md` (architecture only, no code) and ratified the engine: **React Three Fiber** + drei subset + GSAP-inside-the-scene-chunk (D-036 — closes the docs/06 engine queue item; docs/06 updated with the ratification table). Load-bearing principle: the scene is an enhancement layer over an always-complete DOM page — the tier ladder IS the error architecture ("the ceiling disappears, the room remains"). Contracts: tier gate before any 3D import; three state domains (continuous=refs/useFrame, discrete=Zustand hero slice, content=server props); rail LUT sampled from `cam_rail.glb` driven by native scroll with acts as derived thresholds; one-property-one-owner motion split (GSAP=in-canvas one-shots, Motion=DOM, rail=camera); instanced graph targeting 2 draw calls; progressive Twin LOD (never swap while observed); PerfGovernor (pause off-viewport/hidden, DPR-first, then bible shedding order); FocusProxies at rail rest-points; RM=stations+unmounted ambients; explicit disposal; v1.5 Dex body/mind seam.
+- **State:** Hero paper trail complete 17→22. Engineering unblocked: bench/rail assets + the runtime scaffold need no owner inputs. Twin remains photo-gated; budget sizing still open. Version `v0.3.0-alpha`.
+- **Next:** either (a) hero implementation sprint — scaffold `features/hero-scene/` per §2-3 with primitive stand-ins (gate #2 blockout in-engine), or (b) the practical track (content pass, Projects sprint, docs/09). Owner's call.
+- **Gotchas:** R3F/three/drei/GSAP are NOT yet installed — the ratification is on paper; install lands with the implementation sprint. Bundle budget ≤350KB gz for the whole scene chunk; assert it.
+
 ### 2026-07-05 (session 18) — Blender Production Pipeline
 
 - **What I did:** Authored `docs/21-HERO_BLENDER_PIPELINE.md` as Lead Technical Artist. Core ruling: **the .blend is not the scene** — Blender authors only Twin + bench set + camera rail; nodes/edges/Dex/atmosphere/lights/signature-shaders are runtime (data-driven per the bible). Locked: collection=export-unit structure, naming convention with lint rules, 23-deform-bone rig (seated rest pose, no facial bones, deform-only export), 5 clips returning to base pose, camera rail keyed 0–100 = scroll% with named framing markers, LOD chain (60k/25k/8k + hand-modeled silhouettes), texture pipeline (bake→PNG masters→CLI KTX2, ≤8MB), export chain (glTF→gltf-transform Draco 14-10-12→validator zero-errors), per-GLB ship-size targets, QC checklist, future-expansion grammar (dock artifacts, Twin resculpt rig-compatible). Logged D-035; synced index/CHANGELOG/CURRENT_STATE.

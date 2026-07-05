@@ -40,7 +40,11 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 
 Creative direction complete — [`../docs/18-HERO_SCENE_BIBLE.md`](../docs/18-HERO_SCENE_BIBLE.md) (D-032): recency-as-proximity spatial thesis; Twin style system (matte-ceramic, eyes-suggested, no eye contact, no close-ups) with a **likeness gate — reference images of Deepak do not exist in the repo yet and are required for gate #1**; Dex life cycle incl. citation-trail illumination; luminance-not-hue graph logic + growth-on-publish; five-shot camera grammar, no idle camera; particles-as-information (4 data-event types, ambient sparkle refused); 5%-step scroll bible; cut-order documented for scope pressure.
 
-## Blender pipeline ratified (latest)
+## Runtime architecture ratified + engine chosen (latest)
+
+**[`../docs/22-HERO_RUNTIME_ARCHITECTURE.md`](../docs/22-HERO_RUNTIME_ARCHITECTURE.md) (D-036):** engine = **React Three Fiber** (closes the docs/06 queue item). The scene is an enhancement layer — DOM complete before/without the canvas; tier gate before any 3D byte; refs-not-state for 60fps values; native scroll scrubs the baked Blender rail; graph in 2 draw calls; error ladder resolves every failure to a designed lesser tier. **The hero implementation sprint is now unblocked on the engineering side** — only assets (photo-gated Twin) and budget remain owner-gated; bench/rail/procedural-scene work can begin.
+
+## Blender pipeline ratified
 
 **The artist's handbook** — [`../docs/21-HERO_BLENDER_PIPELINE.md`](../docs/21-HERO_BLENDER_PIPELINE.md) (D-035): the .blend is NOT the scene — Blender makes only Twin + bench set + camera rail (everything else is runtime/procedural). Rig contract 23 bones, 5 clips, LOD 60k/25k/8k, textures ≤8MB, glTF→Draco→KTX2 chain, QC lint. **Production can start today on the bench set and camera rail** (gate #2 blockout needs no owner inputs); the Twin remains photo-gated.
 
