@@ -14,6 +14,13 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 18) — Blender Production Pipeline
+
+- **What I did:** Authored `docs/21-HERO_BLENDER_PIPELINE.md` as Lead Technical Artist. Core ruling: **the .blend is not the scene** — Blender authors only Twin + bench set + camera rail; nodes/edges/Dex/atmosphere/lights/signature-shaders are runtime (data-driven per the bible). Locked: collection=export-unit structure, naming convention with lint rules, 23-deform-bone rig (seated rest pose, no facial bones, deform-only export), 5 clips returning to base pose, camera rail keyed 0–100 = scroll% with named framing markers, LOD chain (60k/25k/8k + hand-modeled silhouettes), texture pipeline (bake→PNG masters→CLI KTX2, ≤8MB), export chain (glTF→gltf-transform Draco 14-10-12→validator zero-errors), per-GLB ship-size targets, QC checklist, future-expansion grammar (dock artifacts, Twin resculpt rig-compatible). Logged D-035; synced index/CHANGELOG/CURRENT_STATE.
+- **Production start order (deliberate):** lib → bench set (proves pipeline cheap) → cam rail (unblocks gate #2 with primitives) → Twin blockout → gates → Twin production. The Twin is last: most expensive, and the only asset gated on the owner's reference photos.
+- **State:** An artist can start today on bench + rail. Hero paper trail complete: 17→18→19→20→21. Version `v0.3.0-alpha`.
+- **Next:** unchanged owner gates (photos, budget, engine) — but gate #2 blockout is now startable without any of them.
+
 ### 2026-07-05 (session 17) — Hero Moodboard Specification
 
 - **What I did:** Authored `docs/20-HERO_MOODBOARD.md` — the look-dev contract for the Drafted Laboratory: 16-tile reference photography list; uber-material family with roughness numbers (Twin = warm ceramic 0.8, no edge pass; vellum = only translucency); lighting rig in Kelvin (key 4300K + time-of-day 5000→3600K, task pool 3200K +1 stop, hairlight ≤15%); 35mm lens spec; the governed trio — atmospheric-first depth, **bloom banned** (in-shader falloff), **reflections functionally absent** (roughness floor 0.6); ≥55% negative-space law; DOM typography with drawn leader-line annotations; licensed micro-detail set (ink-wet live-line, graphite dust, bench chamfer) with grime/grain/CA banned; 8-point acceptance checklist incl. grayscale test and the tile-16 Tier-0 continuity test. Logged D-034; synced index/CHANGELOG.
