@@ -14,6 +14,14 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 14) — Hero Scene Architecture (owner supersession)
+
+- **What happened:** The hero brief demanded a 3D portrait, conflicting with D-020/D-026/D-027. I stopped and surfaced the conflict per governance; **the owner ruled to supersede.** Logged D-030 (supersession, risks on the record, scope limits: stylized-only, hero-only; photoreal/AI-imagery bans survive) and D-031 (scene architecture). Authored `docs/17-HERO_SCENE_ARCHITECTURE.md`: scene hierarchy, object hierarchy (Twin style mandate = the uncanny firewall), camera system (scroll-scrubbed rail, no hijack, no roll), lighting, interaction model (focus proxies give keyboard users a guided camera), five-act scroll timeline, animation caps, hard performance budgets, asset pipeline with two sign-off gates, three-tier fallback ladder. Amended `specs/landing.md` → v1.2; annotated D-016/D-020/D-026/D-027 statuses; synced docs index, CHANGELOG, CURRENT_STATE.
+- **Critical framing for future sessions:** the shipped Sprint 1 hero is **Tier 0 fallback, retained verbatim** — do not delete or "clean up" the typographic hero; it is the no-3D-bytes path (RM/save-data/low-power) and can deploy before the scene exists. Vocabulary: **Twin = 3D figure of Deepak; Dex = the AI** — never conflate.
+- **State:** Scene architecture approved at document level. No engine chosen, no scene code, no assets. Version `v0.3.0-alpha`.
+- **Next:** owner sizes asset budget + concept gate #1; engine ratification into docs/06; content pass feeds page and scene alike.
+- **Open questions:** engine choice; Twin art direction (gate #1); asset budget; the standing trio (Dex name veto, monogram, accent hue).
+
 ### 2026-07-05 (session 13) — Sprint 1: Landing Page Implementation
 
 - **What I did:** Implemented the landing per `specs/landing.md` v1.1: Hero (CSS-only entrance; graph motif under R2 guardrails — 9 asymmetric nodes, Motion pathLength draw-in, once-per-session, reduced-motion pre-drawn; R5 stamp rule), FeaturedWork, ResearchHighlight, CurrentFocus (no animation — data is still), LatestPosts, ContactStrip (R3 resolution beat), real Footer (sitemap-of-record + build-date stamp). Added CopyButton, ThemeToggle, `animate-entrance` CSS utility, `content/site.ts` (typed content with TODO(copy) markers, empty collections), `local-content.ts` ContentService impl, 404 page. Nav got the theme toggle. Logged D-029; bumped v0.3.0-alpha; synced CHANGELOG/VERSION/CURRENT_STATE/FEATURE_STATUS.

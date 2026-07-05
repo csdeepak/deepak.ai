@@ -9,7 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
-- Reserved for upcoming changes.
+- Hero Scene Architecture (`docs/17-HERO_SCENE_ARCHITECTURE.md`) — the hero redefined as an interactive 3D scene: scene/object hierarchies (data-driven knowledge graph, the stylized Twin at a workbench, Dex as a spatial entity), scroll-scrubbed camera rail with five acts, lighting system, full interaction model (hover/keyboard-with-focus-proxies/touch/reduced-motion stations), performance budgets as release criteria, asset pipeline with owner sign-off gates, and a three-tier fallback ladder where the shipped Sprint 1 hero is Tier 0.
+
+### Changed
+- Decisions D-030/D-031 logged: owner supersession of D-020 (likeness ban lifted for a stylized, non-photoreal hero representation only), D-026 (typographic hero demoted to Tier 0 fallback, retained verbatim), and D-027 (hero-scope findings); D-016 amended for the hero scene only. Vocabulary: "the Twin" = the 3D representation; "Dex" remains the AI.
+- `specs/landing.md` → v1.2: §2.1 superseded by docs/17; S2–S8 unchanged.
 
 ## [0.3.0-alpha] — Sprint 1: Landing Page Implementation
 

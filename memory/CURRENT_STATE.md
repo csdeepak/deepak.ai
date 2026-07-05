@@ -22,18 +22,28 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 - New reusables: CopyButton, ThemeToggle, `animate-entrance` CSS utility, local ContentService, 404 page
 - **Build verified:** static prerender, 150 kB first-load on `/`
 
+## Major direction change (this session)
+
+**The hero is now an interactive 3D scene** (owner directive, D-030; architecture ratified as D-031 / [`../docs/17-HERO_SCENE_ARCHITECTURE.md`](../docs/17-HERO_SCENE_ARCHITECTURE.md)):
+- Scene graph: data-driven knowledge graph + **the Twin** (stylized 3D Deepak at a workbench — vocabulary: Twin = 3D figure, Dex = the AI) + Dex as a luminous spatial entity
+- Scroll-scrubbed camera rail, five acts, DOM-overlay text always (identity legible at scroll-zero in every tier)
+- **Tier ladder:** Full 3D / Lite 3D / **Tier 0 = the shipped Sprint 1 hero (retained verbatim)**; reduced-motion = composed keyframe stations
+- Hard budgets as release criteria; asset pipeline with two owner sign-off gates (concept → blockout) before production spend
+- D-020 partially superseded (stylized only — photoreal/AI-imagery bans survive); D-026/D-027 superseded in hero scope; `specs/landing.md` → v1.2
+
 ## In Progress
 
-- Landing is **implemented but release-gated** on: real content in `content/site.ts` (all TODO(copy) fields), R4 identity-sentence tests, R2 motif hallway test
+- Landing (Tier 0) implemented but release-gated: real content in `content/site.ts`, R4 copy tests
+- Hero scene: architecture approved; awaiting engine ratification + concept gate #1
 
 ## Next Steps
 
-1. **Owner content pass** — fill `content/site.ts` (identity sentence, email, CV, focus line, outbound links) + first real projects/posts/publications
-2. R2 hallway test (motif) + R4 copy tests — release gates
-3. `docs/09-DATABASE_PLAN.md` + real content layer replacing `local-content.ts` behind the same interface
-4. `docs/07-COMPONENT_GUIDELINES.md` against the working codebase
-5. Next page sprints: Projects index/detail (the shared-element pattern), then Posts
-6. `docs/10-DEPLOYMENT.md` + vendor ratification → first deploy
+1. **Owner:** size the 3D asset budget; schedule concept gate #1 (Twin style frames — the cheapest kill point)
+2. Engine/library ratification into `docs/06` (R3F-class vs vanilla WebGL-class) before any scene code
+3. **Owner content pass** — fill `content/site.ts` TODO(copy) fields + first real projects/posts (feeds both the page and the scene's graph)
+4. `docs/09-DATABASE_PLAN.md` + real content layer behind the existing interface
+5. Next page sprints: Projects index/detail (shared-element pattern), then Posts
+6. `docs/07`, `docs/10` + vendor ratification → first deploy (Tier 0 can deploy before the scene exists)
 
 ## Notes
 
