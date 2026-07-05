@@ -9,7 +9,7 @@
 
 | Feature | Spec | Status | Notes |
 | --- | --- | --- | --- |
-| Landing Page | — | Planned | 90-second comprehension surface. |
+| Landing Page | [`../specs/landing.md`](../specs/landing.md) | **Specified** | Sprint 1 master spec complete (D-026); awaiting stack for build. |
 | About + CV download | — | Planned | |
 | Projects | [`../specs/projects.md`](../specs/projects.md) | Planned | Template only. |
 | Publications | [`../specs/publications.md`](../specs/publications.md) | Planned | Template only. |

@@ -33,17 +33,22 @@ Phase 3 complete (IA + Wireframes). Next: Phase 4 — Technical Foundation (tech
   - Per-domain color groups rejected; `chart.*` is the only hue-minting set; Avatar rejected → `Portrait`
   - 24 component families under universal contracts; one overlay behavior; Cards+Rows only; closed-sets governance
 
+- **Sprint 1: Landing Page master spec** — [`../specs/landing.md`](../specs/landing.md) (D-026) — **first feature Specified**
+  - 13 requested sections reconciled to the 8 ratified (D-022 mapping); 3D portrait + cursor effects rejected per standing law
+  - Hero: typographic + the **drawn graph motif** (real content graph, abstracted); 85vh, left-anchored; no ambient field in v1
+  - Full section specs (S1–S8), scroll choreography, motion budget (≤3 narrative moments/session), content strategy, mobile-independent design, a11y checklist, perf budget (LCP = H1 text <1.5s, CLS 0)
+
 ## In Progress
 
 - Nothing active; Phase 4 kickoff next
 
 ## Next Steps
 
-1. **Ratify tech stack** (`docs/06`) — framework, LLM/embedding models, vendors + **token specification** (exact hex/px values)
+1. **Ratify tech stack** (`docs/06`) — framework, LLM/embedding models, vendors + **hex ratification** into `docs/15` §3
 2. `docs/07` component engineering conventions (post-stack)
 3. Drill-down `09-DATABASE_PLAN.md` (imports IA §2 entities/relations) / `10-DEPLOYMENT.md`
-4. Flesh out P0 specs in `specs/` (each imports its IA blueprint + wireframe spec)
-5. High-fidelity design of the four grammar-setters (Landing, Project Detail, Post Detail, Admin Editor) — after tokens exist
+4. Remaining P0 specs in `specs/` (projects, posts, publications, timeline, skills, admin — each imports its IA blueprint + wireframe spec)
+5. High-fidelity design: the graph motif (Sprint 1's craft task) + the four grammar-setters — after tokens have hex
 
 ## Notes
 

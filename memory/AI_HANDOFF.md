@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 10) — Sprint 1: Landing Page Master Specification
+
+- **What I did:** Authored `specs/landing.md` — the first fleshed-out feature spec: brief reconciliation (13→8 sections per D-022/D-023; 3D portrait rejected per D-020; cursor effects rejected per D-016), landing IA + storyboard (8-beat narrative arc), deep section specs S1–S8 (hero fully detailed: opening experience, headline philosophy, graph-motif concept, CTAs, keyboard, transitions), scroll choreography table, motion strategy with per-technique justifications + a numeric motion budget, content strategy (source + messaging intent per section), independent mobile design, a11y checklist, perf budget, implementation notes, future evolution. Logged D-026. Updated specs index, FEATURE_STATUS (Landing → Specified), CURRENT_STATE, CHANGELOG.
+- **Why:** Sprint 1; the landing establishes the interaction/motion/layout language every page inherits, so it is specified deepest and first.
+- **Key calls:** Hero = typographic + **drawn graph motif** (the content graph abstracted — product thesis, brand atom, and hero visual unified) instead of any portrait; 85vh hero with next-section peek as the honest scroll cue; left-anchored hero (document, not poster); XA's optional ambient field declined; motion budget = 2 draw-ins + 1 breath-deepen, hard cap; claims in S1 only, S2–S6 evidence only; typographic cards v1; no client fetch above S6.
+- **State:** Landing = Specified (first feature). All docs 01–15 + this spec complete. Version = `v0.1.0-alpha`.
+- **Next:** Phase 4 tech-stack ratification unblocks build; graph-motif design is the sprint's craft task; remaining P0 specs follow this spec's format.
+- **Open questions:** "Dex" name veto (now four docs); monogram; accent hue — all due at stack ratification.
+
 ### 2026-07-05 (session 9) — Design Token System & Component Architecture
 
 - **What I did:** Authored `docs/15-DESIGN_TOKENS.md`: naming convention (dot-notation, framework-agnostic); all foundation tokens with concrete non-color values (spacing/sizing/containers/grid/breakpoints/radius/elevation/borders/blur/opacity/z-bands/type scale/icons/motion/delays/focus/a11y); three-tier color architecture with semantic groups (hex deferred to stack); 16 motion recipes with reduced-motion equivalents; layering contracts; component architecture for 24 families with universal contracts and composition hierarchy; governance model (closed sets, additions ledger, deprecation policy, review heuristics). Logged D-025. Synced index, ROADMAP, CURRENT_STATE, CHANGELOG.
