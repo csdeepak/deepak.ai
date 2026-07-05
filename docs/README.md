@@ -26,6 +26,7 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`16-LANDING_REVIEW.md`](16-LANDING_REVIEW.md) | Landing page design review — scorecard, findings, amendments (84/100, Approved with Changes). |
 | [`17-HERO_SCENE_ARCHITECTURE.md`](17-HERO_SCENE_ARCHITECTURE.md) | Hero scene architecture — the interactive 3D hero (scene graph, camera, tiers, budgets; D-030/D-031). |
 | [`18-HERO_SCENE_BIBLE.md`](18-HERO_SCENE_BIBLE.md) | Hero scene bible — full creative direction: Twin, Dex, graph, camera, lighting, particles, scroll timeline (D-032). |
+| [`19-HERO_ART_DIRECTION.md`](19-HERO_ART_DIRECTION.md) | Hero art direction — eight directions ranked; "The Drafted Laboratory" hybrid ratified (D-033). |
 
 ## Conventions
 

@@ -4,6 +4,7 @@
 > **Authored as:** Creative Director · Experience Director · Scene Designer · Motion Director · Cinematographer.
 > **Relationship to law:** deepens [`17-HERO_SCENE_ARCHITECTURE.md`](17-HERO_SCENE_ARCHITECTURE.md) (D-030/D-031). The architecture's laws (DOM-text-always, identity-at-scroll-zero, no hijack, no roll, tier ladder, budgets) are **binding on every page of this bible**. Three refinements to 17 are made here and logged as D-032: the separation light (§8), time-of-day lighting (§8), and the particle taxonomy (§9).
 > **Likeness gate:** no reference images of Deepak exist in the repository yet. The Twin (§4) is specified as a *style system*; the likeness itself enters at concept gate #1 when references are provided. Nothing in this bible depends on waiting.
+> **Art direction:** ratified as **"The Drafted Laboratory"** — [`19-HERO_ART_DIRECTION.md`](19-HERO_ART_DIRECTION.md) (D-033). It amends this bible in five named places: drawn-assembly births, "lab drafts itself" loading, construction-line edge pass on the uber-material (Twin exempt), accent = "the live line," ≤2° axonometric ease at Study framings.
 
 ---
 
