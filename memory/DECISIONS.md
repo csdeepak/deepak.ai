@@ -279,6 +279,14 @@ Each decision uses:
 - **Decision:** Ratify **The Drafted Laboratory** — Direction H ("Warm Lab," the bible's world) drawn by Direction G's hand ("Drafting Space"): matte solids carrying hairline construction-line edges; new content enters as ink lines that resolve into form; the accent's meaning sharpens to "the live line" (currently-being-written: Dex, current mission, freshest nodes); **the Twin is exempt from construction lines — the human is never a diagram**; at rest ≥80% of the scene is fully solid (drawing states are events, not a condition). Decisive argument: **tier continuity** — Tier 0's 2D drawn motif becomes the same world at its drawing layer, one art direction honest at every fidelity. Bible amendments: birth particle → drawn-assembly birth; loading = "the lab drafts itself" around the already-solid Twin; uber-material gains the edge-line pass; Study framings gain ≤2° axonometric ease. Runner-up record: B (Sculptor's Study) third; C and E rejected with named law collisions (C: four; E: the museum anti-pattern verbatim).
 - **Consequences:** Gate #1 style frames are commissioned in this direction (5-frame packet defined, incl. the tier-continuity proof frame); the construction-line shader pass becomes the scene's key technical investment; any future art-direction drift is measured against this document.
 
+## D-034 — Hero moodboard specification ratified (look-dev contract)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The Drafted Laboratory (D-033) needed artist-grade material/lighting/lens values before gate #1 look-dev.
+- **Decision:** Ratify `docs/20-HERO_MOODBOARD.md`: uber-material family with concrete roughness targets (graphite 0.85–0.95, ceramic Twin 0.8 with no edge pass, vellum as the only translucency); lighting rig in Kelvin (key 4300K baseline with 5000→3600K time-of-day, task pool 3200K at +1 stop, separation hairlight ≤15% key); 35mm fixed lens, filmic curve, no auto-exposure; **the governed trio** — depth is atmospheric-first (f/4 assist at Study only), **bloom banned** (in-shader falloff instead), **reflections functionally absent** (roughness floor 0.6, no SSR); ≥55% negative space at every rest frame; DOM-only typography with drawn leader-line annotations; licensed micro-detail set incl. the "ink-wet" live-line transition (8% brighter first 400ms), with grime/grain/aberration explicitly banned; 16-tile reference photography list; 8-point acceptance checklist (incl. grayscale-legibility and the tile-16 Tier-0 continuity test).
+- **Consequences:** Look-dev has pass/fail criteria, not vibes; ±10% artistic latitude beyond which changes return to review; gate #1 frames are judged against the acceptance checklist.
+
 ---
 
 _Add new decisions below, incrementing the ID._
