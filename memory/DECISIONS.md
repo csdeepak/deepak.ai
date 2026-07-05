@@ -207,6 +207,14 @@ Each decision uses:
 - **Decision:** Ratify `docs/14-BRAND_IDENTITY.md`. Key rulings: wordmark-first identity with "dL"/"D." monogram for favicon/avatars — the presence dot remains exclusively Dex's and may never serve as site favicon; **vocabulary rule: plain names for places, coined names only for inventions** (Radar and Dex are the models; navigation renaming rejected); one illustration language (the drawn SVG line) as the brand's entire illustrative range; brand voice system with a banned-vocabulary list (passionate/journey/seamless/etc.); photography honesty ethic extended — no generative fill or AI enhancement on any imagery; motion temperament: mechanical precision with Dex's breathing as the sole organic/living element; identity evolution rides major versions with the 2026→2031 recognition test.
 - **Consequences:** All future copy, marks, and external representation are bound; coined names enter the vocabulary table only via decision entries; any second "living" animation element would dilute Dex and is barred; logo execution is a future task constrained to the two approved symbolic directions (hairline frame, node-and-edge).
 
+## D-025 — Token system ratified: three-tier architecture, closed sets, no per-domain colors
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** The DSVL deferred exact token values; engineering handoff needs a framework-agnostic specification; the brief proposed per-domain color groups (Research/News/Analytics/Admin) and an Avatar component, both conflicting with immutable law (D-018, D-019).
+- **Decision:** Ratify `docs/15-DESIGN_TOKENS.md`: three-tier token architecture (primitive → semantic → component; primitives private); dot-notation naming (`category.concept.property.variant.state`); all non-color values fixed (spacing ×4 scale, type scale w/ numeric sizes, radius 4/8/12/full, one shadow, blur=glass-only, z bands of 100, motion durations/easings, delays, focus recipe, a11y floors); color architecture ratified with hex deferred to stack ratification; per-domain color groups rejected — `ai.presence` aliases the accent, `chart.*` is the only hue-minting set; Avatar family rejected in favor of `Portrait`; universal component contracts (one state set, one overlay behavior, Cards+Rows as the only two content-display families); closed sets governance with review heuristics.
+- **Consequences:** Engineering converts tokens mechanically; re-skinning at major versions touches primitives only; any new hue, shadow, blur surface, or duplicate overlay behavior is a one-line rejection; `07-COMPONENT_GUIDELINES.md` inherits §6–7 as its contract.
+
 ---
 
 _Add new decisions below, incrementing the ID._
