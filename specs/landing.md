@@ -1,6 +1,6 @@
 # Spec — Landing Page (Sprint 1 Master Specification)
 
-> **Status:** Specified — v1.0. Ready for high-fidelity design + implementation (pending tech-stack ratification).
+> **Status:** Specified — v1.1, **review-approved with changes applied** (see [`../docs/16-LANDING_REVIEW.md`](../docs/16-LANDING_REVIEW.md), verdict 84/100 · Approved with Changes; amendments R1–R6 incorporated). Ready for high-fidelity design + implementation (pending tech-stack ratification).
 > **Owner:** Deepak · Authored as Lead Product Designer / Creative Director.
 > **Upstream (immutable):** PRD `02` · System `11` · XA `12` · DSVL `03` · IA `04` (§5.landing) · Wireframes `13` (§4.1) · Brand `14` · Tokens `15`. This spec *deepens* `13` §4.1; it may not contradict it.
 > **Sprint scope:** the Landing Page only. It establishes the interaction, motion, layout, and hierarchy language every future page inherits — which is why it is specified to this depth.
@@ -65,10 +65,11 @@ Shared: 12-col/`container.content` grid; section rhythm `space.24–40`; reveals
 **Content hierarchy (= DOM order):**
 1. Name (wordmark-scale, `type.display` low end)
 2. **Identity sentence** — the headline (see philosophy below)
-3. **Current-focus line** — live from Skills(current): "Currently: ⟨focus phrase⟩" + freshness stamp
+3. **Current-focus line** — live from Skills(current): "Currently: ⟨focus phrase⟩" + freshness stamp. **Staleness rule (R5):** the stamp renders only while fresh (≤30 days); past threshold the line persists (it is content) but the stamp yields — the admin's amber freshness warning drives renewal. A visible stale stamp at the top of the page is the museum anti-pattern self-installed.
 4. Primary CTA **[View work]** · Secondary CTA **[Download CV]**
 5. (visual layer, `aria-hidden`) the drawn **graph motif**
-6. Quiet scroll cue (hairline + small chevron; fades permanently on first scroll)
+
+*(A scroll chevron existed in v1.0 of this spec and was cut in review — R1: the 85vh next-section peek is the scroll cue; a chevron duplicating it violated Law 21.)*
 
 **Headline philosophy:** one declarative identity sentence carrying the mission — subject, verb, object; no greeting ("Hi, I'm…" is student-portfolio grammar — banned), no adjectives about quality (Brand: confidence is assumed), no wordplay. *Messaging intent* (not copy): [name] + [dual identity: research × systems] + [the arena he works in]. Must read complete in one line at desktop, two at mobile. Supporting copy is exactly one line — the current-focus line — because the strongest supporting claim a "lab" can make is *what it is working on right now*.
 
@@ -82,7 +83,9 @@ Shared: 12-col/`container.content` grid; section rhythm `space.24–40`; reveals
 
 **Loading experience:** none visible. The hero is static-generated; no skeleton, no splash, no progress bar — a loader on a landing hero is an apology for architecture (`11` made it unnecessary). The current-focus line and (S4's) GitHub data are build-time/cached values, never client-fetched for first paint.
 
-**The visual concept (in place of the rejected 3D portrait):** the **graph motif** — a drawn-line constellation of ~7–12 nodes and hairline edges, an abstracted rendering of the *actual* content graph (IA §2 relation kinds as edge styles, content types as node treatments). It is the product's thesis drawn: *documents connected by points*. It is also the logo direction's node-and-edge atom (Brand §6) at full scale — landing, brand, and IA all saying one thing. Static after draw-in; not pointer-reactive (§0); `aria-hidden` with the H1 carrying all meaning.
+**The visual concept (in place of the rejected 3D portrait):** the **graph motif** — a drawn-line constellation of 7–12 nodes (hard cap) and hairline edges, an abstracted rendering of the *actual* content graph (IA §2 relation kinds as edge styles, content types as node treatments). It is the product's thesis drawn: *documents connected by points*. It is also the logo direction's node-and-edge atom (Brand §6) at full scale — landing, brand, and IA all saying one thing. Static after draw-in; not pointer-reactive (§0); `aria-hidden` with the H1 carrying all meaning.
+
+**Art-direction guardrails (R2 — binding):** asymmetric, organic layout — no radial or grid symmetry (symmetry is what makes node-fields read as particle backgrounds); visibly *drawn* character per Brand §9, not geometric-perfect; zero motion after draw-in; never pointer-reactive; stroke-draw implemented compositor-safe (release criterion — jank on mid-range mobile fails the build). **Kill criterion:** a 5-person hallway test with fresh eyes, scheduled early in hi-fi; if the motif reads as "particle background," it is cut to pure typography without debate — the typographic-only hero is the pre-approved fallback, which makes the kill cheap. **S1/S3 differentiation rule:** S3's figure must differ in *kind* (a theme figure explaining the research question, not a second constellation) — rhyme, not repetition.
 
 **Background behavior:** `color.bg.canvas`, flat. The XA's optional ambient field is **declined for v1** — the graph motif's draw-in is the hero's one moment; adding ambience would dilute it (one-focal-motion law). Revisit only via decision entry.
 
@@ -145,6 +148,7 @@ Shared: 12-col/`container.content` grid; section rhythm `space.24–40`; reveals
 - **Responsive:** unchanged structurally — rows are already mobile-shaped.
 - **A11y:** list semantics; dates in machine-readable form.
 - **→ S6:** the story's turn. Everything so far was *evidence you read*; next is *evidence you can talk to*. The increased whitespace + narrowed measure make S6's arrival feel like a scene change.
+- **v1.0 ending choreography (R3):** until Dex ships, S5's exhale resolves directly into S7 — and S7 absorbs the resolution beat: the whitespace S5 builds lands on the collaboration close, and **the footer's freshness stamp becomes v1.0's quiet reveal** — the page's last word is proof it's alive. The v1.0 landing is complete, not waiting; when S6 arrives at v1.5, it is an *addition* to a finished story, not a filled hole.
 
 ### 2.6 — S6 Dex Preview *(v1.5 — the discovery moment; in v1.0 this section does not render, and S5's exhale flows to S7)*
 
@@ -158,6 +162,7 @@ Shared: 12-col/`container.content` grid; section rhythm `space.24–40`; reveals
 - **Voice placeholder:** none rendered — the ▷ slot lives on `/ai` (`13` §4.14); previewing voice here would promise what v1.5 doesn't ship.
 - **Responsive:** mobile: chips stack full-width (44px targets); panel opens as bottom sheet.
 - **A11y:** dot `aria-hidden`; intro is real text; chips are buttons with the full question as name; panel = dialog grammar on open.
+- **Dex-offline state (R6/M4):** section renders with dot static + intro line + the `/ai` door; chips are hidden — never rendered dead. The section degrades to an introduction, not a broken feature.
 - **→ S7:** conversation offered; collaboration is the remaining door.
 
 ### 2.7 — S7 Contact Strip
@@ -232,6 +237,13 @@ Mobile is a **single-column telling of the same story at thumb pace**: same 8 be
 - **S5/S7:** already mobile-shaped. **S6:** chips stacked full-width; DexPanel = bottom sheet, half-height, drag-expand.
 - **Global:** section rhythm halves (`space.12–24`); reveals reduced (smaller translate); bar = wordmark + search + menu (sheet); 44px targets throughout; no hover-dependent anything (Law 20).
 - **Perf mobile:** identical budget (§8) on mid-range hardware — the test target *is* mobile (XA §12).
+
+## 6.5 Review Amendments (R4 + R6 batch — release criteria additions)
+
+- **R4 — Identity-sentence release protocol:** the sentence is a component; test it like one. (1) **10-second test:** five fresh readers see the hero for 10s; each must recall *who / what / why-different*. (2) **Read-aloud test:** the sentence spoken once must survive without visual support. Failing either blocks release — everything on this page hangs on that sentence.
+- **R6/M1 — S2/S5 differentiation:** hi-fi must make Card (S2) and Row (S5) treatments visibly distinct — both being typographic blocks risks templated sameness in the middle scroll; the two families exist for this (Tokens §6).
+- **R6/M2 — Peek clamps:** the hero's next-section peek gets viewport clamps — minimum peek height on tall viewports (the cue must survive), maximum hero height on short ones (S2 must not over-expose).
+- **R6/M3 — Palette discovery:** one-time dismissible hint chip near the ⌘K trigger on first visit, never repeats (fulfills XA §12's discoverability promise; the landing is where first visits happen).
 
 ## 7. Accessibility Checklist (release criteria)
 
