@@ -1,0 +1,240 @@
+/*
+ * Deepak Labs — Design Tokens (docs/15-DESIGN_TOKENS.md translated to code)
+ *
+ * Three tiers (D-025):
+ *   1. Primitives  — the :root / .dark CSS variables below. PRIVATE.
+ *   2. Semantics   — the @theme mappings (color-canvas, color-ink, …).
+ *   3. Components  — consume semantics via Tailwind utilities only.
+ *
+ * Color values are PROVISIONAL pending design sign-off (D-028) — they
+ * live only in this file's primitives, so retuning is a one-file edit.
+ * Everything non-color is ratified per docs/15.
+ */
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Tier 1: primitives (private — never referenced by components) ── */
+:root {
+  /* Graphite & Paper ramp (provisional values, cool-neutral) */
+  --neutral-0: #fcfcfd;
+  --neutral-50: #f6f7f8;
+  --neutral-100: #eef0f2;
+  --neutral-200: #e1e4e8;
+  --neutral-300: #c9cdd3;
+  --neutral-400: #9aa1ab;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #333a45;
+  --neutral-800: #23272f;
+  --neutral-900: #16191f;
+  --neutral-1000: #0e1014;
+
+  /* Accent — "indicator-LED blue" (provisional) */
+  --accent-500: #2563eb;
+  --accent-600: #1d4ed8;
+  --accent-400: #3b82f6;
+
+  /* Status ramps (provisional, endpoints only for now) */
+  --green-600: #16a34a;
+  --amber-600: #d97706;
+  --red-600: #dc2626;
+
+  /* ── Tier 2: semantic assignments — light mode (default) ── */
+  --bg-canvas: var(--neutral-0);
+  --bg-recessed: var(--neutral-100);
+  --surface-default: var(--neutral-50);
+  --surface-raised: #ffffff;
+  --overlay-scrim: rgb(14 16 20 / 0.5);
+  --glass-tint: rgb(252 252 253 / 0.88);
+
+  --text-primary: var(--neutral-900);
+  --text-muted: var(--neutral-600);
+  --text-faint: var(--neutral-400);
+  --text-inverse: var(--neutral-0);
+  --text-on-accent: #ffffff;
+
+  --border-default: var(--neutral-200);
+  --border-emphasis: var(--neutral-400);
+
+  --interactive-default: var(--accent-500);
+  --interactive-hover: var(--accent-600);
+  --interactive-pressed: var(--accent-600);
+
+  --status-success: var(--green-600);
+  --status-warning: var(--amber-600);
+  --status-danger: var(--red-600);
+  --status-info: var(--accent-500);
+
+  /* Z-index bands (docs/15 §2.11) */
+  --z-base: 0;
+  --z-content-raised: 100;
+  --z-nav: 200;
+  --z-floating: 300;
+  --z-scrim: 400;
+  --z-overlay: 500;
+  --z-notification: 600;
+  --z-loading: 700;
+  --z-emergency: 800;
+}
+
+.dark {
+  /* Dark is a first-class equal, not an inversion (DSVL §3) */
+  --bg-canvas: var(--neutral-1000);
+  --bg-recessed: var(--neutral-900);
+  --surface-default: var(--neutral-900);
+  --surface-raised: var(--neutral-800);
+  --overlay-scrim: rgb(0 0 0 / 0.6);
+  --glass-tint: rgb(22 25 31 / 0.88);
+
+  --text-primary: var(--neutral-100);
+  --text-muted: var(--neutral-400);
+  --text-faint: var(--neutral-500);
+  --text-inverse: var(--neutral-900);
+
+  --border-default: rgb(225 228 232 / 0.14);
+  --border-emphasis: rgb(225 228 232 / 0.32);
+
+  /* Accent brightens one step on dark (DSVL §3) */
+  --interactive-default: var(--accent-400);
+  --interactive-hover: var(--accent-500);
+  --interactive-pressed: var(--accent-500);
+  --status-info: var(--accent-400);
+}
+
+/* ── Tier 2 → Tailwind utilities (semantic names only) ── */
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-recessed: var(--bg-recessed);
+  --color-surface: var(--surface-default);
+  --color-raised: var(--surface-raised);
+  --color-scrim: var(--overlay-scrim);
+  --color-glass: var(--glass-tint);
+
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-inverse: var(--text-inverse);
+  --color-on-accent: var(--text-on-accent);
+
+  --color-border: var(--border-default);
+  --color-border-emphasis: var(--border-emphasis);
+
+  --color-accent: var(--interactive-default);
+  --color-accent-hover: var(--interactive-hover);
+  --color-accent-pressed: var(--interactive-pressed);
+
+  --color-success: var(--status-success);
+  --color-warning: var(--status-warning);
+  --color-danger: var(--status-danger);
+  --color-info: var(--status-info);
+}
+
+@theme {
+  /* Spacing: Tailwind's default 0.25rem base = the 4px unit (space.N == p-N) */
+
+  /* Containers (docs/15 §2.3) */
+  --container-reading: 45rem; /* 720 */
+  --container-content: 75rem; /* 1200 */
+  --container-wide: 90rem; /* 1440 */
+  --container-narrow: 25rem; /* 400 */
+
+  /* Breakpoints (docs/15 §2.5) */
+  --breakpoint-sm: 40rem; /* 640 */
+  --breakpoint-md: 64rem; /* 1024 */
+  --breakpoint-lg: 90rem; /* 1440 */
+  --breakpoint-xl: 120rem; /* 1920 */
+
+  /* Radius — closed set (docs/15 §2.6) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* The system's one real shadow (docs/15 §2.7) */
+  --shadow-overlay: 0 8px 32px rgb(14 16 20 / 0.16), 0 1px 2px rgb(14 16 20 / 0.08);
+
+  /* Type scale (docs/15 §2.12) */
+  --text-legal: 0.75rem;
+  --text-legal--line-height: 1.4;
+  --text-micro: 0.8125rem;
+  --text-micro--line-height: 1.4;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-reading: 1.125rem;
+  --text-reading--line-height: 1.6;
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.4;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.35;
+  --text-h2: 1.5625rem;
+  --text-h2--line-height: 1.3;
+  --text-h1: 2.1875rem;
+  --text-h1--line-height: 1.2;
+  --text-display: clamp(2.4375rem, 4vw + 1.25rem, 4.75rem);
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.015em;
+
+  /* Motion (docs/15 §2.14) */
+  --duration-instant: 80ms;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+
+  --ease-out-std: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in-out-std: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* Fonts wired via next/font variables in the root layout */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* ── Base layer ── */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  .dark html,
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Smooth theme transition — removed under reduced motion */
+  @media (prefers-reduced-motion: no-preference) {
+    body,
+    .theme-surface {
+      transition:
+        background-color var(--duration-base) var(--ease-in-out-std),
+        color var(--duration-base) var(--ease-in-out-std),
+        border-color var(--duration-base) var(--ease-in-out-std);
+    }
+  }
+
+  /* The focus ring — one recipe, never suppressed (docs/15 §2.16, DSVL Law 10) */
+  :focus-visible {
+    outline: 2px solid var(--interactive-default);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Tabular figures wherever data lives (DSVL §2) */
+  .tabular {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  ::selection {
+    background-color: var(--interactive-default);
+    color: var(--text-on-accent);
+  }
+}
