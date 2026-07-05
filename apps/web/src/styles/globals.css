@@ -238,3 +238,31 @@
     color: var(--text-on-accent);
   }
 }
+
+@layer utilities {
+  /*
+   * `entrance` recipe as zero-JS CSS — used by the hero text block so
+   * the LCP element never waits on hydration (specs/landing.md §8).
+   * Sections below the fold use the ScrollReveal component instead.
+   */
+  @keyframes dl-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-entrance {
+    animation: dl-entrance var(--duration-base) var(--ease-out-std) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-entrance {
+      animation: none;
+    }
+  }
+}
