@@ -231,6 +231,14 @@ Each decision uses:
 - **Decision:** Verdict **Approved with Changes, 84/100**. Applied to `specs/landing.md` (now v1.1): **R1** hero scroll chevron cut (the 85vh peek is the cue; the chevron duplicated it); **R2** graph-motif art-direction guardrails (asymmetric layout, drawn character, 7–12 node hard cap, zero post-draw motion, compositor-safe draw) + hallway-test **kill criterion** with the typographic-only hero as pre-approved fallback + S1/S3 differentiation rule (theme figure, not second constellation); **R3** v1.0 ending choreographed — S7 absorbs the resolution beat, the footer freshness stamp is v1.0's quiet reveal; **R4** identity-sentence release protocol (10-second test + read-aloud test as release gates); **R5** hero staleness rule (stamp renders ≤30 days only); **R6** batch — S2/S5 visual differentiation requirement, hero-peek viewport clamps, one-time palette discovery hint, S6 Dex-offline state (chips hidden, never dead). Rejected in review: Contact in nav lanes (D-021 holds); CV CTA demotion; removing S3's motif (put on notice as the motion budget's first eviction candidate instead).
 - **Consequences:** The spec is build-ready at v1.1; the hallway test is scheduled early in hi-fi while the kill is cheapest; the review's revised priority list becomes the build order; critical risks (motif cliché, hero staleness, sentence failure) now have named mitigations and owners.
 
+## D-028 — Frontend stack ratified; Sprint 0 foundation shipped
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Sprint 0 mandated the frontend foundation with a named stack; `docs/06` was awaiting ratification.
+- **Decision:** Ratify the frontend stack (Next.js App Router · TypeScript strict · Tailwind v4 · Motion · GSAP lazy-only · Lucide · next-themes · Radix-based hand-rolled primitives · Zustand) — compatible with every architecture constraint. Ship the foundation in `apps/web` (npm workspaces): three-tier token system in `globals.css` (`@theme`), layout system, motion recipes with global reduced-motion parity, UI primitive scaffolds under the one-overlay contract, content types + interface-only content service, palette ⌘K wiring, Dex feature boundary as graceful-absence placeholder. **Color primitives are provisional pending design sign-off** — they live only in tier-1 CSS variables (one-file retune). The brief's Avatar component was implemented as `Portrait` per D-025. NewsRow deferred to v2 (no stub ships). Build verified: compile + lint + typecheck + 4 static pages, 103 kB first-load baseline.
+- **Consequences:** Sprint 1 (landing) is unblocked; backend/AI/vendor ratifications remain open in `docs/06`; version bumps to `v0.2.0-alpha`; `docs/07` will be written against this working codebase.
+
 ---
 
 _Add new decisions below, incrementing the ID._

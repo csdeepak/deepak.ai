@@ -1,50 +1,42 @@
 # 06 — Tech Stack
 
-> Status: **Awaiting ratification.** The [System Architecture Document](11-SYSTEM_ARCHITECTURE.md) has decided the architecture and datastore; this document ratifies the concrete framework/vendor selections during the Technical Foundation phase. Do not implement until ratified here.
+> **Status:** **Frontend ratified** (Sprint 0, D-028). Backend/data vendors and AI models remain open — see "Still to ratify."
+> The architecture (`docs/11`) constrains these choices to capabilities; this document names the products.
 
-## Overview
+## Frontend (ratified — D-028)
 
-_Summary of the chosen technologies and why. The architecture (`docs/11`) constrains these choices to their required capabilities; this document names the specific products. TBD until Technical Foundation phase._
+| Concern | Choice | Why (capability it satisfies) |
+| --- | --- | --- |
+| Framework | **Next.js (App Router)** | Hybrid SSG/ISR/SSR per route (docs/11 §6); server components default; the SEO/performance profile the landing budget demands |
+| Language | **TypeScript, strict** (+ `noUncheckedIndexedAccess`) | Decade-maintainability; the content model as compile-time contract |
+| Styling | **Tailwind CSS v4** | CSS-first `@theme` maps docs/15 tokens 1:1; semantic utilities enforce the three-tier rule |
+| Motion | **Motion** (motion/react) | Declarative recipes (docs/08); `MotionConfig reducedMotion="user"` gives global parity |
+| Draw-ins | **GSAP** (lazy-loaded only) | SVG stroke choreography (hero motif, timeline) beyond Motion's sweet spot; never on the reading path |
+| Icons | **Lucide** | Outline, 1.5px stroke — matches DSVL §6 icon charter |
+| Theming | **next-themes** | Class-strategy light/dark/system with no-flash |
+| Primitives | **shadcn-style, hand-rolled on Radix** (Dialog, Tooltip) | "Foundation only, customize everything" — we take Radix behavior + CVA patterns, not the stock skin; one overlay contract (docs/15 §7) |
+| State | **Zustand** | Overlay state only; content state belongs to the server |
+| Lint | ESLint 9 + `eslint-config-next` | Standard Next flat config |
 
-## Decided at the architecture level (see `docs/11`)
+**Structure:** `apps/web` in the npm-workspaces monorepo (D-007). Shared packages split out (`packages/`) when the admin app lands.
 
-- **Primary datastore:** PostgreSQL (relational system of record) with `pgvector` and full-text search. *(D-008, D-009, D-011)*
-- **Media:** object storage + CDN. *(D-013)*
-- **Shape:** modular monolith; app tier + background workers. *(D-007)*
-- **Hosting model:** managed PaaS + managed services. *(D-012)*
+## Decided at the architecture level (see docs/11)
 
-## To be ratified here (Appendix B of `docs/11`)
+- **Datastore:** PostgreSQL + `pgvector` + FTS *(D-008, D-009, D-011)*
+- **Media:** object storage + CDN *(D-013)*
+- **Shape:** modular monolith; app + workers *(D-007)*
+- **Hosting model:** managed PaaS *(D-012)*
 
-- Concrete full-stack framework and language (must support hybrid SSR/SSG + an integrated server layer).
-- Specific LLM provider/model and embedding model.
-- Specific PaaS, object-storage, and CDN vendors.
-- Auth implementation (managed provider vs. self-rolled).
-- Error-tracking, logging, and analytics tools.
+## Still to ratify (future sessions)
 
-## Frontend
+- **Database access layer / ORM** — with `docs/09-DATABASE_PLAN.md`.
+- **LLM provider/model + embedding model** — with the Dex sprint (v1.5); consumed behind an interface per docs/11 §11.
+- **Specific PaaS, object-storage, CDN vendors** — with `docs/10-DEPLOYMENT.md`.
+- **Auth implementation** (managed vs self-rolled) — with the admin sprint.
+- **Markdown pipeline** (renderer, syntax highlighting) — with the posts sprint.
+- **Error tracking / analytics tools** — with `docs/10`.
+- **Design sign-off on provisional color primitives** (D-028) — the graphite ramp + accent hex live in `apps/web/src/styles/globals.css` tier-1 only.
 
-_Framework, language, styling approach. TBD._
+## Coding standards (in force)
 
-## Backend / Services
-
-_Runtime, frameworks, APIs. TBD._
-
-## Data Layer
-
-_Database and data access. See [`09-DATABASE_PLAN.md`](09-DATABASE_PLAN.md). TBD._
-
-## AI / ML
-
-_Models and providers for the AI assistant and related features. TBD._
-
-## Tooling
-
-_Package manager, monorepo tooling, linting, formatting, testing. TBD._
-
-## Coding Standards
-
-_Language-specific standards, once the stack is chosen. TBD._
-
-## Rationale & Trade-offs
-
-_Why these choices were made; alternatives considered. Record decisions in [`../memory/DECISIONS.md`](../memory/DECISIONS.md). TBD._
+The rules live where engineers see them: [`apps/web/README.md`](../apps/web/README.md) ("The rules that bind this codebase") + docs/15 §6–8 contracts + `07-COMPONENT_GUIDELINES.md` (to be written against the working codebase).
