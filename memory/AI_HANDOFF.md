@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 15) — Hero Scene Bible
+
+- **What I did:** Authored `docs/18-HERO_SCENE_BIBLE.md` — the creative deepening of docs/17: one-idea north star + assumptions-challenged table; deepened scene hierarchy (recency-as-proximity thesis); object bible; full Twin chapter (facial style, hair, materials, eyes, clothing, pose, idle, expression, framing, LOD, fallbacks) as a *style system* with a likeness gate; Dex bible (habitat, sleep/wake, introduction, withdrawal, citation-trail illumination); knowledge-graph bible (luminance logic, growth-on-publish, aggregation at 150 nodes); camera bible (five named shots, no idle drift ever); lighting bible (+separation hairlight, +time-of-day — refinements to 17); particle bible (4 data-event types, taxonomy closed); motion bible; scroll bible in 5% steps; performance/accessibility/asset bibles; Hero v2/v3. Logged D-032; cross-referenced 17; synced index/CHANGELOG/CURRENT_STATE.
+- **Critical flag:** the brief referenced "uploaded images" of Deepak — **none exist in this repo or conversation.** The Twin is designed as a style system; likeness calibration is gate #1 and needs the owner's reference photos. Silhouette ships if references never arrive — nothing blocks.
+- **Refinements to 17 (named, logged):** separation hairlight (capped, functional — dramatic rim still banned); visitor-local time-of-day key lighting (Full tier only); particles-as-information taxonomy.
+- **Cut-order under scope pressure (use it, don't debate it):** time-of-day → acknowledging glance → commit pulses → separation light.
+- **State:** Creative direction complete; production blocked only on owner inputs (reference photos, asset budget) + engine ratification. Version `v0.3.0-alpha`.
+- **Next:** gate #1 (needs photos) · engine choice into docs/06 · content pass · docs/09.
+
 ### 2026-07-05 (session 14) — Hero Scene Architecture (owner supersession)
 
 - **What happened:** The hero brief demanded a 3D portrait, conflicting with D-020/D-026/D-027. I stopped and surfaced the conflict per governance; **the owner ruled to supersede.** Logged D-030 (supersession, risks on the record, scope limits: stylized-only, hero-only; photoreal/AI-imagery bans survive) and D-031 (scene architecture). Authored `docs/17-HERO_SCENE_ARCHITECTURE.md`: scene hierarchy, object hierarchy (Twin style mandate = the uncanny firewall), camera system (scroll-scrubbed rail, no hijack, no roll), lighting, interaction model (focus proxies give keyboard users a guided camera), five-act scroll timeline, animation caps, hard performance budgets, asset pipeline with two sign-off gates, three-tier fallback ladder. Amended `specs/landing.md` → v1.2; annotated D-016/D-020/D-026/D-027 statuses; synced docs index, CHANGELOG, CURRENT_STATE.

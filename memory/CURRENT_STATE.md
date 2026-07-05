@@ -36,11 +36,15 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 - Landing (Tier 0) implemented but release-gated: real content in `content/site.ts`, R4 copy tests
 - Hero scene: architecture approved; awaiting engine ratification + concept gate #1
 
+## Hero Scene Bible (this session)
+
+Creative direction complete — [`../docs/18-HERO_SCENE_BIBLE.md`](../docs/18-HERO_SCENE_BIBLE.md) (D-032): recency-as-proximity spatial thesis; Twin style system (matte-ceramic, eyes-suggested, no eye contact, no close-ups) with a **likeness gate — reference images of Deepak do not exist in the repo yet and are required for gate #1**; Dex life cycle incl. citation-trail illumination; luminance-not-hue graph logic + growth-on-publish; five-shot camera grammar, no idle camera; particles-as-information (4 data-event types, ambient sparkle refused); 5%-step scroll bible; cut-order documented for scope pressure.
+
 ## Next Steps
 
-1. **Owner:** size the 3D asset budget; schedule concept gate #1 (Twin style frames — the cheapest kill point)
+1. **Owner (blocking gate #1):** supply reference photos of Deepak → Twin style frames → gate #1 review (uncanny check on drawings); also size the 3D asset budget
 2. Engine/library ratification into `docs/06` (R3F-class vs vanilla WebGL-class) before any scene code
-3. **Owner content pass** — fill `content/site.ts` TODO(copy) fields + first real projects/posts (feeds both the page and the scene's graph)
+3. **Owner content pass** — fill `content/site.ts` TODO(copy) fields + first real projects/posts (feeds page and scene graph alike)
 4. `docs/09-DATABASE_PLAN.md` + real content layer behind the existing interface
 5. Next page sprints: Projects index/detail (shared-element pattern), then Posts
 6. `docs/07`, `docs/10` + vendor ratification → first deploy (Tier 0 can deploy before the scene exists)
