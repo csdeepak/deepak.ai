@@ -215,6 +215,14 @@ Each decision uses:
 - **Decision:** Ratify `docs/15-DESIGN_TOKENS.md`: three-tier token architecture (primitive → semantic → component; primitives private); dot-notation naming (`category.concept.property.variant.state`); all non-color values fixed (spacing ×4 scale, type scale w/ numeric sizes, radius 4/8/12/full, one shadow, blur=glass-only, z bands of 100, motion durations/easings, delays, focus recipe, a11y floors); color architecture ratified with hex deferred to stack ratification; per-domain color groups rejected — `ai.presence` aliases the accent, `chart.*` is the only hue-minting set; Avatar family rejected in favor of `Portrait`; universal component contracts (one state set, one overlay behavior, Cards+Rows as the only two content-display families); closed sets governance with review heuristics.
 - **Consequences:** Engineering converts tokens mechanically; re-skinning at major versions touches primitives only; any new hue, shadow, blur surface, or duplicate overlay behavior is a one-line rejection; `07-COMPONENT_GUIDELINES.md` inherits §6–7 as its contract.
 
+## D-026 — Landing master spec ratified: typographic hero with the graph motif
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Sprint 1 required a build-ready landing spec; the brief requested a 3D portrait hero (banned by D-020), cursor interactions (banned by D-016), and 13 sections (capped at 8 by D-022).
+- **Decision:** Ratify `specs/landing.md`. Key rulings: hero is typographic + the **drawn graph motif** (an abstracted rendering of the actual content graph — the product thesis drawn; also the node-and-edge logo direction at full scale); no portrait on the landing — the photograph lives in About; hero is 85vh (next section peeks — the honest scroll cue), left-anchored (document, not poster); XA's optional ambient hero field declined for v1; motion budget fixed at ≤3 narrative-class moments per session (2 draw-ins + 1 Dex breath-deepen); claims live in S1 only — S2–S6 are exclusively evidence; no client-side data fetch above S6; typographic project cards in v1 (imagery deferred pending art-direction spec).
+- **Consequences:** Hi-fi design and implementation proceed without assumptions; the graph motif is the sprint's main craft task; a fourth narrative motion requires killing one of the three; deviations during build require a decision entry before deviating.
+
 ---
 
 _Add new decisions below, incrementing the ID._
