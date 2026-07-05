@@ -1,6 +1,6 @@
 # Spec — Landing Page (Sprint 1 Master Specification)
 
-> **Status:** Specified — v1.1, **review-approved with changes applied** (see [`../docs/16-LANDING_REVIEW.md`](../docs/16-LANDING_REVIEW.md), verdict 84/100 · Approved with Changes; amendments R1–R6 incorporated). Ready for high-fidelity design + implementation (pending tech-stack ratification).
+> **Status:** v1.2 — **§2.1 (Hero) superseded by [`../docs/17-HERO_SCENE_ARCHITECTURE.md`](../docs/17-HERO_SCENE_ARCHITECTURE.md) (D-030/D-031):** the hero is now an interactive 3D scene; the hero specified here is retained verbatim as **Tier 0 fallback** and remains the shipped implementation. **S2–S8 and all other rulings stand unchanged.** (Previously: v1.1, review-approved 84/100 with R1–R6 applied — see [`../docs/16-LANDING_REVIEW.md`](../docs/16-LANDING_REVIEW.md).)
 > **Owner:** Deepak · Authored as Lead Product Designer / Creative Director.
 > **Upstream (immutable):** PRD `02` · System `11` · XA `12` · DSVL `03` · IA `04` (§5.landing) · Wireframes `13` (§4.1) · Brand `14` · Tokens `15`. This spec *deepens* `13` §4.1; it may not contradict it.
 > **Sprint scope:** the Landing Page only. It establishes the interaction, motion, layout, and hierarchy language every future page inherits — which is why it is specified to this depth.
