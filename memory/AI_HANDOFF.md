@@ -14,6 +14,14 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 12) — Sprint 0: Frontend Foundation (first code)
+
+- **What I did:** Ratified the frontend stack in `docs/06` (D-028) and built the foundation: npm-workspaces monorepo root + `apps/web` (Next.js 15 App Router, TS strict, Tailwind v4). Tokens from docs/15 as `@theme` in `src/styles/globals.css` (three tiers; provisional graphite ramp + accent hex in tier-1 only). Layout (Container/Section/Grid, nav/footer shells), motion recipes (`src/animations/` — docs/08 as code, global reduced-motion via MotionConfig), UI primitives (Radix Dialog/Tooltip + CVA; one overlay contract; Portrait not Avatar), content variants (ProjectCard/PublicationRow/PostRow/Timeline/Prose), content types + interface-only ContentService, ⌘K palette wiring (placeholder), Dex boundary (renders nothing — graceful absence). ESLint 9 flat config. **Build verified clean** (compile+lint+typecheck+SSG). Updated docs/06, VERSION (v0.2.0-alpha), CHANGELOG (0.2.0-alpha cut), ROADMAP, CURRENT_STATE.
+- **Key calls:** Provisional color values minted to make tokens functional — flagged for design sign-off, one-file retune (D-028); Avatar→Portrait per D-025; NewsRow not scaffolded (v2 — no stubs); GSAP behind a lazy loader so the reading path never pays; Zustand holds overlay state only (one-overlay-at-a-time rule enforced in the store).
+- **State:** Code exists; Sprint 1 unblocked. Version `v0.2.0-alpha`.
+- **Next:** Sprint 1 landing per specs/landing.md v1.1; docs/09 + content service implementation; docs/07 against this codebase.
+- **Gotchas for next session:** run commands from repo root (workspaces); Tailwind v4 — tokens in CSS `@theme`, NOT a tailwind.config; semantic utilities only (`bg-canvas`, `text-ink`, `z-(--z-nav)`); `motion/react` import (not framer-motion); typecheck via `npm run typecheck`.
+
 ### 2026-07-05 (session 11) — Landing Page Design Review
 
 - **What I did:** Conducted an adversarial design review of `specs/landing.md` as `docs/16-LANDING_REVIEW.md` (16-category scorecard, deep per-section review with Apple/Linear/Anthropic keep-tests, hero/motion/AI/performance/a11y/originality reviews, risk analysis). Verdict: **Approved with Changes, 84/100**. Applied amendments R1–R6 to the spec (now v1.1). Logged D-027. Synced docs index, FEATURE_STATUS, CHANGELOG.
