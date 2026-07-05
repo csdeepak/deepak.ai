@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppProviders } from "@/providers/theme-provider";
 import { NavShell } from "@/components/layout/nav-shell";
-import { FooterShell } from "@/components/layout/footer-shell";
+import { Footer } from "@/components/layout/footer";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -45,7 +45,7 @@ export default function RootLayout({
           </a>
           <NavShell />
           <main id="main">{children}</main>
-          <FooterShell />
+          <Footer />
         </AppProviders>
       </body>
     </html>

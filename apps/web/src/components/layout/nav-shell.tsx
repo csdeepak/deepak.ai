@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { NAV_LANES } from "@/constants/routes";
 import { siteConfig } from "@/config/site";
 
 /**
- * Navigation shell — structural placeholder (Sprint 0).
- * Final behavior (condense-on-scroll, palette trigger, Dex dot at v1.5)
- * lands with Sprint 1 per docs/13 §2 NavBar and specs/landing.md.
+ * NavBar (docs/13 §2 primitive): wordmark · 4 lanes (D-021) · theme.
+ * Still to land in later sprints: condense-on-scroll, ⌘K visible
+ * trigger + palette UI, mobile sheet, Dex dot (v1.5 — graceful
+ * absence: no stub renders).
  */
 export function NavShell() {
   return (
@@ -15,20 +17,20 @@ export function NavShell() {
         <Link href="/" className="font-semibold">
           {siteConfig.name}
         </Link>
-        <nav aria-label="Primary">
-          <ul className="flex items-center gap-6 text-small">
-            {NAV_LANES.map((lane) => (
-              <li key={lane.href}>
-                <Link
-                  href={lane.href}
-                  className="text-muted hover:text-ink"
-                >
-                  {lane.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="flex items-center gap-6">
+          <nav aria-label="Primary">
+            <ul className="flex items-center gap-6 text-small">
+              {NAV_LANES.map((lane) => (
+                <li key={lane.href}>
+                  <Link href={lane.href} className="text-muted hover:text-ink">
+                    {lane.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <ThemeToggle />
+        </div>
       </Container>
     </header>
   );
