@@ -33,11 +33,14 @@ This roadmap describes the phased evolution of Deepak Labs. Dates are intentiona
 - [x] Complete `docs/04-INFORMATION_ARCHITECTURE.md` — sitemap, relation taxonomy, page blueprints, user flows, error/empty states, mobile
 - [x] Wireframe all surfaces (`docs/13-WIREFRAME_SPEC.md`) — 5 archetypes, ~26 screens, states, interactions, responsive blueprint
 
-## Phase 4 — Technical Foundation
+## Phase 4 — Technical Foundation *(in progress)*
 
-- [ ] Select tech stack (`docs/06-TECH_STACK.md`)
-- [ ] Define database plan (`docs/09-DATABASE_PLAN.md`)
-- [ ] Define deployment strategy (`docs/10-DEPLOYMENT.md`)
+- [x] Select frontend tech stack (`docs/06-TECH_STACK.md`) — ratified with Sprint 0 (D-028)
+- [x] Sprint 0: frontend foundation (`apps/web`) — tokens, layout, primitives, motion infra; build verified
+- [ ] Define database plan (`docs/09-DATABASE_PLAN.md`) + ratify data access layer
+- [ ] Define deployment strategy (`docs/10-DEPLOYMENT.md`) + ratify vendors
+- [ ] `docs/07-COMPONENT_GUIDELINES.md` — written against the working codebase
+- [ ] Design sign-off on provisional color primitives (D-028)
 
 ## Phase 5 — Feature Implementation
 

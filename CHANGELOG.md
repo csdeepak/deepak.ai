@@ -9,6 +9,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Reserved for upcoming changes.
+
+## [0.2.0-alpha] — Documentation Stack + Frontend Foundation
+
+### Added — Sprint 0: Frontend Foundation
+- Frontend stack ratified in `docs/06-TECH_STACK.md` (Next.js App Router, TypeScript strict, Tailwind v4, Motion, GSAP lazy-only, Lucide, next-themes, Radix-based primitives, Zustand) — D-028.
+- `apps/web` application in the npm-workspaces monorepo: design tokens as Tailwind v4 `@theme` (three-tier system, provisional color primitives), layout system (Container/Section/Grid, nav/footer shells), motion recipes with global reduced-motion parity, UI primitive scaffolds (Button, Card, Badge/Tag, Input, Dialog, Sheet, Tooltip, Skeleton, Portrait), content-variant scaffolds (ProjectCard, PublicationRow, PostRow, Timeline, Prose), content types + interface-only content service, command-palette ⌘K wiring, Dex feature boundary (graceful-absence placeholder).
+- Build verified: compile + lint + typecheck + static generation.
+
+### Added — Documentation
 - Product Requirements Document (`docs/02-PRODUCT.md`) — the single source of truth for product scope, with strategic assessment, personas, prioritization tiers, metrics, risks, and constraints.
 - Vision document completed (`docs/01-VISION.md`).
 - Feature catalog prioritized into P0/P1/P2 tiers (`docs/05-FEATURES.md`).

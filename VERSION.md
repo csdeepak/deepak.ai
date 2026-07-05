@@ -1,6 +1,6 @@
 # Version
 
-**Current Version:** `v0.1.0-alpha`
+**Current Version:** `v0.2.0-alpha`
 
 ---
 
@@ -17,12 +17,13 @@ Deepak Labs uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH[
 
 ## Current Stage
 
-`alpha` — the product is under active foundation work and is not feature-complete or stable.
+`alpha` — foundation work; not feature-complete or stable.
 
 ## Version History
 
-| Version         | Stage | Summary                    |
-| --------------- | ----- | -------------------------- |
-| `v0.1.0-alpha`  | alpha | Repository initialization. |
+| Version         | Stage | Summary                                                      |
+| --------------- | ----- | ------------------------------------------------------------ |
+| `v0.2.0-alpha`  | alpha | Complete documentation stack (PRD → tokens) + frontend foundation (Sprint 0). |
+| `v0.1.0-alpha`  | alpha | Repository initialization.                                    |
 
 See [`CHANGELOG.md`](CHANGELOG.md) for detailed change history.
