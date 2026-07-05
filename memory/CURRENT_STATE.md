@@ -40,9 +40,13 @@ Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database pl
 
 Creative direction complete — [`../docs/18-HERO_SCENE_BIBLE.md`](../docs/18-HERO_SCENE_BIBLE.md) (D-032): recency-as-proximity spatial thesis; Twin style system (matte-ceramic, eyes-suggested, no eye contact, no close-ups) with a **likeness gate — reference images of Deepak do not exist in the repo yet and are required for gate #1**; Dex life cycle incl. citation-trail illumination; luminance-not-hue graph logic + growth-on-publish; five-shot camera grammar, no idle camera; particles-as-information (4 data-event types, ambient sparkle refused); 5%-step scroll bible; cut-order documented for scope pressure.
 
+## Art direction ratified (this session)
+
+**"The Drafted Laboratory"** — [`../docs/19-HERO_ART_DIRECTION.md`](../docs/19-HERO_ART_DIRECTION.md) (D-033): the Warm Lab drawn by the Drafting Space's hand. Solids carry hairline construction lines; new content is drawn into existence; accent = "the live line"; **the Twin is exempt from construction lines (the human is never a diagram)**; ≥80%-solid-at-rest guard. Decisive: **tier continuity** — Tier 0's 2D motif is the same world at its drawing layer. Eight directions explored and ranked; C and E rejected on named law collisions. Gate #1 packet defined (5 frames incl. tier-continuity proof).
+
 ## Next Steps
 
-1. **Owner (blocking gate #1):** supply reference photos of Deepak → Twin style frames → gate #1 review (uncanny check on drawings); also size the 3D asset budget
+1. **Owner (blocking gate #1):** supply reference photos of Deepak → Twin style frames *in the Drafted Laboratory direction* → gate #1 review (uncanny check on drawings); also size the 3D asset budget
 2. Engine/library ratification into `docs/06` (R3F-class vs vanilla WebGL-class) before any scene code
 3. **Owner content pass** — fill `content/site.ts` TODO(copy) fields + first real projects/posts (feeds page and scene graph alike)
 4. `docs/09-DATABASE_PLAN.md` + real content layer behind the existing interface

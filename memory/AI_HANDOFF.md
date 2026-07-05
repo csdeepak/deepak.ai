@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 16) — Hero Art Direction (eight directions → hybrid)
+
+- **What I did:** Authored `docs/19-HERO_ART_DIRECTION.md` as Art Director: eight radically distinct directions (Keynote Dawn / Sculptor's Study / Playful Instrument / Vast Archive / White Archive / Neural Observatory / Drafting Space / Warm Lab), each with all 11 requested attributes; ranked all eight honestly against the constitution (C collides with four laws; E is the museum anti-pattern verbatim; D's loneliness contradicts the invitation beat); recommended G (Drafting Space); ratified the mandated hybrid **"The Drafted Laboratory"** (G×H) as D-033. Bible cross-annotated with its five amendments; synced index/CHANGELOG/CURRENT_STATE.
+- **The hybrid in one line:** H's warm lab, whose bones are G's drawings — solids remember being drawn; new content is inked into existence; the accent means "the live line"; the Twin alone is never a diagram.
+- **Decisive argument:** tier continuity — the shipped Tier-0 2D motif becomes the same world at its drawing layer; one art direction, honest at every fidelity. No other pairing achieves this.
+- **Guards:** ≥80% of the scene fully solid at rest (drawing states are events); construction lines at hairline opacity, brightening only under attention.
+- **State:** Art direction closed. Gate #1 packet defined (5 frames). Version `v0.3.0-alpha`.
+- **Next:** owner's reference photos + asset budget → commission gate #1 frames in this direction; engine ratification into docs/06.
+
 ### 2026-07-05 (session 15) — Hero Scene Bible
 
 - **What I did:** Authored `docs/18-HERO_SCENE_BIBLE.md` — the creative deepening of docs/17: one-idea north star + assumptions-challenged table; deepened scene hierarchy (recency-as-proximity thesis); object bible; full Twin chapter (facial style, hair, materials, eyes, clothing, pose, idle, expression, framing, LOD, fallbacks) as a *style system* with a likeness gate; Dex bible (habitat, sleep/wake, introduction, withdrawal, citation-trail illumination); knowledge-graph bible (luminance logic, growth-on-publish, aggregation at 150 nodes); camera bible (five named shots, no idle drift ever); lighting bible (+separation hairlight, +time-of-day — refinements to 17); particle bible (4 data-event types, taxonomy closed); motion bible; scroll bible in 5% steps; performance/accessibility/asset bibles; Hero v2/v3. Logged D-032; cross-referenced 17; synced index/CHANGELOG/CURRENT_STATE.
