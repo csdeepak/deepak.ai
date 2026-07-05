@@ -24,6 +24,7 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`14-BRAND_IDENTITY.md`](14-BRAND_IDENTITY.md) | Brand identity & visual DNA — narrative, voice, vocabulary, logo direction, Dex's brand sheet. |
 | [`15-DESIGN_TOKENS.md`](15-DESIGN_TOKENS.md) | Design token system & component architecture — foundations, color architecture, component contracts. |
 | [`16-LANDING_REVIEW.md`](16-LANDING_REVIEW.md) | Landing page design review — scorecard, findings, amendments (84/100, Approved with Changes). |
+| [`17-HERO_SCENE_ARCHITECTURE.md`](17-HERO_SCENE_ARCHITECTURE.md) | Hero scene architecture — the interactive 3D hero (scene graph, camera, tiers, budgets; D-030/D-031). |
 
 ## Conventions
 
