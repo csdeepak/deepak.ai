@@ -30,6 +30,7 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`20-HERO_MOODBOARD.md`](20-HERO_MOODBOARD.md) | Hero moodboard spec — materials, lighting, lens, micro-details; the look-dev contract (D-034). |
 | [`21-HERO_BLENDER_PIPELINE.md`](21-HERO_BLENDER_PIPELINE.md) | Blender production pipeline — assets, rig, clips, export chain, budgets; the artist's handbook (D-035). |
 | [`22-HERO_RUNTIME_ARCHITECTURE.md`](22-HERO_RUNTIME_ARCHITECTURE.md) | Hero runtime architecture — R3F structure, state, scroll sync, performance, error ladder (D-036). |
+| [`23-PERSONAL_OS_RUNTIME.md`](23-PERSONAL_OS_RUNTIME.md) | Personal OS runtime — the kernel, two-plane decoupling, and ten coordinated runtimes (D-038). |
 
 ## Conventions
 
