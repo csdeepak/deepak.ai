@@ -29,6 +29,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Brand decision D-024 logged (wordmark-first with dL monogram; dot reserved for Dex; navigation renaming rejected; drawn-line as sole illustration language; no generative/AI-enhanced imagery anywhere).
 - Design Token System & Component Architecture (`docs/15-DESIGN_TOKENS.md`) — framework-agnostic foundations (spacing, sizing, type, radius, z-bands, motion, delays, focus, a11y — all non-color values ratified), three-tier color token architecture (hex deferred), motion recipes with reduced-motion equivalents, layering contracts, component architecture for 24 families with universal contracts, composition rules, governance model.
 - Token decision D-025 logged (three-tier architecture; per-domain color groups rejected; Avatar rejected for Portrait; one overlay contract; Cards+Rows as the only content-display families; closed-sets governance).
+- Sprint 1: Landing Page master specification (`specs/landing.md`) — the first Specified feature: 8-beat narrative storyboard, deep section specs with hero fully detailed, scroll choreography, motion strategy with numeric budget, content strategy, independent mobile design, accessibility checklist, performance budget, implementation notes.
+- Landing decision D-026 logged (typographic hero with the drawn graph motif replacing the requested 3D portrait; 85vh hero; ambient field declined; ≤3 narrative motions per session; claims-in-S1-only rule).
 
 ### Changed
 - `ROADMAP.md` — Phases 0–1 marked complete; Phase 5 restructured around PRD tiers.
