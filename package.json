@@ -1,0 +1,19 @@
+{
+  "name": "deepak-labs",
+  "version": "0.2.0-alpha",
+  "private": true,
+  "description": "Deepak Labs — Personal Operating System (monorepo root)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "start": "npm run start --workspace=web",
+    "typecheck": "npm run typecheck --workspace=web"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
