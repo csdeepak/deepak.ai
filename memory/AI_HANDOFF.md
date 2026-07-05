@@ -14,6 +14,15 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 13) — Sprint 1: Landing Page Implementation
+
+- **What I did:** Implemented the landing per `specs/landing.md` v1.1: Hero (CSS-only entrance; graph motif under R2 guardrails — 9 asymmetric nodes, Motion pathLength draw-in, once-per-session, reduced-motion pre-drawn; R5 stamp rule), FeaturedWork, ResearchHighlight, CurrentFocus (no animation — data is still), LatestPosts, ContactStrip (R3 resolution beat), real Footer (sitemap-of-record + build-date stamp). Added CopyButton, ThemeToggle, `animate-entrance` CSS utility, `content/site.ts` (typed content with TODO(copy) markers, empty collections), `local-content.ts` ContentService impl, 404 page. Nav got the theme toggle. Logged D-029; bumped v0.3.0-alpha; synced CHANGELOG/VERSION/CURRENT_STATE/FEATURE_STATUS.
+- **Conflicts resolved by law, not invention:** brief's 13 sections → ratified 8 (D-022); "3D placeholder architecture" → refused, graph motif per D-020/D-026; "smooth scroll cue" → chevron stays cut (R1); "animated headline" → one block settle (no per-word).
+- **Key patterns (D-029):** CSS-first LCP; Motion pathLength over GSAP for the motif (JS budget); data-driven graceful absence (empty sections self-hide); build-date = honest freshness stamp.
+- **State:** Landing built, static, 150 kB first-load; **release-gated** on real content + R4 + R2 tests. Version `v0.3.0-alpha`.
+- **Next:** Owner fills `content/site.ts` TODO(copy) fields; hallway test the motif; then Projects sprint (brings shared-element transitions) or docs/09 (real content layer).
+- **Gotchas:** content lives in `apps/web/content/site.ts` (relative imports from features — path alias only covers `src/`); sections render nothing until content exists — an "empty-looking" landing in dev is correct behavior, not a bug; footer build stamp = build date (rebuild = re-stamp).
+
 ### 2026-07-05 (session 12) — Sprint 0: Frontend Foundation (first code)
 
 - **What I did:** Ratified the frontend stack in `docs/06` (D-028) and built the foundation: npm-workspaces monorepo root + `apps/web` (Next.js 15 App Router, TS strict, Tailwind v4). Tokens from docs/15 as `@theme` in `src/styles/globals.css` (three tiers; provisional graphite ramp + accent hex in tier-1 only). Layout (Container/Section/Grid, nav/footer shells), motion recipes (`src/animations/` — docs/08 as code, global reduced-motion via MotionConfig), UI primitives (Radix Dialog/Tooltip + CVA; one overlay contract; Portrait not Avatar), content variants (ProjectCard/PublicationRow/PostRow/Timeline/Prose), content types + interface-only ContentService, ⌘K palette wiring (placeholder), Dex boundary (renders nothing — graceful absence). ESLint 9 flat config. **Build verified clean** (compile+lint+typecheck+SSG). Updated docs/06, VERSION (v0.2.0-alpha), CHANGELOG (0.2.0-alpha cut), ROADMAP, CURRENT_STATE.

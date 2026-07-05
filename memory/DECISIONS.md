@@ -239,6 +239,14 @@ Each decision uses:
 - **Decision:** Ratify the frontend stack (Next.js App Router · TypeScript strict · Tailwind v4 · Motion · GSAP lazy-only · Lucide · next-themes · Radix-based hand-rolled primitives · Zustand) — compatible with every architecture constraint. Ship the foundation in `apps/web` (npm workspaces): three-tier token system in `globals.css` (`@theme`), layout system, motion recipes with global reduced-motion parity, UI primitive scaffolds under the one-overlay contract, content types + interface-only content service, palette ⌘K wiring, Dex feature boundary as graceful-absence placeholder. **Color primitives are provisional pending design sign-off** — they live only in tier-1 CSS variables (one-file retune). The brief's Avatar component was implemented as `Portrait` per D-025. NewsRow deferred to v2 (no stub ships). Build verified: compile + lint + typecheck + 4 static pages, 103 kB first-load baseline.
 - **Consequences:** Sprint 1 (landing) is unblocked; backend/AI/vendor ratifications remain open in `docs/06`; version bumps to `v0.2.0-alpha`; `docs/07` will be written against this working codebase.
 
+## D-029 — Sprint 1 implementation patterns (landing)
+
+- **Date:** 2026-07-05
+- **Status:** Accepted
+- **Context:** Implementing specs/landing.md v1.1 introduced reusable patterns that future pages inherit.
+- **Decision:** (1) **CSS-only entrance for LCP content** — the hero text animates via a CSS keyframe utility (`animate-entrance`), zero hydration on the LCP path; ScrollReveal (Motion) is reserved for below-the-fold sections. (2) **Motion `pathLength` for the graph motif draw-in, not GSAP** — the choreography is simple enough that loading GSAP would violate the landing JS budget for no gain; GSAP stays reserved for the timeline's richer draw. (3) **Data-driven graceful absence** — landing preview sections self-hide when their content is empty (no fake data, no empty-states on previews); the page grows as real content is added. (4) **Footer stamp = build date** — for a statically generated site, build time is last-updated; an honest freshness stamp by construction. (5) Draw-in once-per-session via `sessionStorage`. Conflicts in the sprint brief (3D placeholder, scroll cue, 13 sections, per-word headline animation) were resolved by standing law (D-020/D-022/D-026/D-027), not reinvented.
+- **Consequences:** Landing implemented and building statically (150 kB first-load; LCP unblocked by JS); sections await real content + R4 copy protocol + the R2 hallway test before public release; the four patterns above are the defaults for future page sprints.
+
 ---
 
 _Add new decisions below, incrementing the ID._

@@ -6,33 +6,35 @@
 
 ## Current Phase
 
-Phase 4 — Technical Foundation, **in progress**: frontend stack ratified + Sprint 0 foundation shipped. **Code now exists.**
+Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database plan, deployment, component guidelines) still open in parallel.
 
 ## Completed
 
-**Documentation (docs 01–16, all approved):** PRD (D-004…006) · System Architecture (D-007…014) · Experience Architecture (D-015…017) · DSVL + Animation Guidelines (D-018…020) · IA (D-021…022) · Wireframes (D-023) · Brand (D-024) · Tokens (D-025) · Landing spec v1.1, review-approved 84/100 (D-026, D-027).
+**Documentation (docs 01–16):** PRD · System · XA · DSVL + Animation · IA · Wireframes · Brand · Tokens · Landing spec v1.1 (review-approved 84/100). Decisions D-004…D-027.
 
-**Sprint 0 — Frontend Foundation (D-028):**
-- Frontend stack ratified in `docs/06`: Next.js App Router · TS strict · Tailwind v4 · Motion · GSAP (lazy) · Lucide · next-themes · Radix-based primitives · Zustand
-- `apps/web` in npm-workspaces monorepo; **build verified** (compile + lint + typecheck + 4 static pages; 103 kB first-load baseline)
-- Design tokens live as Tailwind v4 `@theme` — three tiers, semantic utilities only; **color primitives provisional pending design sign-off**
-- Layout system (Container/Section/Grid, nav + footer shells) · motion recipes (docs/08 as code) with global reduced-motion parity (`MotionConfig "user"`)
-- UI primitives under the one-overlay contract (Button, Card, Badge/Tag, Input, Dialog, Sheet, Tooltip, Skeleton, **Portrait** — not Avatar, per D-025)
-- Content variants (ProjectCard, PublicationRow, PostRow, Timeline, Prose) · content types + **interface-only** content service (no fake data)
-- Palette ⌘K wiring (placeholder) · Dex feature boundary (graceful-absence placeholder, renders nothing)
+**Sprint 0 (D-028):** `apps/web` foundation — ratified stack, tokens as Tailwind v4 `@theme`, layout system, motion recipes, primitives, contracts. Build verified.
+
+**Sprint 1 (D-029):** Landing implemented per `specs/landing.md` v1.1 —
+- Hero: server-rendered text + CSS-only entrance (LCP never waits on JS); **graph motif** (9 nodes, R2 guardrails, Motion pathLength, once-per-session, reduced-motion = pre-drawn); R5 staleness rule; CV CTA renders only when a CV file exists
+- S2–S5 data-driven with **graceful self-hiding** (no fake data anywhere); S4 has no animation (data is still)
+- S7 contact = v1.0 resolution beat (R3); real Footer = sitemap-of-record + **build-date freshness stamp** (the quiet reveal)
+- Dex Preview (v1.5) and News slot (v2) not rendered — graceful absence
+- New reusables: CopyButton, ThemeToggle, `animate-entrance` CSS utility, local ContentService, 404 page
+- **Build verified:** static prerender, 150 kB first-load on `/`
 
 ## In Progress
 
-- Nothing active; Sprint 1 (landing implementation) is unblocked
+- Landing is **implemented but release-gated** on: real content in `content/site.ts` (all TODO(copy) fields), R4 identity-sentence tests, R2 motif hallway test
 
 ## Next Steps
 
-1. **Sprint 1 — Landing implementation** per `specs/landing.md` v1.1 (build order = review's priority list; hallway-test the graph motif early)
-2. `docs/09-DATABASE_PLAN.md` + data access layer ratification (content service implementation)
-3. `docs/07-COMPONENT_GUIDELINES.md` against the working codebase
-4. `docs/10-DEPLOYMENT.md` + vendor ratification
-5. Design sign-off: provisional color primitives (one-file retune in `globals.css`)
+1. **Owner content pass** — fill `content/site.ts` (identity sentence, email, CV, focus line, outbound links) + first real projects/posts/publications
+2. R2 hallway test (motif) + R4 copy tests — release gates
+3. `docs/09-DATABASE_PLAN.md` + real content layer replacing `local-content.ts` behind the same interface
+4. `docs/07-COMPONENT_GUIDELINES.md` against the working codebase
+5. Next page sprints: Projects index/detail (the shared-element pattern), then Posts
+6. `docs/10-DEPLOYMENT.md` + vendor ratification → first deploy
 
 ## Notes
 
-Version: **`v0.2.0-alpha`**. Still open with the owner: "Dex" name veto, monogram choice, accent hue confirmation. Remaining `docs/06` ratifications: ORM, LLM/embedding models, PaaS/storage/CDN vendors, auth, markdown pipeline, ops tooling.
+Version: **`v0.3.0-alpha`**. Still pending with owner: Dex name veto, monogram, accent hue sign-off (provisional values in `globals.css` tier-1). Lighthouse audit deferred to first deploy environment (local numbers are not the release evidence).
