@@ -9,6 +9,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Reserved for upcoming changes.
+
+## [0.4.0-alpha] — Sprint H-01: Hero Runtime Foundation
+
+### Added
+- `features/hero-scene/` — the complete runtime infrastructure per docs/22 (D-037): tier gate (RM/save-data/memory/WebGL2 probe before any 3D byte), scroll bridge (native scroll → refs, acts as thresholds), pointer bridge, camera rail (CatmullRom stand-in over five act stations, damped, RM stations model, focus-driven aim), performance governor (DPR-first degradation → bible shedding order → timed recovery), anchor projector (rest-point-only screen projections), focus proxies + scene overlay (DOM captions, aria-live hover labels), scene error boundary + context-loss guard (tier ladder as error architecture), asset manifest/loader contracts (Draco/meshopt/KTX2 paths, versioned CDN scheme), placeholder objects (instanced 24-node graph + merged edges in 2 draw calls, Twin capsule + bench + dock marker, breathing Dex with the scene's only small caster, particles-render-nothing with the emitter API), Leva dev controls (production-stripped), `/dev/hero` laboratory route (404 in production).
+- Dependencies: three 0.185, @react-three/fiber 9.6, @react-three/drei 10.7, leva 0.10, @types/three.
+
+### Verified
+- Typecheck + build clean, zero warnings; three.js absent from all First Load JS (lazy chunk confirmed); shipped landing untouched.
 - Hero Scene Architecture (`docs/17-HERO_SCENE_ARCHITECTURE.md`) — the hero redefined as an interactive 3D scene: scene/object hierarchies (data-driven knowledge graph, the stylized Twin at a workbench, Dex as a spatial entity), scroll-scrubbed camera rail with five acts, lighting system, full interaction model (hover/keyboard-with-focus-proxies/touch/reduced-motion stations), performance budgets as release criteria, asset pipeline with owner sign-off gates, and a three-tier fallback ladder where the shipped Sprint 1 hero is Tier 0.
 
 - Hero Scene Bible (`docs/18-HERO_SCENE_BIBLE.md`) — full creative direction (D-032): per-object bible, Twin style system with likeness gate, Dex life cycle with citation-trail illumination, graph luminance logic + growth-on-publish, five-shot camera grammar, lighting bible (separation light, time-of-day), particles-as-information taxonomy, motion bible, 5%-step scroll timeline, performance/accessibility/asset bibles, Hero v2/v3 visions.
