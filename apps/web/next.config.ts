@@ -1,6 +1,10 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Monorepo root (a stray lockfile in the user home dir otherwise
+  // confuses workspace inference).
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   // Images are served via a CDN with on-the-fly variants per the
   // architecture (docs/11 §10). Remote patterns are added when the
   // media pipeline lands; until then next/image handles local assets.
