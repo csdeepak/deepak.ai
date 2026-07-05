@@ -14,6 +14,13 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-05 (session 17) — Hero Moodboard Specification
+
+- **What I did:** Authored `docs/20-HERO_MOODBOARD.md` — the look-dev contract for the Drafted Laboratory: 16-tile reference photography list; uber-material family with roughness numbers (Twin = warm ceramic 0.8, no edge pass; vellum = only translucency); lighting rig in Kelvin (key 4300K + time-of-day 5000→3600K, task pool 3200K +1 stop, hairlight ≤15%); 35mm lens spec; the governed trio — atmospheric-first depth, **bloom banned** (in-shader falloff), **reflections functionally absent** (roughness floor 0.6); ≥55% negative-space law; DOM typography with drawn leader-line annotations; licensed micro-detail set (ink-wet live-line, graphite dust, bench chamfer) with grime/grain/CA banned; 8-point acceptance checklist incl. grayscale test and the tile-16 Tier-0 continuity test. Logged D-034; synced index/CHANGELOG.
+- **Note for artists:** brief asked for Glass/Bloom/Reflections specs — all three are *governed absences* under standing law; the doc specifies what replaces each rather than pretending they're open questions.
+- **State:** Look-dev fully contracted. Hero paper trail: 17 → 18 → 19 → 20. Version `v0.3.0-alpha`.
+- **Next (unchanged, all owner-gated):** reference photos → gate #1 frames judged against the §Acceptance checklist · asset budget · engine ratification · content pass.
+
 ### 2026-07-05 (session 16) — Hero Art Direction (eight directions → hybrid)
 
 - **What I did:** Authored `docs/19-HERO_ART_DIRECTION.md` as Art Director: eight radically distinct directions (Keynote Dawn / Sculptor's Study / Playful Instrument / Vast Archive / White Archive / Neural Observatory / Drafting Space / Warm Lab), each with all 11 requested attributes; ranked all eight honestly against the constitution (C collides with four laws; E is the museum anti-pattern verbatim; D's loneliness contradicts the invitation beat); recommended G (Drafting Space); ratified the mandated hybrid **"The Drafted Laboratory"** (G×H) as D-033. Bible cross-annotated with its five amendments; synced index/CHANGELOG/CURRENT_STATE.
