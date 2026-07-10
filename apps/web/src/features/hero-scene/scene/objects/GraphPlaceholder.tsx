@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { ThreeEvent } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useHeroStore } from "../../shared/hero-store";
 import { useCssColor } from "../../shared/use-css-color";
+import { bootProgressRef } from "../../shared/refs";
+import { nodeReveal, smoothstep } from "../../shared/ease";
 import {
+  BOOT,
+  GROUP_ACT,
   NODE_HOVER_SCALE,
   NODE_RADIUS,
   PLACEHOLDER_EDGES,
@@ -13,48 +17,106 @@ import {
 } from "../../shared/constants";
 
 /**
- * Knowledge graph placeholder (docs/22 §8): ONE InstancedMesh for all
- * nodes + ONE merged line geometry for edges — the 2-draw-call target,
- * proven with stand-in data. SWAP TARGET: node data becomes real
- * ContentService output; visuals become the drafted-line shader pass.
+ * Knowledge graph (docs/22 §8 · bible §6.4): ONE InstancedMesh for all
+ * nodes + ONE merged line geometry for edges — the 2-draw-call target.
+ * SWAP TARGET: node data becomes real ContentService output; the
+ * material becomes the drafted-line shader pass.
  *
- * Hover: raycast via R3F instanced events → instanceId → store
- * (discrete). Halo response here = scale + color step (stand-in for
- * the shader halo).
+ * Visual law — LUMINANCE, NOT HUE (bible §3.2, §6.4): nodes are UNLIT
+ * (they emit their own brightness, like data in a dark room). Recency =
+ * brightness. The accent appears ONLY on the active (hovered/focused)
+ * node. Groups illuminate as their act is reached (bible §6.2). During
+ * boot each node draws in, staggered outward from the Twin (§6.2).
+ *
+ * Cost: instances are rewritten only while booting OR when
+ * hover/focus/act changes — otherwise the graph is still (calm at rest).
  */
 export function GraphPlaceholder() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const hovered = useHeroStore((s) => s.hoveredNode);
-  const focused = useHeroStore((s) => s.focusedNode);
+  const edgeMatRef = useRef<THREE.LineBasicMaterial>(null);
   const setHoveredNode = useHeroStore((s) => s.setHoveredNode);
 
-  const inkColor = useCssColor("--text-faint", "#9aa1ab");
-  const accentColor = useCssColor("--interactive-default", "#2563eb");
+  const dimHex = useCssColor("--scene-node-dim", "#2b3038");
+  const brightHex = useCssColor("--scene-node-bright", "#eef3fb");
+  const accentHex = useCssColor("--interactive-default", "#3e8eff");
 
-  // Static instance transforms + luminance-tinted colors, set once.
-  useEffect(() => {
+  // Scratch objects — allocated once, reused every write (no GC churn).
+  const scratch = useMemo(
+    () => ({
+      m: new THREE.Matrix4(),
+      dim: new THREE.Color(),
+      bright: new THREE.Color(),
+      accent: new THREE.Color(),
+      out: new THREE.Color(),
+    }),
+    [],
+  );
+  const lastKey = useRef("");
+
+  const write = useCallback(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
-    const m = new THREE.Matrix4();
-    const base = new THREE.Color(inkColor);
-    const accent = new THREE.Color(accentColor);
-    const tmp = new THREE.Color();
+    const { m, dim, bright, accent, out } = scratch;
+    dim.set(dimHex);
+    bright.set(brightHex);
+    accent.set(accentHex);
+
+    const { hoveredNode, focusedNode, act } = useHeroStore.getState();
+    const b = bootProgressRef.current;
 
     PLACEHOLDER_NODES.forEach((node, i) => {
-      const active = node.id === hovered || node.id === focused;
-      const scale = active ? NODE_HOVER_SCALE : 1;
+      const reveal = nodeReveal(
+        node.birth,
+        b,
+        BOOT.nodeRevealWindow,
+        BOOT.nodeRevealSoftness,
+      );
+      const active = node.id === hoveredNode || node.id === focusedNode;
+      const scale = reveal * NODE_RADIUS * (active ? NODE_HOVER_SCALE : 1);
       m.makeScale(scale, scale, scale);
-      m.setPosition(...node.position);
+      m.setPosition(node.position[0], node.position[1], node.position[2]);
       mesh.setMatrixAt(i, m);
-      // Luminance = recency (stand-in): lerp ink → accent by luminance,
-      // full accent when active.
-      tmp.copy(base).lerp(accent, active ? 1 : node.luminance * 0.5);
-      mesh.setColorAt(i, tmp);
+
+      // Group illuminates once its act is reached (bible §6.2).
+      const actReached = act >= GROUP_ACT[node.group];
+      const brightness = node.luminance * (actReached ? 1 : 0.4);
+      out.copy(dim).lerp(bright, brightness);
+      if (active) out.copy(accent);
+      // Draw-in glow: unborn nodes read black (scale is also 0).
+      out.multiplyScalar(reveal);
+      mesh.setColorAt(i, out);
     });
+
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     mesh.computeBoundingSphere();
-  }, [hovered, focused, inkColor, accentColor]);
+
+    if (edgeMatRef.current) {
+      edgeMatRef.current.opacity = 0.3 * smoothstep(0.25, 1, b);
+    }
+  }, [scratch, dimHex, brightHex, accentHex]);
+
+  // Initial paint: hidden (animated boot) or full (instant/RM) — never a
+  // one-frame cluster at the origin.
+  useLayoutEffect(() => {
+    write();
+  }, [write]);
+
+  useFrame(() => {
+    const { hoveredNode, focusedNode, act } = useHeroStore.getState();
+    const b = bootProgressRef.current;
+    const key = `${hoveredNode}|${focusedNode}|${act}`;
+    // Rewrite while booting, or when interaction/act changed. Else idle.
+    if (b < 1) {
+      write();
+      lastKey.current = key;
+      return;
+    }
+    if (key !== lastKey.current) {
+      write();
+      lastKey.current = key;
+    }
+  });
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
@@ -82,7 +144,7 @@ export function GraphPlaceholder() {
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return geometry;
   }, []);
-  useEffect(() => () => edgeGeometry.dispose(), [edgeGeometry]);
+  useLayoutEffect(() => () => edgeGeometry.dispose(), [edgeGeometry]);
 
   return (
     <group>
@@ -92,11 +154,19 @@ export function GraphPlaceholder() {
         onPointerMove={onMove}
         onPointerOut={onOut}
       >
-        <sphereGeometry args={[NODE_RADIUS, 16, 16]} />
-        <meshStandardMaterial roughness={0.9} metalness={0} />
+        <sphereGeometry args={[1, 16, 16]} />
+        {/* Unlit: brightness IS the datum (luminance, not hue).
+            Per-instance colour comes from setColorAt → instanceColor. */}
+        <meshBasicMaterial toneMapped={false} />
       </instancedMesh>
       <lineSegments geometry={edgeGeometry}>
-        <lineBasicMaterial color={inkColor} transparent opacity={0.35} />
+        <lineBasicMaterial
+          ref={edgeMatRef}
+          color={dimHex}
+          transparent
+          opacity={0}
+          toneMapped={false}
+        />
       </lineSegments>
     </group>
   );

@@ -18,34 +18,39 @@ const ACT_CAPTIONS = [
   "", // Act V — handoff; the page below takes over
 ] as const;
 
-export function SceneOverlay() {
+export function SceneOverlay({ ambient = false }: { ambient?: boolean }) {
   const act = useHeroStore((s) => s.act);
   const hoveredNode = useHeroStore((s) => s.hoveredNode);
 
   return (
     <div className="pointer-events-none absolute inset-0">
-      <FocusProxies />
+      {/* In ambient mode the graph is atmosphere — no addressable nodes,
+          no stand-in labels announced (the DOM carries real navigation). */}
+      {!ambient && <FocusProxies />}
 
-      {/* Act captions — all in DOM, current one shown */}
-      <div className="absolute bottom-10 left-6 max-w-sm sm:left-12 md:left-16">
-        {ACT_CAPTIONS.map((caption, i) =>
-          caption ? (
-            <p
-              key={i}
-              className={
-                i === act
-                  ? "text-small text-muted"
-                  : "sr-only" /* present for AT, visually act-gated */
-              }
-            >
-              {caption}
-            </p>
-          ) : null,
-        )}
-      </div>
+      {/* Act captions — all in DOM, current one shown. Suppressed in
+          ambient mode (the landing's own copy carries the narrative). */}
+      {!ambient && (
+        <div className="absolute bottom-10 left-6 max-w-sm sm:left-12 md:left-16">
+          {ACT_CAPTIONS.map((caption, i) =>
+            caption ? (
+              <p
+                key={i}
+                className={
+                  i === act
+                    ? "text-small text-muted"
+                    : "sr-only" /* present for AT, visually act-gated */
+                }
+              >
+                {caption}
+              </p>
+            ) : null,
+          )}
+        </div>
+      )}
 
-      {/* Hover label — DOM, never in-canvas (text law) */}
-      {hoveredNode && (
+      {/* Hover label — DOM, never in-canvas (text law). Not in ambient. */}
+      {!ambient && hoveredNode && (
         <p
           aria-live="polite"
           className="absolute right-6 top-24 font-mono text-micro text-faint sm:right-12"

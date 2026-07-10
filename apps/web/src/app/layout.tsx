@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppProviders } from "@/providers/theme-provider";
-import { NavShell } from "@/components/layout/nav-shell";
-import { Footer } from "@/components/layout/footer";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -36,17 +34,10 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <AppProviders>
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-(--z-notification) focus:rounded-sm focus:bg-raised focus:px-4 focus:py-2"
-          >
-            Skip to content
-          </a>
-          <NavShell />
-          <main id="main">{children}</main>
-          <Footer />
-        </AppProviders>
+        {/* Root is minimal chrome: site nav/footer live in the (site)
+            route group so immersive experiences (e.g. /memory) can render
+            without them. */}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

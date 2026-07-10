@@ -1,14 +1,16 @@
 /*
- * Deepak Labs — Design Tokens (docs/15-DESIGN_TOKENS.md translated to code)
+ * Deepak Labs — Design Tokens (docs/24 Design Bible V2 · Parts 3–5, 12)
  *
  * Three tiers (D-025):
  *   1. Primitives  — the :root / .dark CSS variables below. PRIVATE.
  *   2. Semantics   — the @theme mappings (color-canvas, color-ink, …).
  *   3. Components  — consume semantics via Tailwind utilities only.
  *
- * Color values are PROVISIONAL pending design sign-off (D-028) — they
- * live only in this file's primitives, so retuning is a one-file edit.
- * Everything non-color is ratified per docs/15.
+ * V2 (D-039): the palette is now COMMITTED (not provisional) and the
+ * product is DARK-FIRST — dark is the default identity, light ("Paper")
+ * is a first-class equal. The 3D scene reads the `--scene-*` and
+ * semantic tokens live (no hex ever lives in scene code — D-025).
+ * Retuning remains a one-file edit.
  */
 
 @import "tailwindcss";
@@ -16,56 +18,68 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Tier 1: primitives (private — never referenced by components) ── */
+/* Light mode = "Paper" (first-class equal). Dark overrides in .dark. */
 :root {
-  /* Graphite & Paper ramp (provisional values, cool-neutral) */
-  --neutral-0: #fcfcfd;
-  --neutral-50: #f6f7f8;
-  --neutral-100: #eef0f2;
-  --neutral-200: #e1e4e8;
-  --neutral-300: #c9cdd3;
-  --neutral-400: #9aa1ab;
-  --neutral-500: #6b7280;
-  --neutral-600: #4b5563;
-  --neutral-700: #333a45;
-  --neutral-800: #23272f;
-  --neutral-900: #16191f;
-  --neutral-1000: #0e1014;
+  /* Graphite ramp — cool-neutral, Paper end (bible §3.1) */
+  --graphite-0: #ffffff;
+  --graphite-50: #f7f7f5;
+  --graphite-100: #f2f2ef;
+  --graphite-200: #e6e6e2;
+  --graphite-300: #d3d4d0;
+  --graphite-400: #a7abb0;
+  --graphite-500: #868c93;
+  --graphite-600: #565c63;
+  --graphite-700: #363b41;
+  --graphite-800: #22262b;
+  --graphite-900: #16181c;
+  --graphite-1000: #0b0c0e;
 
-  /* Accent — "indicator-LED blue" (provisional) */
-  --accent-500: #2563eb;
-  --accent-600: #1d4ed8;
-  --accent-400: #3b82f6;
+  /* Accent — "Signal Azure" (bible §3.2) */
+  --signal: #0a66e0; /* light */
+  --signal-hover: #0954ba;
+  --signal-glow: #3e8eff;
+  --signal-weak: rgb(10 102 224 / 0.1);
 
-  /* Status ramps (provisional, endpoints only for now) */
-  --green-600: #16a34a;
-  --amber-600: #d97706;
-  --red-600: #dc2626;
+  /* Semantic status ramps (bible §3.4) */
+  --green: #1e934a;
+  --amber: #b26b00;
+  --red: #d22d2d;
 
-  /* ── Tier 2: semantic assignments — light mode (default) ── */
-  --bg-canvas: var(--neutral-0);
-  --bg-recessed: var(--neutral-100);
-  --surface-default: var(--neutral-50);
+  /* ── Tier 2: semantic assignments — light ("Paper") ── */
+  --bg-canvas: #fbfbf9;
+  --bg-recessed: #f2f2ef;
+  --surface-default: #ffffff;
   --surface-raised: #ffffff;
-  --overlay-scrim: rgb(14 16 20 / 0.5);
-  --glass-tint: rgb(252 252 253 / 0.88);
+  --overlay-scrim: rgb(16 18 22 / 0.5);
+  --glass-tint: rgb(255 255 255 / 0.82);
 
-  --text-primary: var(--neutral-900);
-  --text-muted: var(--neutral-600);
-  --text-faint: var(--neutral-400);
-  --text-inverse: var(--neutral-0);
+  --text-primary: #16181c;
+  --text-muted: #565c63;
+  --text-faint: #868c93;
+  --text-inverse: #fbfbf9;
   --text-on-accent: #ffffff;
 
-  --border-default: var(--neutral-200);
-  --border-emphasis: var(--neutral-400);
+  --border-default: rgb(16 18 22 / 0.1);
+  --border-emphasis: rgb(16 18 22 / 0.18);
 
-  --interactive-default: var(--accent-500);
-  --interactive-hover: var(--accent-600);
-  --interactive-pressed: var(--accent-600);
+  --interactive-default: var(--signal);
+  --interactive-hover: var(--signal-hover);
+  --interactive-pressed: var(--signal-hover);
+  --interactive-weak: var(--signal-weak);
 
-  --status-success: var(--green-600);
-  --status-warning: var(--amber-600);
-  --status-danger: var(--red-600);
-  --status-info: var(--accent-500);
+  --status-success: var(--green);
+  --status-warning: var(--amber);
+  --status-danger: var(--red);
+  --status-info: var(--signal);
+
+  /* ── Scene tokens (bible §3.3, §6.5) — read live by the 3D scene ── */
+  --scene-key: #e6ecf6; /* cool key (~4300K neutral-cool) */
+  --scene-task: #ffb877; /* warm task light (~3200K) — the one warmth */
+  --scene-rim: #cdddf5; /* cool separation hairlight */
+  --scene-node-dim: #b9bfc7; /* graph node at low luminance */
+  --scene-node-bright: #f4f7fb; /* graph node at full luminance */
+  --scene-twin: #b8bcc2; /* matte ceramic — graphite-neutral (bible §7.2) */
+  --scene-bench: #6a6f77; /* the workbench, one step darker */
 
   /* Z-index bands (docs/15 §2.11) */
   --z-base: 0;
@@ -79,28 +93,39 @@
   --z-emergency: 800;
 }
 
+/* Dark mode — the default identity (bible §2.2). A dim, precise lab. */
 .dark {
-  /* Dark is a first-class equal, not an inversion (DSVL §3) */
-  --bg-canvas: var(--neutral-1000);
-  --bg-recessed: var(--neutral-900);
-  --surface-default: var(--neutral-900);
-  --surface-raised: var(--neutral-800);
+  --bg-canvas: #0b0c0e;
+  --bg-recessed: #08090b;
+  --surface-default: #131519;
+  --surface-raised: #1b1e24;
   --overlay-scrim: rgb(0 0 0 / 0.6);
-  --glass-tint: rgb(22 25 31 / 0.88);
+  --glass-tint: rgb(19 21 25 / 0.72);
 
-  --text-primary: var(--neutral-100);
-  --text-muted: var(--neutral-400);
-  --text-faint: var(--neutral-500);
-  --text-inverse: var(--neutral-900);
+  --text-primary: #f3f5f7;
+  --text-muted: #a2a9b0;
+  --text-faint: #6a7178;
+  --text-inverse: #0b0c0e;
 
-  --border-default: rgb(225 228 232 / 0.14);
-  --border-emphasis: rgb(225 228 232 / 0.32);
+  --border-default: rgb(255 255 255 / 0.09);
+  --border-emphasis: rgb(255 255 255 / 0.16);
 
-  /* Accent brightens one step on dark (DSVL §3) */
-  --interactive-default: var(--accent-400);
-  --interactive-hover: var(--accent-500);
-  --interactive-pressed: var(--accent-500);
-  --status-info: var(--accent-400);
+  /* Signal brightens one step on dark; it behaves as light here. */
+  --signal: #3e8eff;
+  --signal-hover: #5aa0ff;
+  --signal-glow: #5aa0ff;
+  --signal-weak: rgb(62 142 255 / 0.14);
+  --interactive-default: var(--signal);
+  --interactive-hover: var(--signal-hover);
+  --interactive-pressed: var(--signal-hover);
+  --interactive-weak: var(--signal-weak);
+  --status-info: var(--signal);
+
+  /* Scene: the room is darker, the node contrast widens. */
+  --scene-node-dim: #2b3038;
+  --scene-node-bright: #eef3fb;
+  --scene-twin: #9aa0a8;
+  --scene-bench: #3a3f47;
 }
 
 /* ── Tier 2 → Tailwind utilities (semantic names only) ── */
@@ -124,6 +149,7 @@
   --color-accent: var(--interactive-default);
   --color-accent-hover: var(--interactive-hover);
   --color-accent-pressed: var(--interactive-pressed);
+  --color-accent-weak: var(--interactive-weak);
 
   --color-success: var(--status-success);
   --color-warning: var(--status-warning);
@@ -134,71 +160,77 @@
 @theme {
   /* Spacing: Tailwind's default 0.25rem base = the 4px unit (space.N == p-N) */
 
-  /* Containers (docs/15 §2.3) */
-  --container-reading: 45rem; /* 720 */
+  /* Containers (bible §5.2) */
+  --container-reading: 42.5rem; /* 680 */
   --container-content: 75rem; /* 1200 */
   --container-wide: 90rem; /* 1440 */
   --container-narrow: 25rem; /* 400 */
 
-  /* Breakpoints (docs/15 §2.5) */
+  /* Breakpoints (bible §16) */
   --breakpoint-sm: 40rem; /* 640 */
   --breakpoint-md: 64rem; /* 1024 */
   --breakpoint-lg: 90rem; /* 1440 */
   --breakpoint-xl: 120rem; /* 1920 */
 
-  /* Radius — closed set (docs/15 §2.6) */
+  /* Radius — closed set (bible §5.3) */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  /* The system's one real shadow (docs/15 §2.7) */
-  --shadow-overlay: 0 8px 32px rgb(14 16 20 / 0.16), 0 1px 2px rgb(14 16 20 / 0.08);
+  /* The system's one real shadow (bible §5.3) */
+  --shadow-overlay: 0 16px 48px -12px rgb(0 0 0 / 0.55), 0 1px 2px rgb(0 0 0 / 0.4);
 
-  /* Type scale (docs/15 §2.12) */
+  /* Type scale (bible §4.2) */
   --text-legal: 0.75rem;
   --text-legal--line-height: 1.4;
-  --text-micro: 0.8125rem;
+  --text-micro: 0.78rem;
   --text-micro--line-height: 1.4;
   --text-small: 0.875rem;
   --text-small--line-height: 1.5;
   --text-body: 1rem;
-  --text-body--line-height: 1.6;
+  --text-body--line-height: 1.55;
   --text-reading: 1.125rem;
   --text-reading--line-height: 1.6;
   --text-h4: 1.25rem;
   --text-h4--line-height: 1.4;
   --text-h3: 1.375rem;
-  --text-h3--line-height: 1.35;
-  --text-h2: 1.5625rem;
-  --text-h2--line-height: 1.3;
-  --text-h1: 2.1875rem;
-  --text-h1--line-height: 1.2;
-  --text-display: clamp(2.4375rem, 4vw + 1.25rem, 4.75rem);
-  --text-display--line-height: 1.1;
-  --text-display--letter-spacing: -0.015em;
+  --text-h3--line-height: 1.3;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 1.2;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.12;
+  --text-display: clamp(2.75rem, 6vw + 1rem, 7.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.02em;
 
-  /* Motion (docs/15 §2.14) */
+  /* Motion (bible §12.2) */
   --duration-instant: 80ms;
-  --duration-fast: 120ms;
-  --duration-base: 200ms;
-  --duration-slow: 300ms;
+  --duration-fast: 130ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+  --duration-narrative: 560ms;
 
   --ease-out-std: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out-std: cubic-bezier(0.45, 0, 0.55, 1);
+  /* "settle" — smooth approach, minimal (<2%) overshoot (bible §12.1) */
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Fonts wired via next/font variables in the root layout */
+  /* Fonts wired via next/font variables in the root layout.
+     Display licence is a build gate (bible §4.1); Inter is the
+     documented interim for the display face. Editorial serif likewise. */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 /* ── Base layer ── */
 @layer base {
   html {
-    color-scheme: light;
-  }
-  .dark html,
-  html.dark {
     color-scheme: dark;
+  }
+  html:where(:not(.dark)) {
+    color-scheme: light;
   }
 
   body {
@@ -206,7 +238,7 @@
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.6;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -221,14 +253,14 @@
     }
   }
 
-  /* The focus ring — one recipe, never suppressed (docs/15 §2.16, DSVL Law 10) */
+  /* The focus ring — one recipe, never suppressed (bible §14, Law) */
   :focus-visible {
     outline: 2px solid var(--interactive-default);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* Tabular figures wherever data lives (DSVL §2) */
+  /* Tabular figures wherever data lives (bible §4.3) */
   .tabular {
     font-variant-numeric: tabular-nums lining-nums;
   }
@@ -242,8 +274,8 @@
 @layer utilities {
   /*
    * `entrance` recipe as zero-JS CSS — used by the hero text block so
-   * the LCP element never waits on hydration (specs/landing.md §8).
-   * Sections below the fold use the ScrollReveal component instead.
+   * the LCP element never waits on hydration (bible §15). Sections
+   * below the fold use the ScrollReveal component instead.
    */
   @keyframes dl-entrance {
     from {
@@ -260,9 +292,29 @@
     animation: dl-entrance var(--duration-base) var(--ease-out-std) both;
   }
 
+  /* Dex's breath — the ONE permitted ambient loop (bible §8.2). */
+  @keyframes dl-breathe {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(0.88);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .dl-breathe {
+    animation: dl-breathe 2.4s var(--ease-in-out-std) infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-entrance {
       animation: none;
+    }
+    .dl-breathe {
+      animation: none;
+      opacity: 1;
     }
   }
 }

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://deepaklabs.dev/schemas/portfolio-item.v1.json",
+  "generatedAt": "2026-07-06",
+  "generatedFrom": "repository source, specs, decision log (D-001..D-038), and commit history",
+  "note": "Machine-readable metadata for the Deepak Labs project. Status is reported honestly; unknown external values are null rather than invented.",
+
+  "projectName": "Deepak Labs",
+  "tagline": "A Personal Operating System — the canonical, machine-readable record of a researcher-engineer's work, built to last a decade.",
+
+  "summary": "Deepak Labs is a long-lived software product (not a portfolio template) that holds the authoritative record of one researcher-engineer's projects, publications, posts, timeline, and skills as a single interconnected graph, explorable by both humans and an AI assistant. It is built documentation-first, with every architectural decision recorded as an ADR so any future human or AI can resume the work from the repository alone. The shipped foundation is a Next.js 15 / React 19 application with a production-grade, tier-gated 3D hero runtime engineered as a pure enhancement layer; the backend (a modular monolith on PostgreSQL with a RAG-grounded AI assistant) is fully architected and awaiting implementation.",
+
+  "problem": "A researcher-engineer's professional record is fragmented across rented platforms (LinkedIn, GitHub, Scholar, files), each telling a partial, platform-shaped story subject to algorithm and format changes. There is no canonical source; generic portfolios cannot express a dual researcher-engineer identity; the record is illegible to the AI systems that increasingly mediate discovery; and static portfolios decay because editing them is a project.",
+
+  "solution": "One owned, permanent system that is canonical (external profiles become mirrors), alive (every surface updatable in minutes; freshness is a first-class public property), and machine-readable by default (the same structured content serves the human reader, the search index, and a corpus-grounded, citing AI assistant named 'Dex'). Content is modeled as a graph of typed relations rather than isolated pages. Every decision is shaped by one constraint: one maintainer, one decade, one personal budget.",
+
+  "techStack": {
+    "language": ["TypeScript (strict, noUncheckedIndexedAccess)"],
+    "frontend": ["Next.js 15 (App Router)", "React 19", "Tailwind CSS v4 (@theme tokens)", "Motion (motion/react)", "GSAP (lazy, draw-ins only)", "Radix UI primitives", "Lucide", "next-themes", "Zustand"],
+    "threeD": ["three.js 0.185", "React Three Fiber 9.6", "@react-three/drei 10.7", "Leva (dev-only, production-stripped)"],
+    "assetPipeline": ["Blender (Twin + bench + camera rail only)", "glTF + Draco + KTX2", "gltf-transform"],
+    "backendArchitected": ["Modular monolith", "PostgreSQL", "pgvector", "Postgres full-text search", "Object storage + image CDN", "Managed PaaS", "Background workers (cron + job queue)"],
+    "aiArchitected": ["Retrieval-Augmented Generation (RAG)", "Retrieval-gated domain restriction", "Provider-agnostic LLM behind an interface", "Event-driven re-embedding on publish"],
+    "tooling": ["npm workspaces monorepo", "ESLint 9", "Node >= 20"]
+  },
+
+  "features": [
+    { "name": "Landing (Tier 0)", "status": "shipped", "note": "Server-rendered, CSS-only LCP path, graph-motif draw-in, graceful self-hiding sections, build-date freshness stamp" },
+    { "name": "Tier-gated 3D hero runtime", "status": "shipped-foundation", "note": "Runtime infrastructure real and building; visuals are stand-ins; three.js absent from First Load JS" },
+    { "name": "Design token system (three-tier)", "status": "shipped", "note": "primitive -> semantic -> component, as Tailwind v4 @theme" },
+    { "name": "Typed content model + graph relations", "status": "shipped", "note": "Closed relation taxonomy; interface-only ContentService" },
+    { "name": "Command palette + global search", "status": "wired", "note": "Cmd/Ctrl+K scaffold" },
+    { "name": "AI assistant 'Dex' (RAG, cited, domain-restricted)", "status": "architected", "targetVersion": "v1.5" },
+    { "name": "Admin CMS (one surface, write-once-surface-everywhere)", "status": "architected", "targetVersion": "v1.0" },
+    { "name": "Publications / Projects / Posts / Timeline / Skills", "status": "modeled", "note": "Types and page archetypes designed; content empty by no-fake-data policy" },
+    { "name": "GitHub integration (cached, scheduled)", "status": "architected" },
+    { "name": "News 'Radar'", "status": "deferred", "targetVersion": "v2.0" }
+  ],
+
+  "architecture": {
+    "shape": "Modular monolith with a two-plane runtime kernel (Event Bus + Capability Registry) coordinating ten runtimes",
+    "systemOfRecord": "Single PostgreSQL (+ pgvector + FTS)",
+    "ai": "RAG grounded strictly in the corpus, three-layer domain restriction, source-cited answers",
+    "rendering": "Static/SSG with incremental revalidation, CDN-first, SSR fallback",
+    "dataModel": "Content graph: shared content spine + typed, closed relation set (implements, writes-about, produced, evidences, depicts, references)",
+    "heroRuntime": "3D scene as a pure enhancement layer; tier gate before any 3D byte; error ladder resolves every failure to a designed lesser tier",
+    "governingPrinciples": ["Fewest moving parts that satisfy the requirements", "Decide expensive-to-reverse things early, defer cheap-to-reverse ones", "Single-writer law", "The floor principle: 'the ceiling disappears, the room remains'", "Machine-readable and human-readable are the same artifact"]
+  },
+
+  "engineeringChallenges": [
+    "Shipping a heavy 3D feature without regressing the core page: a tier gate that decides before any 3D byte downloads, verified by three.js being absent from every route's First Load JS.",
+    "60fps in React without re-render storms: continuous values (scroll, pointer, camera) held in mutable refs read in useFrame, never React state; discrete state in Zustand; content as server props.",
+    "Rendering a data-driven knowledge graph in 2 draw calls via a single InstancedMesh and one merged edge geometry.",
+    "Designing failure as a feature: an error ladder where WebGL context loss, GLB parse failure, chunk-load failure, and thermal collapse each resolve to a lesser tier that was already a designed experience.",
+    "Reconciling a mandated 'event-bus-only' directive with the reality that queries are request/response: a two-plane kernel (bus + capability registry) that satisfies decoupling without correlation-ID plumbing.",
+    "Enforcing absolute AI domain restriction with retrieval gating that declines before the LLM is called (reliability and cost control in one guard).",
+    "Absorbing a late, high-risk owner direction change (2D -> stylized 3D hero) without abandoning principles: surface the conflict, record the risks, lift the ban narrowly, design fully before any asset spend."
+  ],
+
+  "research": {
+    "orientation": "Researcher-engineer dual identity is the product's central differentiator; publications carry a plainSummary field as the researcher-to-engineer bridge.",
+    "interests": ["Agentic AI", "Deep Learning", "Computer Vision", "Machine Learning", "Large Language Models", "Explainable AI", "Autonomous Systems"],
+    "appliedResearchInProduct": ["Applied RAG system design with strict grounding and citation", "Human-AI trust modeling (represent-not-impersonate)", "Machine-legible personal knowledge graph as agent-era infrastructure"],
+    "publications": [],
+    "publicationsNote": "No publications recorded in the repository yet; the publication content type and academic-metadata model (authors, venue, year, abstract, bibtex, pdfUrl) are implemented and awaiting real records."
+  },
+
+  "metrics": {
+    "commits": 72,
+    "architectureAndDesignDocs": 23,
+    "featureSpecs": 10,
+    "recordedDecisions": 38,
+    "sourceModules": 75,
+    "trackedFilesExcludingDependencies": 148,
+    "landingFirstLoadJsKb": 150,
+    "foundationBaselineFirstLoadJsKb": 103,
+    "threeJsInFirstLoadJs": false,
+    "heroBundleBudgetGzKb": 350,
+    "heroBundleEstimateGzKb": "220-280",
+    "graphDrawCalls": 2,
+    "triangleBudget": 150000,
+    "drawCallBudget": 100,
+    "nodeEngine": ">=20",
+    "version": "v0.4.0-alpha",
+    "stage": "alpha",
+    "metricsNote": "These measure engineering discipline and shipped foundation quality, not product traffic — there is none yet by design (not publicly launched)."
+  },
+
+  "githubUrl": null,
+  "githubUrlNote": "No public repository URL recorded in the project (outbound.github is null in content/site.ts).",
+  "demo": null,
+  "demoNote": "Not publicly deployed. The 3D hero foundation runs on a dev-only route (/dev/hero) that 404s in production. Public release is gated on real content and copy-testing protocols.",
+
+  "screenshots": [
+    { "id": "landing-hero-light", "priority": "high", "note": "See SCREENSHOTS.md for full shot list and capture guidance" },
+    { "id": "landing-hero-dark", "priority": "high" },
+    { "id": "hero-scene-dev-route", "priority": "high" },
+    { "id": "tier-gate-network-panel", "priority": "high", "note": "DevTools proof that three.js is absent from First Load JS" },
+    { "id": "decision-log", "priority": "medium" },
+    { "id": "architecture-diagram", "priority": "medium" }
+  ],
+
+  "tags": [
+    "personal-operating-system", "portfolio-as-product", "researcher-engineer", "nextjs", "react-19", "typescript", "react-three-fiber", "three-js", "webgl", "tailwindcss", "rag", "pgvector", "postgresql", "ai-assistant", "knowledge-graph", "modular-monolith", "event-driven-architecture", "capability-registry", "design-systems", "documentation-first", "adr", "performance-budgets", "progressive-enhancement", "accessibility", "machine-readable"
+  ],
+
+  "timeline": {
+    "started": "2026-07-05",
+    "lastActivity": "2026-07-06",
+    "milestones": [
+      { "version": "v0.1.0-alpha", "label": "Repository initialization" },
+      { "version": "v0.2.0-alpha", "label": "Documentation stack (PRD -> tokens) + frontend foundation (Sprint 0)" },
+      { "version": "v0.3.0-alpha", "label": "Landing page implemented (Sprint 1)" },
+      { "version": "v0.4.0-alpha", "label": "Hero runtime foundation shipped (Sprint H-01) + Personal OS runtime architecture" }
+    ],
+    "roadmap": [
+      { "phase": "v1.0 (P0)", "label": "Canonical record: Landing, About, Projects, Publications, Posts, Timeline, Skills, Contact, GitHub display, core Admin CMS, SEO/RSS/search" },
+      { "phase": "v1.5 (P1)", "label": "AI assistant (Dex) + knowledge-base admin, Gallery, deep GitHub, full analytics" },
+      { "phase": "v2.0 (P2)", "label": "News 'Radar', bookmarks, weekly digest" }
+    ]
+  },
+
+  "status": "active-alpha",
+  "statusDetail": "Architecture-complete and foundation-shipped; backend, CMS, AI assistant, and 3D Twin assets are designed but not yet built. Not publicly launched.",
+
+  "difficulty": {
+    "score": 8,
+    "scale": "1-10",
+    "rationale": "High for the breadth of concerns held coherently by one maintainer: a full-stack product architecture, a design system with enforced laws, a tier-gated WebGL runtime with hard performance budgets, an applied RAG design, and a runtime-kernel abstraction — all documented to ADR standard. Not a 9-10 because the hardest backend and AI pieces are architected rather than implemented, and traffic-scale problems are explicitly out of scope."
+  },
+
+  "innovationScore": {
+    "score": 8,
+    "scale": "1-10",
+    "rationale": "The novelty is not a new algorithm but a rare synthesis: treating a personal site as a decade-horizon, machine-readable operating system; documentation-first development with an AI-continuity memory system; a 3D hero engineered as a strictly non-blocking enhancement layer with an error ladder; and a two-plane kernel that consciously overrides a naive 'event-bus-only' brief with a reasoned request/response plane. The engineering judgment — especially what is deferred and why — is the innovation.",
+    "distinctiveElements": ["Freshness as a first-class public property", "No-fake-data graceful absence", "Represent-not-impersonate AI trust model", "Tier-gated 3D with 'the ceiling disappears, the room remains'", "38-entry decision log with documented brief-overrides"]
+  },
+
+  "futureWork": [
+    "Supply reference photos to unblock the Twin style gate (#1); commission style frames in the 'Drafted Laboratory' direction.",
+    "Implement the database plan (docs/09) and swap the local ContentService for the PostgreSQL-backed implementation behind the same interface.",
+    "Populate real content (projects, publications, posts) and pass the R4 identity-sentence release protocol.",
+    "Build the admin CMS with the write-once-surface-everywhere publish flow.",
+    "Ship the Dex AI assistant (v1.5): register IDexSession + IRetrieval; the shipped hero body and navigation hand-off already listen (no rework seam).",
+    "Ratify deployment vendors (docs/10), run the first production Lighthouse audit as release evidence, and deploy Tier 0 before the 3D scene exists.",
+    "Build the Knowledge Map as a view over the existing graph data (a v2+ knowledge-graph navigation surface).",
+    "Expose a public read-only programmatic/agent API over the read layer (the machine-readable principle realized)."
+  ],
+
+  "maker": {
+    "name": "C S Deepak",
+    "role": "Computer Science student; aspiring AI Engineer and Research Engineer",
+    "interests": ["Agentic AI", "Deep Learning", "Computer Vision", "Machine Learning", "Large Language Models", "Explainable AI", "Autonomous Systems", "Research", "Publication", "Open Source"]
+  }
+}

@@ -1,0 +1,57 @@
+# CI — verifies correctness; the PaaS (Render) owns rollout (docs/10 §4).
+# Runs on every PR and on main: typecheck, build (zero warnings), and the
+# three.js First-Load guard (a hard release criterion, scripted so it can
+# never silently regress). Render is configured to require this check
+# green before it auto-deploys main.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Guard — three.js absent from "/" First Load JS
+        working-directory: apps/web
+        run: |
+          node -e '
+            const fs = require("fs");
+            const cp = require("child_process");
+            const m = JSON.parse(fs.readFileSync(".next/app-build-manifest.json", "utf8"));
+            const home = m.pages["/(site)/page"] || [];
+            if (home.length === 0) { console.error("Could not resolve / first-load chunks"); process.exit(1); }
+            const three = cp.execSync("grep -rl WebGLRenderer .next/static/chunks || true")
+              .toString().trim().split(/\s+/).filter(Boolean)
+              .map(p => p.replace(/^\.next\//, ""));
+            const leak = home.filter(c => three.includes(c));
+            if (leak.length) { console.error("REGRESSION: three.js in / First Load JS:", leak); process.exit(1); }
+            console.log("three.js absent from / First Load JS ✓");
+          '

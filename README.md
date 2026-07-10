@@ -61,11 +61,55 @@ The high-level plan and phased milestones live in [`ROADMAP.md`](ROADMAP.md).
 
 ## Current Status
 
-- **Phase:** Repository Initialization
-- **Version:** `v0.1.0-alpha`
-- **Next:** Product Ideation → Design System → Wireframes
+- **Phase:** V2 implementation — Tier 0 landing release-ready
+- **Version:** see [`VERSION.md`](VERSION.md)
+- **Next:** owner content fill → first production deploy
 
 Live status is tracked in [`memory/CURRENT_STATE.md`](memory/CURRENT_STATE.md).
+
+## Local development
+
+Run everything from the repository root (npm workspaces):
+
+```bash
+npm install
+npm run dev         # start the web app (apps/web)
+npm run typecheck   # tsc --noEmit
+npm run build       # production build
+```
+
+## Deployment
+
+Hosting is a managed PaaS — **Render** (primary recommendation, pending
+owner ratification: D-041). The full plan, vendor comparison, environments,
+CI, caching, and rollback story live in
+[`docs/10-DEPLOYMENT.md`](docs/10-DEPLOYMENT.md). Infrastructure is declared
+as code in [`render.yaml`](render.yaml); CI (typecheck + build + a three.js
+First-Load guard) is [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+**Before the first deploy**, clear every gate in
+[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) (content fill, R4 copy tests,
+the real ASMOS memory, and look-dev sign-off).
+
+**First deploy — the exact steps the owner runs (once the gates pass):**
+
+1. Confirm CI is green on `main` (typecheck + build + three.js guard).
+2. In Render: **New → Blueprint**, select this repository. Render reads
+   `render.yaml` and shows the planned `deepak-labs-web` service — review it.
+3. **Apply / Deploy** — this manual click is the first production deploy
+   (nothing deploys on your behalf before this).
+4. Add the custom domain and DNS records per `docs/10-DEPLOYMENT.md` §2;
+   wait for TLS to be issued.
+5. Smoke-test production: `/` renders with the headline as LCP, nav/footer
+   have no dead links, `/memory` reconstructs, the theme toggle works, and
+   `/dev/hero` returns 404.
+6. Flip `autoDeploy: false → true` in `render.yaml` (and enable the CI
+   status check as a required branch-protection gate) to turn on
+   deploy-on-`main`.
+
+The database, background workers, and secrets are **not** part of this
+deploy — they are added to the same `render.yaml` when the database sprint
+(docs/09) lands, without changing hosts (docs/10 §7).
 
 ## How to Approach This Project
 

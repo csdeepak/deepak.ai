@@ -8,7 +8,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0-alpha] — Launch readiness (release gates · deployment · /projects)
+
 ### Added
+- **`OWNER_CONTENT_CHECKLIST.md`** (repo root) — the single ordered list of every field the owner must write to make the Tier 0 site deployable: each with file+line, purpose, docs/24 constraints (tone/tense/banned-vocab), the R4 pass protocol, and a guiding question. Covers `site.ts` copy, the inline section headlines, per-project `question`/`abandonedBranches`, and the deploy-blocking ASMOS memory. No placeholder copy was written into `site.ts` (LAW-008).
+- **`RELEASE_CHECKLIST.md`** (repo root) — the remaining human gates for the Landing V2 release (content fill, R4 copy tests, real ASMOS memory, look-dev sign-off) + the engineering re-verify steps and the exact first-deploy command sequence. The ASMOS scaffold is a hard, physical release gate here.
+- **`docs/10-DEPLOYMENT.md`** — the deployment plan (D-041): vendor comparison (Render primary · Railway · Vercel+Neon) judged against the one-maintainer/decade/monolith-with-workers constraints, domain/DNS, environment strategy, CI pipeline, caching/CDN posture, rollback story, and exactly what changes when the database (docs/09) arrives — designed so the DB is an addition, not a re-architecture.
+- **Deployment config:** `render.yaml` (Render Blueprint — web service now; Postgres/worker/cron stubs documented for docs/09), `.github/workflows/ci.yml` (typecheck + build + a scripted **three.js First-Load guard** — CI verifies, the PaaS deploys), `.env.example` (future secret shape; none needed for Tier 0), and a README "Deployment" section with the owner's first-deploy steps.
+- **`/projects` Work pages** (Index + Detail archetypes, docs/24 Part 10): the index reads real content through the `ContentService` and renders an honest, designed **empty state** at zero content (no dummy projects, no fake counts); the detail structurally carries the cognitive spine — the **question** that created it (LAW-003, always shown), **abandoned branches** (LAW-004, self-hides when empty), and **evidence** links (Law 6, from `repoUrl` + relations to built routes only — no dead links). New primitive: `EmptyState`.
+- `Project` content type extended additively (D-042): `question: string` (required — LAW-003) and `abandonedBranches?: AbandonedBranch[]` (LAW-004). `problem` kept as-is; full Project↔Memory convergence deferred to docs/09.
+
+### Changed
+- **Graceful-absence global navigation** (LAW-008): nav lanes and footer links now filter through one shared `BUILT_ROUTES` registry (`constants/routes.ts`) — a link appears only when its page is built; unbuilt routes self-hide (no 404s from chrome, no "coming soon", no dead code). `/projects` is now built, so the "Work" lane and footer link return automatically; everything else stays hidden until it ships.
+
+### Decisions
+- **D-040** — v1.5 deferral: the full 3D hero, the Twin, Dex, and all 3D/Blender asset work are frozen until after the launch path; the launch is Tier 0 only. `features/hero-scene/` untouched (stays dev-only at `/dev/hero`).
+- **D-041** — deployment vendor: **Render** recommended as primary (pending owner ratification); Railway and Vercel+Neon compared.
+- **D-042** — Project model extended with the cognitive spine; Project↔Memory convergence deferred to docs/09 as an explicit open question.
+
+### Verified
+- `npm run typecheck` + `npm run build` clean, **zero warnings**, all routes static; `/` held at 152 kB; `/projects` 106 kB, `/projects/[slug]` fully static (SSG). **three.js confirmed absent from First Load JS** across `/`, `/projects`, and `/projects/[slug]` (manifest cross-check). `features/hero-scene/` untouched.
+
+### Landing Experience — full rebuild (product-experience sprint)
+- The landing is rebuilt around the live workspace scene as a four-beat story: **Arrival** (identity inside the scene, scroll-choreographed sub-line tracking the scene acts), **Mission** (the researcher-engineer thesis as large editorial type + Build/Research/Explain pillars), **Evidence** (the six domains of work as a hover-alive system + honest status + graceful trust seeds), **Collaborate** (the quiet close). Answers who / what / why-different / why-trust / what-to-explore.
+- The hero scene is integrated into `/` in a new **`ambient` mode** (graph = atmosphere, no placeholder node labels/proxies leak to visitors — no-fake-data); the scene runtime is unchanged. Tier-0 floor = the server-rendered Arrival (LCP = headline text; three.js still absent from First Load JS; `/` at 152 kB).
+- Removed the five thin self-hiding sections (Featured Work, Research Highlight, Current Focus, Latest Posts, Contact Strip); their intent is merged into Evidence + Collaborate. No project dump on the landing (curiosity over listing); no internal links to unbuilt pages (no dead ends).
+- Added: honest `mission` + `domains` copy in `content/site.ts` (real material, owner-editable, R4-gated); an ambient-sound **placeholder** toggle (bible §7.6, off by default, no audio yet).
+
+## [0.5.0-alpha] — V2 Design Bible + Hero Scene V2 (Sprint HS-1)
+
+### Added
+- **Deepak Labs V2 Product Design Bible** (`docs/24-DESIGN_BIBLE_V2.md`, D-039) — the definitive redesign spec: the workspace-as-scene thesis, dark-first identity, committed color/type systems, the "settle" motion language, the Digital Twin & Dex specs, IA/navigation, all 15 pages via a 5-archetype system, the full admin CMS, accessibility and performance standards. Frozen as the implementation target.
+- **Hero Scene V2 boot sequence** (bible §6.2, Act I): a headless `SceneDirector` drives `bootProgressRef` 0→1 — the "workspace comes online" moment. Once per session (sessionStorage), ≤1.1s, skippable on first scroll/pointer/key, instant under reduced motion (synchronous init + `invalidate()` for demand frameloop).
+- **Luminance-not-hue knowledge graph** (bible §6.4): nodes are now unlit (brightness = recency, like data in a dark room); the accent appears only on the active node; a staggered boot draw-in assembles the graph outward from the Twin (recency-as-proximity); groups illuminate as their act is reached; Dex awakens (resting→curious→active) with the narrative. Still 2 draw calls; instances rewrite only while booting or on change (calm at rest).
+- Shared `features/hero-scene/shared/ease.ts` (smoothstep / node-reveal) so boot math is defined once.
+
+### Changed
+- **Design tokens → V2, dark-first** (`globals.css`, D-039): the palette is now committed (not provisional). Dark is the default identity; light ("Paper") is a first-class equal. New `--scene-*` light/material tokens read live by the scene. Motion tokens updated to bible §12.2 (fast 130 / base 220 / slow 320 / narrative 560 + `settle` easing). `next-themes defaultTheme="dark"`.
+- Light rig and Twin/bench materials tokenized — **no hex now lives in scene code** (fixes a D-025 violation); cool key + the single warm task-light per bible §6.5.
+
+### Verified
+- Typecheck clean; changed files lint clean; production build succeeds (static generation OK); **three.js remains absent from First Load JS** (tier-gated lazy chunk); shipped landing re-themes to dark-first with First Load JS unchanged.
+
+### Added (previous session, unreleased)
 - Personal OS Runtime architecture (`docs/23-PERSONAL_OS_RUNTIME.md`, D-038) — the permanent runtime spine: a two-plane Kernel (Event Bus for choreography + Capability Registry for typed queries) coordinating ten runtimes (Experience, Knowledge, Motion, Navigation, AI/Dex, Content, Analytics, Theme, Accessibility, + Bus). Includes the event catalog, capability contracts, event-flow choreographies, the single-writer ownership law, data/state ownership map grounded in the codebase, bulkhead failure recovery with the floor principle, open/closed extension strategy, and an incremental adoption plan. The brief's "event bus only" instruction is overridden with reasons (queries need request→response, not fire-and-forget); the Hero Runtime is reclassified as an unmodified client of this OS.
 
 ## [0.4.0-alpha] — Sprint H-01: Hero Runtime Foundation

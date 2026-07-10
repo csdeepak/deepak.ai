@@ -16,3 +16,11 @@ export const pointerRef = { current: { x: 0, y: 0 } };
  * rail rest-points (docs/22 §12).
  */
 export const railPositionRef = { current: 0 };
+
+/**
+ * Boot progress 0→1 (bible §6.2 Act I — "the workspace comes online").
+ * Continuous, so it lives here, not in the store. Written once by the
+ * SceneDirector; read by LightRig / Graph / Dex to come alive. Starts
+ * at 1 when the scene has already booted this session (once-per-session).
+ */
+export const bootProgressRef = { current: 0 };

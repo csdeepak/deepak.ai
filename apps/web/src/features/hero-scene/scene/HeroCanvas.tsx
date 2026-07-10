@@ -11,6 +11,7 @@ import { ParticlesPlaceholder } from "./objects/ParticlesPlaceholder";
 import { CameraRail } from "./camera/CameraRail";
 import { PerfGovernor } from "./systems/perf-governor";
 import { AnchorProjector } from "./systems/anchor-projector";
+import { SceneDirector } from "./systems/scene-director";
 import { useHeroStore } from "../shared/hero-store";
 import type { Frameloop } from "../shared/types";
 
@@ -30,6 +31,7 @@ export default function HeroCanvas({ frameloop }: { frameloop: Frameloop }) {
       className="pointer-events-auto"
     >
       <ContextLossGuard />
+      <SceneDirector />
       <Atmosphere />
       <LightRig />
       <GraphPlaceholder />

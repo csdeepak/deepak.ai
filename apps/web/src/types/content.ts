@@ -42,14 +42,43 @@ interface ContentBase {
   relations: Relation[];
 }
 
+/**
+ * An abandoned branch — failure as a first-class entity (LAW-004).
+ * A shipped system that hides its dead ends is dishonest and incomplete.
+ */
+export interface AbandonedBranch {
+  tried: string; // what was attempted
+  whyAbandoned: string; // why it was pruned
+  learned: string; // what it taught (honesty over completeness)
+}
+
 export interface Project extends ContentBase {
   type: "project";
+  /**
+   * The question that created it (required — LAW-003). Distinct from
+   * `problem`: the problem is what it solves; the question is what caused
+   * it to exist. A real project without a question is not publishable
+   * (surfaced as a required owner field in OWNER_CONTENT_CHECKLIST.md).
+   */
+  question: string;
   problem: string; // the one-line problem (card + hero of detail)
   year: number;
   projectStatus: "active" | "archived";
   tags: string[];
   featured: boolean;
   repoUrl?: string;
+  /**
+   * Abandoned branches — pruned reasoning, honestly kept (LAW-004).
+   * Empty/absent = the section self-hides (honest state, LAW-008); it is
+   * never fabricated to look complete.
+   *
+   * NOTE: `question` + `abandonedBranches` are an additive extension of
+   * the Project model (D-042). Full convergence of Project and the
+   * Memory model (docs/26 ontology: projects = memories) is deliberately
+   * deferred to the docs/09 database sprint, which designs the canonical
+   * schema — it is an explicit open question docs/09 must answer.
+   */
+  abandonedBranches?: AbandonedBranch[];
 }
 
 export interface Publication extends ContentBase {

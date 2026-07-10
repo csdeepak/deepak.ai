@@ -18,6 +18,9 @@ interface HeroState {
   gateResolved: boolean;
   canvasFailed: boolean;
 
+  /** Boot complete — the workspace is "live" (bible §6.2, Act I). */
+  sceneLive: boolean;
+
   act: ActIndex;
   hoveredNode: string | null;
   focusedNode: string | null;
@@ -32,9 +35,11 @@ interface HeroState {
 
   resolveGate: (tier: Tier, reducedMotion: boolean) => void;
   failCanvas: () => void;
+  finishBoot: () => void;
   setAct: (act: ActIndex) => void;
   setHoveredNode: (id: string | null) => void;
   setFocusedNode: (id: string | null) => void;
+  setDexState: (state: DexState) => void;
   setAnchors: (anchors: Record<string, NodeAnchor>) => void;
   /** Sheds the next quality flag in the bible's order; false = nothing left. */
   shedQuality: () => boolean;
@@ -62,6 +67,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   reducedMotion: false,
   gateResolved: false,
   canvasFailed: false,
+  sceneLive: false,
   act: 0,
   hoveredNode: null,
   focusedNode: null,
@@ -82,11 +88,14 @@ export const useHeroStore = create<HeroState>((set, get) => ({
           : { particles: false, lightingDrift: false, nodeDrift: false, parallax: false },
     }),
   failCanvas: () => set({ canvasFailed: true }),
+  finishBoot: () => set((s) => (s.sceneLive ? s : { sceneLive: true })),
   setAct: (act) => set((s) => (s.act === act ? s : { act })),
   setHoveredNode: (id) =>
     set((s) => (s.hoveredNode === id ? s : { hoveredNode: id })),
   setFocusedNode: (id) =>
     set((s) => (s.focusedNode === id ? s : { focusedNode: id })),
+  setDexState: (state) =>
+    set((s) => (s.dexState === state ? s : { dexState: state })),
   setAnchors: (anchors) => set({ anchors }),
   shedQuality: () => {
     const q = get().quality;

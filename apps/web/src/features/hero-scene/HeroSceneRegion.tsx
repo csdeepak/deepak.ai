@@ -35,7 +35,20 @@ const DevControls =
     ? dynamic(() => import("./scene/systems/dev-controls"))
     : null;
 
-export function HeroSceneRegion({ children }: { children: ReactNode }) {
+/**
+ * `ambient` — public-landing mode: the graph is atmosphere, not a data
+ * claim. Placeholder node labels / focus proxies are suppressed so no
+ * stand-in content leaks to visitors (no-fake-data, XA §0.3). When real
+ * ContentService data feeds the graph, drop `ambient` to make nodes
+ * addressable again. This is overlay policy, not a runtime change.
+ */
+export function HeroSceneRegion({
+  children,
+  ambient = false,
+}: {
+  children: ReactNode;
+  ambient?: boolean;
+}) {
   const regionRef = useRef<HTMLElement>(null);
   const tier = useHeroStore((s) => s.tier);
   const gateResolved = useHeroStore((s) => s.gateResolved);
@@ -112,7 +125,7 @@ export function HeroSceneRegion({ children }: { children: ReactNode }) {
         </div>
 
         {/* Overlay: captions + focus proxies */}
-        {sceneEnabled && <SceneOverlay />}
+        {sceneEnabled && <SceneOverlay ambient={ambient} />}
 
         {DevControls && sceneEnabled && <DevControls />}
       </div>

@@ -2,9 +2,47 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-11
 
 ## Current Phase
+
+**V2 implementation underway — launch readiness reached (`v0.6.0-alpha`).** The V2 Product Design Bible (`docs/24-DESIGN_BIBLE_V2.md`, D-039) is frozen and being implemented page-by-page. Sprint HS-1 (Hero Scene → V2) shipped; the Landing V2 rebuild shipped; **this sprint made the Tier 0 site deployable-on-content and added the `/projects` Work pages.**
+
+## Launch-readiness sprint (latest — release gates · deployment · /projects)
+
+The repo is now in a state where the owner can deploy Tier 0 the moment `content/site.ts` is filled. Three phases, all green (`typecheck` + `build`, zero warnings; three.js absent from First Load JS across `/`, `/projects`, `/projects/[slug]`):
+
+- **Release readiness:** `OWNER_CONTENT_CHECKLIST.md` + `RELEASE_CHECKLIST.md` at repo root (every owner content field with R4 protocol + guiding questions; the ASMOS `content/asmos.ts` draft is a hard deploy gate). **Graceful-absence nav + footer** via one shared `BUILT_ROUTES` registry (`constants/routes.ts`) — chrome shows only built routes, nothing 404s, no dead code. `/` held at 152 kB, LCP = headline.
+- **Deployment:** `docs/10-DEPLOYMENT.md` authored (Render primary, pending owner ratification — D-041; Railway + Vercel+Neon compared; DB-future not painted into a corner). Config committed: `render.yaml`, `.github/workflows/ci.yml` (typecheck+build+three.js guard), `.env.example`, README "Deployment". **No deploy run — owner triggers the first one.**
+- **`/projects` Work pages** (route is `/projects`, label "Work" — D-021 upheld; brief's "/work" = the Work lane): index reads the ContentService and renders an honest empty state at zero content; detail carries the cognitive spine — question (LAW-003), abandoned branches (LAW-004, self-hides empty), evidence (Law 6, built-route relations + repoUrl only). `Project` type extended additively (D-042: `question` required, `abandonedBranches?`); Project↔Memory convergence deferred to docs/09. New primitive: `EmptyState`.
+
+**Decisions:** D-040 (v1.5 deferral — 3D/Twin/Dex frozen; `features/hero-scene/` untouched, stays at `/dev/hero`), D-041 (Render, pending ratification), D-042 (Project spine extension).
+
+**Owner's next actions:** fill `OWNER_CONTENT_CHECKLIST.md` → clear `RELEASE_CHECKLIST.md` gates → ratify the deploy vendor → trigger the first Render deploy.
+
+**Known follow-ups (out of scope this sprint):** other lanes (Research/Posts/About + Publications/Skills/Timeline/Contact/Search) still unbuilt (correctly hidden from chrome); the Arrival `<h1>` is hardcoded and diverges from `site.ts.identitySentence` (flagged in the checklist — wire to one source or keep in sync); docs/09 must answer the Project↔Memory convergence question.
+
+## V2 · Landing Experience rebuilt (latest — product-experience sprint)
+
+The landing (`/`) is rebuilt as a four-beat story around the live scene: **Arrival** (identity inside the scene, scroll-choreographed sub-line) → **Mission** (researcher-engineer thesis, large editorial type + Build/Research/Explain) → **Evidence** (six domains as a hover-alive system + honest status + graceful trust seeds) → **Collaborate** (close). The scene is integrated in **`ambient` mode** (no placeholder labels leak; runtime unchanged). Five thin self-hiding sections removed and merged. No fake data, no dead internal links, curiosity over listing. Build green: `/` 152 kB, three.js still absent from First Load JS, LCP = headline. New files: `sections/{arrival,mission,evidence,collaborate}.tsx`, `ui/sound-toggle.tsx` (placeholder); `content/site.ts` gains `mission` + `domains`.
+
+**Known follow-ups (out of this sprint's scope):** global NavShell lanes still link to unbuilt pages (404) — a page-build concern; visual/spacing look-dev on `/` is the human acceptance gate.
+
+## V2 · Sprint HS-1 shipped (`v0.5.0-alpha`, D-039)
+
+**Design tokens are now V2 and DARK-FIRST** (`globals.css`): committed palette (graphite ramp + Signal-Azure `#3E8EFF`/`#0A66E0`), light "Paper" as a first-class equal, new `--scene-*` tokens, motion tokens per bible §12.2 (+ `settle` easing). `next-themes defaultTheme="dark"`. The shipped landing re-themes automatically.
+
+**Hero Scene brought to V2** (`features/hero-scene/`, still at `/dev/hero`):
+- **Boot sequence** (Act I): new headless `SceneDirector` + `bootProgressRef` — the workspace "comes online" (once/session, ≤1.1s, skippable, RM-instant).
+- **Luminance-not-hue graph**: unlit nodes (brightness = recency), accent only on the active node, staggered draw-in outward from the Twin, group illumination by act, Dex awakening (resting→curious→active). Still 2 draw calls; calm at rest.
+- **Tokenized light rig + Twin/bench** — no hex in scene code now (cool key + one warm task-light).
+- Verified: typecheck + build clean; **three.js still absent from First Load JS**; GLB swap contract unchanged (every object is still a swap).
+
+**Next V2 sprints:** implement remaining pages per the bible's 5-archetype system (Landing composition, Work index/detail, Research/Publications, Posts, About/Timeline/Skills, then tools/admin). Any public knowledge-graph surface is gated on real content (no-fake-data); the placeholder graph stays on `/dev/hero`.
+
+---
+
+## (Pre-V2 history below)
 
 Phase 5 begun — **Sprint 1 (landing) implemented**; Phase 4 items (database plan, deployment, component guidelines) still open in parallel.
 

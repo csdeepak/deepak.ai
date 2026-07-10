@@ -1,6 +1,6 @@
 # Version
 
-**Current Version:** `v0.4.0-alpha`
+**Current Version:** `v0.6.0-alpha`
 
 ---
 
@@ -23,6 +23,8 @@ Deepak Labs uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH[
 
 | Version         | Stage | Summary                                                      |
 | --------------- | ----- | ------------------------------------------------------------ |
+| `v0.6.0-alpha`  | alpha | Launch readiness: release gates + owner content checklist, graceful-absence nav/footer, deployment plan (`docs/10`, Render) + config, `/projects` Work pages (D-040/041/042). |
+| `v0.5.0-alpha`  | alpha | V2 Design Bible ratified (D-039); dark-first token retune; Hero Scene V2 (boot sequence, luminance graph, Dex awakening). |
 | `v0.4.0-alpha`  | alpha | Sprint H-01: hero scene runtime foundation (tier gate, rail, governor, stand-ins). |
 | `v0.3.0-alpha`  | alpha | Sprint 1: landing page implemented (gated on content + release tests). |
 | `v0.2.0-alpha`  | alpha | Complete documentation stack (PRD → tokens) + frontend foundation (Sprint 0). |

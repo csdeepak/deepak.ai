@@ -46,6 +46,36 @@ export const siteContent = {
   },
 } as const;
 
+/**
+ * Mission (landing Screen 2). Honest, owner-editable narrative — NOT
+ * fabricated evidence. The identity/mission copy still passes the R4
+ * read-aloud + 10-second tests before public launch (specs/landing.md).
+ */
+export const mission = {
+  kicker: "The mission",
+  statement:
+    "The strongest AI engineers won't just ship models — they'll understand them. I'm building toward both: production systems that work, and the research that explains why.",
+  pillars: [
+    { label: "Build", body: "Production AI systems — agentic, multimodal, real." },
+    { label: "Research", body: "The work behind the work, written down and published." },
+    { label: "Explain", body: "Models you can inspect, trust, and reason about." },
+  ],
+} as const;
+
+/**
+ * Domains (landing Screen 3 — Evidence). These are real focus areas,
+ * not projects: the territory the work lives in. Each note describes
+ * the field, never a fabricated result.
+ */
+export const domains: ReadonlyArray<{ name: string; note: string }> = [
+  { name: "Agentic AI", note: "systems that plan, act, and use tools" },
+  { name: "Multi-Agent Systems", note: "many models coordinating toward a goal" },
+  { name: "Large Language Models", note: "language as a reasoning surface" },
+  { name: "Deep Learning", note: "the architectures underneath" },
+  { name: "Computer Vision", note: "teaching systems to see" },
+  { name: "Explainable AI", note: "making models legible and trustworthy" },
+];
+
 /** Research highlight (S3). Null hides the section. */
 export const researchHighlight = null as {
   themeName: string;
