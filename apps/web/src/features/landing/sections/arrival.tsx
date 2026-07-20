@@ -23,7 +23,7 @@ import { siteContent } from "../../../../content/site";
  * flagged for review.
  */
 const ACT_LINE: Record<number, string> = {
-  0: "A researcher-engineer, read as a network of the work.",
+  0: "Me, rendered as a network of the work.",
   1: "Systems, memory, and the questions between them.",
   2: "Everything here is real, or it isn't shown.",
   3: "Keep scrolling — the work comes first.",
