@@ -16,8 +16,8 @@ import { domains, siteContent } from "../../../../content/site";
  * absence); nothing links to an internal page that isn't built yet.
  */
 export function Evidence() {
-  const { github, scholar, linkedin } = siteContent.outbound;
-  const hasSeeds = Boolean(github || scholar || linkedin);
+  const { github, scholar, linkedin, x, instagram } = siteContent.outbound;
+  const hasSeeds = Boolean(github || scholar || linkedin || x || instagram);
 
   return (
     <Section aria-labelledby="evidence-heading" className="py-24 md:py-40">
@@ -93,6 +93,26 @@ export function Evidence() {
                     rel="noreferrer"
                   >
                     LinkedIn
+                  </a>
+                )}
+                {x && (
+                  <a
+                    href={x}
+                    className="text-muted transition-colors duration-(--duration-fast) hover:text-ink"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    X
+                  </a>
+                )}
+                {instagram && (
+                  <a
+                    href={instagram}
+                    className="text-muted transition-colors duration-(--duration-fast) hover:text-ink"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
                   </a>
                 )}
               </nav>

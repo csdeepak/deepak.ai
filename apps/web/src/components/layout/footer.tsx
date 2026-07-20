@@ -117,6 +117,19 @@ export function Footer() {
                 LinkedIn
               </a>
             )}
+            {siteContent.outbound.x && (
+              <a href={siteContent.outbound.x} className="hover:text-ink">
+                X
+              </a>
+            )}
+            {siteContent.outbound.instagram && (
+              <a
+                href={siteContent.outbound.instagram}
+                className="hover:text-ink"
+              >
+                Instagram
+              </a>
+            )}
             {/* The page's last word is a timestamp (specs/landing.md §2.8) */}
             <span className="font-mono text-micro tabular text-faint">
               updated {builtOn}

@@ -14,6 +14,114 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-12 — Rich Metadata + Media Sprint complete (Phases 1–3)
+
+- **What I did:** Enriched the content model + built the deferred media pipeline (`docs/28`, D-048/D-049).
+  - Phase 1: authored `docs/28` (field matrix + media architecture), proposed D-048/D-049. Owner ratified both — D-048 with `skillsLearned` amendment (dedicated typed field, distinct from tags); D-049 = Cloudflare R2 with 3 conditions (env-only creds + README/CORS, one-command backup, upload constraints).
+  - Phase 2: schema — rich typed columns on projects/publications/timeline/skills + `media`/`content_media`/`content_links` tables (migration `0002_romantic_martin_li.sql`, incl. `ck_image_has_alt` CHECK + `uq_content_media_cover` partial unique index); applied. Types + ingest updated (new fields empty when absent). ProjectEditor regrouped (Basics/Body/Dates & Context/Links/Skills/Media/Advanced) with `StringListEditor` + `MediaPicker`; `actions/projects.ts` persists all fields + content_media; buildSnapshot/restore extended (round-trip verified via a temp script).
+  - Phase 3: media pipeline — `lib/media/{storage,validate,url}.ts`, `actions/media.ts` (upload + reference-checked delete), `/admin/media` library + `queries/media.ts`, `next.config` R2 allow-list, `scripts/media-backup.ts`. Public `/projects/[slug]` renders all new fields self-hiding.
+- **Why:** owner directive — editors too sparse; LinkedIn-grade *optional* metadata + media. Rich-but-typed (D-043 upheld: no JSONB, no custom-field builder).
+- **Budgets (before → after):** `/` 152→152 kB, `/projects` 106→106 kB, `/projects/[slug]` 106→111 kB (+5 kB next/image on the detail route). three.js/admin/aws absent from public First Load JS (CI guards pass). Build green, zero warnings.
+- **OWNER MUST DO to activate media:** create an R2 bucket + public URL + API token; set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `MEDIA_PUBLIC_BASE_URL` in `.env.local` (+ Render env). Steps in README → "Media / R2 setup". Cost: R2 free tier ≈ **$0/mo**; D-041 total unchanged. Text fields need no setup (work in DB mode now).
+- **Open / deferred:** public pages for Posts/Timeline/Skills/Research still future sprints (their new fields are built + editable, rendering-designed-but-dormant); full markdown rendering of Project `overview` is paragraph-split for now (adopt a real MD pipeline when the Posts reading column ships); `content_links` table exists but only wired for future Post/Timeline use.
+
+### 2026-07-12 — Admin CMS Sprint complete (Phases 1–3)
+
+- **What I did:** Full Admin CMS implementation from architecture through acceptance.
+  - Phase 1: `docs/27-ADMIN_CMS_ARCHITECTURE.md` — auth options, route structure, IA, version history, threat model. D-046 + D-047 proposed.
+  - Owner ratified D-046 (collocation) and D-047 (iron-session Option A) with 4 binding amendments (rate-limiter honesty/known-gap, SKIP LOCKED cron, origin provenance on versions, CI guard as hard failure).
+  - Phase 2: `iron-session` + `bcryptjs` installed. `content_versions` + `site_settings_versions` schema + migration 0001 applied. Auth infrastructure (`src/lib/auth/session.ts`, `src/middleware.ts`, `loginAction`/`logoutAction` with constant-time bcrypt and in-memory rate-limiter). Admin shell (`AdminShell.tsx` with nav rail). Login page. Admin layout (uses `x-pathname` header to skip shell on login, no redirect loop). Overview page (freshness engine, publish queue, recent activity). Projects list, new-project form, project editor (full field set, abandoned branches, publish bar with lifecycle state machine, schedule). Settings/site-copy editor (single-writer banner). Security headers in `next.config.ts`. `robots.ts` disallows /admin. `render.yaml` cron stub. Version history pages.
+  - Phase 3: VersionHistory component (with origin badge, restore creates new version). CI hard guard for admin bundle isolation. `db-publish-scheduled.ts` cron with `FOR UPDATE SKIP LOCKED`. `db:publish-scheduled` npm script.
+  - Acceptance ritual: **1.9s** end-to-end (draft → question → publish → appears on /projects). Limit: 10 min.
+- **Why:** Admin CMS sprint per session brief. D-046/D-047 ratified by owner.
+- **Next owner actions:**
+  1. Add `SESSION_SECRET` (32+ byte random) and `ADMIN_PASSWORD_HASH` (bcrypt of chosen passphrase) to Render env + `.env.local`
+  2. Remove the test credentials from `.env.local` (currently: `SESSION_SECRET=dev-local-secret...`, `ADMIN_PASSWORD_HASH=$2b$10$szs3A...`)
+  3. Run `npm run db:ingest` to populate 18 projects + site settings
+  4. Test `CONTENT_SOURCE=db` mode in dev: open http://localhost:3000/admin
+  5. Write `question` fields for the 18 project drafts (featured 6 first), publish them
+  6. Ratify D-041 (Render deploy vendor) — then trigger first deploy
+- **Open questions:** Publications/Posts/Timeline/Skills editors are stubs (honest empty states) — they need their own sprint. Relations editor not built. `content_stages` table not yet used by admin.
+
+### 2026-07-12 (handoff ritual) — VERSION + CHANGELOG + ingest fix + memory sync
+
+- **What I did:** Completed the handoff ritual for the DB sprint.
+  - Fixed `scripts/db-ingest.ts` — same WSL/Windows env-var issue as `drizzle.config.ts`; added `dotenv` load at the top so `DATABASE_URL` is read from `.env.local` before `getDb()` is called.
+  - Bumped `VERSION.md` to `v0.7.0-alpha`; added v0.7.0-alpha row to version history table.
+  - Created `CHANGELOG.md` v0.7.0-alpha entry (Added/Changed/Decisions sections, full DB sprint summary).
+  - Updated `memory/CURRENT_STATE.md` and `memory/AI_HANDOFF.md` (this entry).
+- **Key correction to prior session notes:** `0001_constraints_and_indexes.sql` was manually created outside drizzle-kit and therefore NOT in `meta/_journal.json`. Drizzle `migrate` skips files not in the journal. All 0001 content was merged into `0000_fair_silver_surfer.sql` before the first `npm run db:migrate` run. There is no 0001 file in the repo.
+- **Next owner actions:**
+  1. Run `npm run db:ingest` (from repo root, with Docker DB running) — populates 18 project drafts + site settings
+  2. Uncomment `CONTENT_SOURCE=db` in `apps/web/.env.local`, run `npm run dev`, verify `/projects` still shows EmptyState (all drafts) and no errors
+  3. Write `question` fields for 18 projects (6 featured first) in `content/site.ts` + flip `status: "published"` → `/projects` goes live
+  4. Ratify D-041 (Render deploy vendor) → trigger first deploy
+- **State:** `v0.7.0-alpha`. All DB sprint artifacts complete and synced.
+
+### 2026-07-11 (DB sprint — all three phases) — docs/09 + Drizzle schema + migrations + ContentService
+
+- **What I did:** Full docs/09 database sprint. D-043/D-044/D-045 ratified by owner with three binding conditions before Phase 2 began.
+- **D-043 binding conditions honored:**
+  - (1) CTI hidden behind `contentService` interface — `dbContent` returns typed `Project[]` etc., page components never see joins or Drizzle objects.
+  - (2) LAW-003 CHECK (`ck_published_has_question`) in migration 0001 — only fires when `status = 'published'`; drafts with `question = ''` insert/update freely.
+  - (3) `ck_no_self_relation` CHECK + `uq_relations_from_to_kind` UNIQUE both in migration 0001. Closed kind enum enforced at application boundary (types/content.ts RelationKind); extensions require a D-entry.
+- **Phase 2 files:**
+  - `apps/web/src/db/schema.ts` — 9-table Drizzle schema
+  - `apps/web/src/db/migrations/0000_fair_silver_surfer.sql` — auto-generated (tables + FKs)
+  - `apps/web/src/db/migrations/0001_constraints_and_indexes.sql` — binding conditions + 10 indexes
+  - `apps/web/src/db/index.ts` — lazy-init DB client singleton
+  - `apps/web/drizzle.config.ts` — drizzle-kit config
+  - `docker-compose.dev.yml` (repo root) — pgvector/pgvector:pg17, optional
+  - `.env.example` updated with `CONTENT_SOURCE` and `DATABASE_URL` docs
+  - `apps/web/scripts/db-ingest.ts` — idempotent upsert of 18 projects + site settings
+  - `apps/web/package.json` — `db:generate`, `db:migrate`, `db:ingest` scripts
+  - Packages: `drizzle-orm pg` (prod), `drizzle-kit @types/pg tsx` (dev)
+- **Phase 3 files:**
+  - `apps/web/src/services/db-content.ts` — full ContentService via Drizzle (8 methods, 3 queries/collection, no N+1)
+  - `apps/web/src/services/index.ts` — `CONTENT_SOURCE=db → dbContent`, else `localContent`
+  - `projects/page.tsx` + `projects/[slug]/page.tsx` — import `contentService` from `@/services`
+- **Verified:** `tsc --noEmit` zero errors; `npm run build` green: `/` = 152 kB, 7 static pages, three.js absent from all First Load JS. File mode works with no DB present.
+- **Deferred tables** (future sprints): content_stages, content_versions, embeddings/pgvector, users/sessions, github_cache, gallery_items, search_vector GENERATED column.
+- **Next owner actions:** write question fields for 18 projects, flip status to published; ASMOS real content (deploy gate); first Render deploy.
+
+### 2026-07-11 (session 26) — Content corpus: 18 projects inserted as drafts
+
+- **What I did:** Inserted all 18 owner-supplied projects into `content/site.ts` as `status: "draft"`. Zero projects are published — LAW-003 (`question` required) and the brief's explicit instruction. Draft gating verified end-to-end: `getProjects()` filters `published`, `generateStaticParams()` calls `getProjects()`, so zero detail routes are generated and `/projects` shows the honest EmptyState. Added newest-first sort (`publishedAt` descending) to both `getProjects()` and `getFeaturedProjects()` in `local-content.ts` (recency law — was missing before).
+- **Field mapping decisions (documented, not silent):**
+  - `brief.context` → `problem` — both are one-line project descriptions; same semantic role.
+  - `brief.stack` → `tags[]` — `tags: string[]` is the existing home for tech labels in the Project type; no schema field for stack exists.
+  - `question: ""` on all 18 — owner must write and set `status: "published"` per LAW-003.
+  - `projectStatus: "archived"` default on all — owner can flip to `"active"` for live projects.
+  - Dental AI date range (2025-10 → 2026-05): `publishedAt: "2026-05-01"` (end date per brief); range noted in `problem` field.
+  - Repo URLs copied byte-identical (including `weaher_app` typo).
+- **Featured flag**: already existed in the Project type (D-042). No additive extension needed; no D-entry. Docs/24 defines no featured visual treatment for the index — `ProjectCard` renders all published projects uniformly. Surfaced: a featured treatment (badge, larger card, or separate section) can be added in a future sprint.
+- **Checklist update**: replaced generic P1/P2/P3 with a per-project list of all 18 — 6 featured first (with note "write these first — publishing the featured six makes /projects launch-ready"), then the remaining 12. Publishing flow documented.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` = 152 kB; three.js absent from all First Load JS; `/projects` = 166 B generating zero `[slug]` routes (all drafts); `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump — content corpus session).
+
+### 2026-07-11 (session 25) — Content fill: currentFocus · contact · outbound links · X + Instagram
+
+- **What I did:** Inserted all owner-ratified copy into `content/site.ts` exactly as provided: `currentFocus` (phrase + `updatedAt: "2026-07-11"`), `contactSentence`, `contactEmail` (`csdeepak2005@gmail.com`), `outbound.github`, `outbound.linkedin`. `outbound.scholar` left `null` — owner confirmed no Scholar profile; verified it self-hides in both `evidence.tsx` and `footer.tsx` (graceful absence, LAW-008). Extended the `outbound` object additively with `x` and `instagram` (URLs provided by owner); wired both in `evidence.tsx` (trust-seeds nav) and `footer.tsx` with the same graceful-absence guard pattern. Marked checklist items 7, 8, 9 ✅ DONE.
+- **Outbound-set decision (X + Instagram):** docs/14 and docs/24 define no closed/ratified outbound-platform set — docs/24 Part 10.C and Part 11.7 reference "outbound links" generically; the existing three fields (github/scholar/linkedin) were code convention, not a locked contract. Added `x` and `instagram` as a purely additive change. This is a content/data extension, not an architectural change — an AI_HANDOFF note is the right scope (no D-entry warranted).
+- **R5 gate status (reported):** `currentFocus` is wired in `hero.tsx` only → renders on `/dev/hero` (dev-only, 404 in prod). The freshness stamp renders ≤30 days from `updatedAt`; phrase renders unconditionally when non-null. The V2 landing (`arrival.tsx`) does NOT render `currentFocus` — wiring it there is a future session task.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` = 152 kB (page 2.27 kB); three.js absent from First Load JS on `/`; `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump — content-fill session).
+- **Note:** Checklist heading + mission copy (items 3–6) remain owner-pending. The ASMOS real content (item 12) remains the deploy-blocking gate.
+
+### 2026-07-11 (session 24) — Micro: hero copy ruling (literal string, owner-confirmed)
+
+- **What I did:** Set `content/site.ts` `identitySupport` to the first-person ruling copy ("…what I build, but how I think, learn, and evolve.") and `identitySentence` to the literal ratified string **"Deepak learns and enjoy building intelligent systems.."** No component change (`arrival.tsx` untouched — it already single-sources both fields with self-hide guards).
+- **Conflict surfaced + owner-ruled:** the ruling's prose ("switch to first person, remove duplicate name, moot subject-verb") contradicted its literal `identitySentence` string (third person, repeats "Deepak", "learns and enjoy", double period). I stopped and asked rather than guess; **owner explicitly chose the literal string as pasted.** Inserted exactly, per "insert EXACTLY."
+- **docs/24 constraint check on the final copy (reported, not changed, per standing instruction):** `identitySentence` — present tense ✓ · length ✓ · banned vocabulary ✓; **flagged:** subject-verb "learns and enjoy" (→ "enjoys"), third-person voice vs docs/24 §18 first-person preference + LAW-002 (names Deepak in the first line), duplicate "Deepak" (eyebrow + `<h1>`), and a trailing double period ".."​. `identitySupport` — present tense ✓ · length ✓ · banned vocab ✓; first person, clean. All left exactly as ratified.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` 152 kB (page 2.27 kB); three.js absent from First Load JS; hero self-hide guards intact; `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump).
+- **Note for next session:** these hero copy flags are owner-ratified as-is — do not "fix" them without a new ruling.
+
+### 2026-07-11 (session 23) — Micro: identity copy + single source of truth
+
+- **What I did:** (1) Wired the Arrival `<h1>` to `siteContent.identitySentence` and **removed the hardcoded headline entirely** (`arrival.tsx`) — the earlier divergence (session 22 gotcha) is resolved; the component now holds no identity copy (single-writer law). Heading + supporting line each self-hide if their field is emptied (graceful absence). (2) Inserted owner-ratified copy into `content/site.ts`: `identitySentence` = "Deepak learns and enjoy building intelligent systems."; added a companion field **`identitySupport`** = "An adaptive mind working across agentic AI, memory, and software engineering — documenting not just what he builds, but how he thinks, learns, and evolves." (docs/24 names the hero "identity line" but assigns no supporting-line field, so `identitySupport` was added next to `identitySentence`). Rendered beneath the `<h1>` as a `text-reading` muted line. (3) Marked checklist items 1–2 ✅ DONE.
+- **docs/24 constraint check (verified, not rewritten):** tense present ✓ · length ✓ · banned vocabulary ✓ — both lines pass the named constraints. **Reported (did NOT silently fix, per the brief):** (a) subject-verb agreement — "Deepak learns and enjoy" should read "enjoys"; (b) voice shift first→third person (docs/24 §18 prefers first-person where personal; and LAW-002 "identity discovered, never introduced" — naming Deepak in the very first line introduces identity up front); (c) minor redundancy — the eyebrow already prints `name` ("Deepak"), so "Deepak" now appears twice in the hero. All three left as-is for the owner to rule on.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` 152 kB (page 2.27 kB); **three.js absent from First Load JS**. `features/hero-scene/` untouched.
+- **State:** `v0.6.0-alpha` (no bump — micro copy/wiring change). CURRENT_STATE follow-up about the hardcoded-`<h1>` divergence is now cleared.
+- **Next (unchanged):** owner finishes `OWNER_CONTENT_CHECKLIST.md` (still open: `currentFocus`, mission confirm, `contactSentence`/`contactEmail`, outbound links, `cvUrl`, Arrival act sub-lines, per-project `question`s, and the real ASMOS memory) → clear `RELEASE_CHECKLIST.md` → ratify vendor (D-041) → first Render deploy.
+
 ### 2026-07-11 (session 22) — Launch-readiness sprint (release gates · deployment · /projects)
 
 - **What I did:** Three phases to make Tier 0 deployable-on-content, all green (`typecheck` + `build`, zero warnings; three.js verified absent from First Load JS across `/`, `/projects`, `/projects/[slug]` via app-build-manifest cross-check).

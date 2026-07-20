@@ -55,3 +55,32 @@ jobs:
             if (leak.length) { console.error("REGRESSION: three.js in / First Load JS:", leak); process.exit(1); }
             console.log("three.js absent from / First Load JS ✓");
           '
+
+      - name: Guard — admin bundle absent from public First Load JS
+        working-directory: apps/web
+        run: |
+          node -e '
+            const fs = require("fs");
+            const cp = require("child_process");
+            const m = JSON.parse(fs.readFileSync(".next/app-build-manifest.json", "utf8"));
+            // Check all (site) public pages — none should contain features/admin chunks.
+            const publicPages = Object.entries(m.pages)
+              .filter(([k]) => k.startsWith("/(site)"))
+              .map(([, chunks]) => chunks);
+            const adminChunks = cp.execSync(
+              "grep -rl features/admin .next/static/chunks 2>/dev/null || true"
+            ).toString().trim().split(/\s+/).filter(Boolean)
+              .map(p => p.replace(/^\.next\//, ""));
+            if (adminChunks.length === 0) {
+              console.log("No admin chunks found in build — isolation verified ✓");
+              process.exit(0);
+            }
+            const leaks = publicPages.flatMap(chunks =>
+              chunks.filter(c => adminChunks.some(a => c.includes(a)))
+            );
+            if (leaks.length) {
+              console.error("REGRESSION: admin code leaked into public First Load JS:", leaks);
+              process.exit(1);
+            }
+            console.log("Admin bundle absent from all public First Load JS ✓");
+          '

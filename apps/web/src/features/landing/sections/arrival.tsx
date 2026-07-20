@@ -32,14 +32,20 @@ export function Arrival() {
       width="content"
       className="flex h-svh flex-col justify-end pb-[12svh] md:pb-[14svh]"
     >
-      <div className="animate-entrance max-w-[18ch]">
+      {/* Identity, single-sourced from content/site.ts (single-writer law).
+          Heading + supporting line each self-hide if their field is empty. */}
+      <div className="animate-entrance">
         <p className="font-mono text-small text-faint">{siteContent.name}</p>
-        <h1 className="mt-4 text-display font-semibold leading-[1.02] tracking-tight text-ink">
-          I build intelligent systems.
-          <span className="mt-1 block font-normal text-muted">
-            And I publish the research behind them.
-          </span>
-        </h1>
+        {siteContent.identitySentence && (
+          <h1 className="mt-4 max-w-[18ch] text-display font-semibold leading-[1.02] tracking-tight text-ink">
+            {siteContent.identitySentence}
+          </h1>
+        )}
+        {siteContent.identitySupport && (
+          <p className="mt-5 max-w-[52ch] text-reading text-muted">
+            {siteContent.identitySupport}
+          </p>
+        )}
       </div>
 
       {/* Choreographed sub-line — fixed slot (no layout shift on change). */}

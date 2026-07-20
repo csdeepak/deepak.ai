@@ -43,15 +43,29 @@ services:
     previews:
       generation: automatic
 
-# ── Added with the database sprint (docs/09) — do not enable early ──────
+# ── Admin CMS sprint additions (docs/27 §10) ────────────────────────────
+# Uncomment both blocks when DATABASE_URL is wired:
+
 # databases:
 #   - name: deepak-labs-db
 #     plan: basic-256mb
-#     postgresMajorVersion: "16"
-#     # enable pgvector via migration: CREATE EXTENSION IF NOT EXISTS vector;
-#
-# services:
-#   - type: worker            # D-007 background work: sync, embeddings, digests
+#     postgresMajorVersion: "17"   # pgvector/pgvector:pg17 in local dev (D-045)
+#     # Migration 0000 + 0001 applied via `npm run db:migrate` in first deploy.
+
+#   - type: cron              # scheduled publishing — docs/27 §10; FOR UPDATE SKIP LOCKED
+#     name: deepak-labs-scheduler
+#     runtime: node
+#     schedule: "* * * * *"  # every minute; Render bills per-run (check plan limits)
+#     buildCommand: npm ci
+#     startCommand: npm run db:publish-scheduled --workspace=web
+#     envVars:
+#       - key: DATABASE_URL
+#         fromDatabase: { name: deepak-labs-db, property: connectionString }
+#       - key: NODE_ENV
+#         value: production
+
+# ── Deferred (docs/09 / D-007) ──────────────────────────────────────────
+#   - type: worker            # background: embeddings, digests, GitHub refresh
 #     name: deepak-labs-worker
 #     runtime: node
 #     buildCommand: npm ci && npm run build
@@ -59,9 +73,3 @@ services:
 #     envVars:
 #       - key: DATABASE_URL
 #         fromDatabase: { name: deepak-labs-db, property: connectionString }
-#
-#   - type: cron              # scheduled publishing, GitHub refresh (D-010)
-#     name: deepak-labs-cron
-#     schedule: "*/15 * * * *"
-#     buildCommand: npm ci && npm run build
-#     startCommand: npm run cron

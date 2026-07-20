@@ -17,10 +17,13 @@ export const localContent: ContentService = {
   async getFeaturedProjects(limit = 2) {
     return projects
       .filter((p) => p.featured && p.status === "published")
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
       .slice(0, limit);
   },
   async getProjects() {
-    return projects.filter((p) => p.status === "published");
+    return projects
+      .filter((p) => p.status === "published")
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   },
   async getProject(slug) {
     return projects.find((p) => p.slug === slug) ?? null;

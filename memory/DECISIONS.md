@@ -354,4 +354,65 @@ Each decision uses:
 
 ---
 
+## D-043 — Project↔Memory convergence: Option B — Shared spine + separate type tables (CTI)
+
+- **Date:** 2026-07-11
+- **Status:** Accepted (owner ruling; closes D-042 open question)
+- **Context:** D-042 deferred the convergence question (does everything become a `Memory`, or do content types stay separate with a shared spine?) to docs/09. Option A = Unified Memory table with `kind` discriminator. Option B = `content_items` base table + separate type tables (Class Table Inheritance pattern).
+- **Decision:** Option B ratified. A `content_items` base table carries the shared cognitive spine for all types (`question`, `status`, `search_vector`, `published_at`, etc.). Each content type has its own child table joined via the same `id`. The `content_stages` table is optional on all types — ASMOS fills all 10 stages; a course project fills only `question`. Three binding conditions: (1) The Living Memory ontology remains the **presentation contract** — CTI is an implementation detail that must not leak upward into page components; the `ContentService` interface and rendering layer may still speak in Memory terms where docs/26 demands it. (2) LAW-003 CHECK constraint is **lifecycle-aware**: `question` is required to ENTER published state but drafts are freely saveable with an empty question (the ≤10-minute update loop must remain frictionless). (3) The `relations` table must reject self-relations and duplicate `(source, target, kind)` triples at the schema level; the closed `kind` enum stays closed — **extending it in future requires a D-entry**.
+- **Consequences:** Direct mirror of the TypeScript type hierarchy with zero migration impedance. All content types gain the cognitive spine (question, abandoned_branches, stages) via the base table without requiring them to fill every stage. Type-specific column constraints enforced at the DB level. The Living Memory metaphor preserved through `content_stages` (optional, all types), `abandoned_branches` (LAW-004), and `relations` (LAW-005 — the graph IS the semantic memory). The two-spine overlap (additive Project fields + full Memory stages coexisting since D-042) resolves: the CTI model IS the canonical schema; `content_stages` is how any type gains the richer Memory reconstruction.
+
+## D-044 — Data-access tool: Drizzle ORM
+
+- **Date:** 2026-07-11
+- **Status:** Accepted
+- **Context:** Phase 2 of the docs/09 DB sprint requires a data-access layer. Options considered: Drizzle ORM, Prisma, TypeORM, raw SQL.
+- **Decision:** Drizzle ORM. TypeScript-native schema (schema defined in `.ts`, not a separate DSL), queries look like SQL ("just SQL with types"), migrations generate plain readable SQL files, edge-runtime compatible, pgvector support. One-maintainer decade-horizon: the queries are written once and read many times; Drizzle's SQL-like syntax keeps them self-documenting without a thick abstraction. Packages: `drizzle-orm` (production), `pg` (Postgres driver, production), `drizzle-kit` (migration CLI, dev), `@types/pg` (dev).
+- **Consequences:** Drizzle is the only ORM dependency in production; `drizzle-kit` is CLI-only and never in the application bundle. Queries are typed end-to-end. Adding a table = adding a `pgTable()` definition + running `drizzle-kit generate` + committing the SQL migration. Future maintainers can read the migration SQL directly without learning a proprietary format.
+
+## D-045 — Local dev database: Docker Compose + pgvector
+
+- **Date:** 2026-07-11
+- **Status:** Accepted
+- **Context:** Phase 2 requires a local Postgres instance for DB-mode development. Options: local Postgres install, Docker Compose, Neon dev branch, no local DB.
+- **Decision:** Docker Compose (`docker-compose.dev.yml` at repo root, `pgvector/pgvector:pg17` image). A single command starts a pgvector-enabled Postgres. **Optional** — frontend-only and content-fill work requires zero DB; `CONTENT_SOURCE=file` (the default) always works. CI never starts the DB; `npm run build` succeeds with no DB present.
+- **Consequences:** Zero global installation footprint; the DB version is pinned in the compose file and identical across machines. `CONTENT_SOURCE` env var is the toggle: `file` (default, always works) vs `db` (requires compose up). Render deployment adds the Postgres service to `render.yaml` (documented in docs/10 §7) — no host migration, no runtime model change.
+
+## D-046 — Admin CMS collocation: `apps/web/(admin)/` route group
+
+- **Date:** 2026-07-12
+- **Status:** Accepted (owner ratified 2026-07-12)
+- **Context:** `docs/SESSION_START.md` §12 anticipates `apps/admin` as a separate Next.js app. Phase 1 of the Admin CMS sprint re-evaluated this against the project's current scale and decade-horizon values.
+- **Decision:** Collocate the admin inside `apps/web` as a Next.js App Router route group: `apps/web/src/app/(admin)/admin/...`. Admin-specific components live in `src/features/admin/` and are never imported from `(site)/` code. All admin Server Actions live in `src/features/admin/actions/`.
+- **Consequences:** Shares Drizzle schema, type definitions, tokens, and DB client with zero extraction overhead. Route group isolation in Next.js 15 ensures `(admin)` code never appears in `(site)` chunk graphs. Import discipline (TypeScript module graph) enforces the boundary. If the admin later needs a separate deployment lifecycle or dedicated package, extraction to `apps/admin` along the existing monorepo boundary is a clean cut — nothing in the collocated structure prevents it.
+
+## D-047 — Admin auth strategy: iron-session sealed cookie + bcrypt passphrase
+
+- **Date:** 2026-07-12
+- **Status:** Accepted (owner ratified 2026-07-12; Option A chosen)
+- **Context:** The admin CMS requires authentication. Three options were evaluated: (A) iron-session with bcrypt passphrase, (B) Auth.js v5 with CredentialsProvider, (C) Cloudflare Access platform-level protection. Criteria: boring-technology value, dependency weight, zero-external-service-dependency, single-user fit.
+- **Decision (proposed):** Option A — `iron-session@8` sealed cookie (HMAC-SHA256 + AES256-CBC, 8-hour session) + `bcryptjs` passphrase comparison. Two env vars: `SESSION_SECRET` (32+ byte random string) and `ADMIN_PASSWORD_HASH` (bcrypt hash of the owner's chosen passphrase). In-memory rate-limiter in Next.js middleware: 5 failed attempts per IP per 15 minutes. All admin pages carry `export const dynamic = 'force-dynamic'` to prevent build-time execution.
+- **Consequences:** ~16 kB added to the server bundle (zero bytes to client bundles). No SMTP, no OAuth provider, no external service. Works identically in local dev and on Render. Secret rotation is a Render env-var change + redeploy (for `SESSION_SECRET`) or a bcrypt re-hash (for the passphrase). If this is rejected in favor of Option B (Auth.js) or Option C (Cloudflare Access), `docs/27` §5 (session handling) must be rewritten before Phase 2 begins.
+
+## D-048 — Rich typed metadata field matrix (extends the CTI model; no JSONB)
+
+- **Date:** 2026-07-12
+- **Status:** **Accepted** (owner ratified 2026-07-12, with the `skillsLearned` amendment below)
+- **Amendment (owner 2026-07-12):** `skillsLearned` is a dedicated typed field on Project (implemented as `text[]`), **distinct from `tags`**. Semantics: `tags` = technologies/topics the project used; `skillsLearned` = what building it taught the owner. Rendering home: a self-hiding "What I learned" block on the project detail page.
+- **Context:** The owner used the new admin and ruled the editors too sparse: every content type must offer a generous, LinkedIn-grade set of *optional* metadata where the owner fills what they want and everything empty self-hides (LAW-008). The risk is reintroducing D-043's rejected unified-JSONB model through a "flexibility" back door.
+- **Decision (proposed):** Add a **generous but closed, fully-typed** field set per content type (`docs/28` §3) — named columns, typed `text[]` arrays, or typed child tables, never a JSONB bag and never a user-defined custom-field builder. New Project fields (the one live public page): `overview` (markdown body), `startDate`/`endDate`, `context`, `role`, `collaborators[]`, `liveUrl`, `videoUrl` (URL only), `outcomes[]`, `coverImage`/`gallery`/`attachments` (via `content_media`), and — pending a dedup ruling — `skillsLearned[]`. Publications gain `pubDate`, `pubStatus`, `arxivUrl` + uploaded-PDF attachment; Posts gain cover/attachments/`relatedLinks`; Timeline gains `place`, `highlights[]`, logo, `proofUrl`; Skills gain `category`, `sinceYear`. Three cross-cutting typed tables — `media`, `content_media`, `content_links` — serve all types. Every field is optional (only `question`-to-publish stays required per LAW-003; image `alt_text` is the one required-at-upload exception), self-hides when empty, and has a defined rendering home in a docs/24 archetype. Anything expressible as a relation (skill↔project, project↔publication) stays a `relation` (LAW-005) and is **not** duplicated as a column. Fields with no honest rendering home were cut (`readingContext`→reuses `question`; `duration`→derived; separate `stack`→`tags` already is it).
+- **Open sub-ruling:** `skillsLearned[]` on Project overlaps the `evidences` relation — keep as lightweight prose takeaways (recommended) or drop in favor of relations only (`docs/28` §5.1).
+- **Consequences:** Migration is additive; existing content maps with new fields empty (no invented values, no data loss). The CTI contract and D-043's three binding conditions hold. Public pages for non-Project types remain future sprints — their new fields are built + editable now, rendering-designed-but-dormant until those pages ship. If rejected/amended, `docs/28` §3 is revised before Phase 2 begins.
+
+## D-049 — Media storage vendor + `media` schema: Cloudflare R2 (extends D-013)
+
+- **Date:** 2026-07-12
+- **Status:** **Accepted** (owner ratified 2026-07-12, Cloudflare R2, with three conditions below)
+- **Conditions (owner 2026-07-12):** (1) credentials via env only — `.env.example` placeholders + README setup steps incl. bucket creation and CORS; (2) a documented one-command backup/export path that pulls the entire bucket to local disk (media is never vendor-hostage); (3) upload constraints as designed — auth-gated, size/type limits, alt-text required for images.
+- **Context:** The rich-metadata sprint adds images + PDFs, which requires the deferred media pipeline. D-013 ratified the *category* (S3-compatible object storage, references in Postgres, no DB/app blobs, CDN variants) and deferred the vendor. Options weighed against one-maintainer/decade/Render: (a) Render persistent disk, (b) S3-compatible object storage, (c) repo-committed `/public` assets.
+- **Decision (proposed):** **Cloudflare R2** (S3-compatible) as the media store, with `@aws-sdk/client-s3` against the R2 endpoint. Rationale: zero egress fees (the decade-cost killer for media), 10 GB + 1M writes/10M reads free per month (≈ **$0/mo for years**), S3-compatible API (portable per D-012/D-013 — swap to Backblaze B2 or AWS S3 is an endpoint/credential change, no rewrite). Backblaze B2 is the documented fallback. **(c) is disqualified** — it cannot accept auth-gated *runtime* uploads (Render's fs is ephemeral; git-as-media-store bloats the repo permanently) and contradicts D-013. **(a) works but couples media to the compute instance**, with the weakest backup/CDN story, and re-paints the D-007 monolith as a stateful single instance. Schema: a typed `media` table (`kind`, `storage_key`, `mime_type`, `byte_size`, `alt_text` — REQUIRED for images via CHECK, `caption`, `width`, `height`); content references media via the typed `content_media` join (`role` cover/gallery/attachment, `sort_order`, `ON DELETE RESTRICT` = reference-checked delete) — **no JSONB media array on content rows**. Upload flow: Server Action behind the D-047 admin gate; magic-byte content-type verification; server-side size limits (img ≤8MB, PDF ≤20MB); sharp dimension read + EXIF strip; server-generated random keys (no path traversal); alt-text enforced; nothing uploaded is ever executed.
+- **Consequences:** D-013's deferred vendor closes *pending ratification*. **D-041's monthly cost is unchanged (+$0/mo)** at current + foreseeable scale; the only new secrets are R2 credentials (env only). next/image optimizes from the R2 base; three.js stays absent from public First Load JS; `/` holds ~152 kB. If B2 or another vendor is chosen, only the endpoint/credentials + `docs/28` §6 change; the schema and flow hold.
+
+---
+
 _Add new decisions below, incrementing the ID._

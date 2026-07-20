@@ -2,13 +2,46 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-11
+**Last updated:** 2026-07-12
 
 ## Current Phase
 
-**V2 implementation underway — launch readiness reached (`v0.6.0-alpha`).** The V2 Product Design Bible (`docs/24-DESIGN_BIBLE_V2.md`, D-039) is frozen and being implemented page-by-page. Sprint HS-1 (Hero Scene → V2) shipped; the Landing V2 rebuild shipped; **this sprint made the Tier 0 site deployable-on-content and added the `/projects` Work pages.**
+**v0.9.0-alpha — Rich metadata + media sprint complete (Phases 1–3).**
 
-## Launch-readiness sprint (latest — release gates · deployment · /projects)
+D-048 (rich typed field matrix) + D-049 (Cloudflare R2 media) ratified & implemented (`docs/28`). Every content type gained a generous set of **optional, typed, self-hiding** fields — no JSONB bag, no custom-field builder (D-043 upheld). Projects (the one live public page) render cover / duration / context / role / collaborators / overview / gallery / outcomes / "What I learned" / live+video+PDF evidence, each self-hiding; an empty project renders identically to before. Media pipeline: `media`/`content_media`/`content_links` tables + migration 0002, R2 S3 client (server-only), magic-byte + size + EXIF-strip validation, auth-gated upload with alt-text-required, `/admin/media` library, reference-checked delete, `npm run media:backup` bucket mirror. Version history extended to all new fields + media (round-trip verified). **Budgets:** `/` 152 kB, `/projects` 106 kB (both unchanged); `/projects/[slug]` 106→111 kB (+5 kB next/image, the required optimization path). three.js + admin + aws-sdk absent from all public First Load JS (CI guards pass). Typecheck + build green, zero warnings.
+
+**Media activation is owner-gated:** set `R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET` + `MEDIA_PUBLIC_BASE_URL` (README → "Media / R2 setup"). Until then the Media page shows an honest disabled state — nothing faked. Text fields work immediately in DB mode.
+
+### v0.8.0-alpha — Admin CMS complete (Phases 1–3). Acceptance ritual passed.
+
+D-046 (collocation) and D-047 (iron-session Option A) ratified. Admin CMS fully implemented: auth (iron-session + bcrypt, in-memory rate-limiter, constant-time compare), admin shell, Projects editor (all 18 drafts editable, question publish-gate, lifecycle state machine, abandoned branches, version history + restore), site-copy editor (DB-mode only, single-writer banner), `content_versions` + `site_settings_versions` tables (with origin provenance field), scheduled-publish cron with SKIP LOCKED, CI admin bundle isolation guard (hard failure), security headers in next.config.ts, robots.ts disallows /admin, render.yaml cron stub.
+
+**Acceptance ritual:** draft → write question → publish → appears on /projects in **1.9s** (limit: 10 min ✓). Build: `/` = 152 kB unchanged. Typecheck clean.
+
+## DB Sprint — all three phases complete + ingest (latest)
+
+`docs/09-DATABASE.md` authored and fully implemented. D-043/D-044/D-045 all ratified.
+
+**Phase 1 — Schema design:** Decade-horizon relational schema. CTI pattern (`content_items` base + type tables). Full schema: `content_items`, `abandoned_branches`, `content_stages` + `stage_items`, `projects`, `publications`, `posts`, `timeline_entries`, `skills`, `gallery_items`, `content_versions`, `relations`, `site_settings`, `users`, `sessions`, `github_cache`, `embeddings` (pgvector, chunk-based, sync_status).
+
+**Phase 2 — Migrations + local dev:**
+- `apps/web/src/db/schema.ts` — Drizzle TypeScript schema (9 tables implemented)
+- `apps/web/src/db/migrations/0000_fair_silver_surfer.sql` — single migration: tables + FKs + D-043 binding conditions (all merged here; 0001 was manually-created and not in the journal, so it was merged into 0000 before first apply)
+- `apps/web/src/db/index.ts` — lazy DB client (never instantiated in file mode)
+- `apps/web/drizzle.config.ts` — drizzle-kit config (loads `.env.local` via dotenv — WSL/Windows interop fix)
+- `docker-compose.dev.yml` — local Postgres (pgvector/pgvector:pg17, **port 5433** — avoids Windows Postgres on 5432)
+- Updated `.env.example` — `DATABASE_URL`, `CONTENT_SOURCE` documented
+- `apps/web/scripts/db-ingest.ts` — idempotent ingest from `content/site.ts` → DB (loads `.env.local` via dotenv)
+- `apps/web/package.json` — `db:generate`, `db:migrate`, `db:ingest` scripts
+
+**Phase 3 — DB-backed ContentService:**
+- `apps/web/src/services/db-content.ts` — full ContentService impl via Drizzle (all 8 methods, 3 queries per collection call, no N+1)
+- `apps/web/src/services/index.ts` — source selector: `CONTENT_SOURCE=db → dbContent`, else `localContent`
+- Pages updated: `projects/page.tsx` + `projects/[slug]/page.tsx` now import `contentService` from `@/services` (not `localContent` directly)
+
+**Verified:** typecheck clean (zero errors), build green: `/` = 152 kB, three.js absent from all First Load JS, 7 static pages. File mode works with no DB present — `CONTENT_SOURCE` unset = file mode by default.
+
+## Launch-readiness sprint (session 22–26 — release gates · content fill · 18 project drafts)
 
 The repo is now in a state where the owner can deploy Tier 0 the moment `content/site.ts` is filled. Three phases, all green (`typecheck` + `build`, zero warnings; three.js absent from First Load JS across `/`, `/projects`, `/projects/[slug]`):
 
@@ -20,7 +53,13 @@ The repo is now in a state where the owner can deploy Tier 0 the moment `content
 
 **Owner's next actions:** fill `OWNER_CONTENT_CHECKLIST.md` → clear `RELEASE_CHECKLIST.md` gates → ratify the deploy vendor → trigger the first Render deploy.
 
-**Known follow-ups (out of scope this sprint):** other lanes (Research/Posts/About + Publications/Skills/Timeline/Contact/Search) still unbuilt (correctly hidden from chrome); the Arrival `<h1>` is hardcoded and diverges from `site.ts.identitySentence` (flagged in the checklist — wire to one source or keep in sync); docs/09 must answer the Project↔Memory convergence question.
+**Identity copy wired (session 23):** the Arrival `<h1>` is now single-sourced from `site.ts.identitySentence` (hardcoded string removed) with a companion `identitySupport` line; owner-ratified copy is in. Checklist items 1–2 ✅. Two honest copy observations reported to the owner (subject-verb "learns and enjoy", first→third-person voice / LAW-002, duplicated "Deepak" in eyebrow+`<h1>`) — left for the owner to rule on, not auto-corrected.
+
+**Content fill (session 25):** `currentFocus`, `contactSentence`, `contactEmail`, `outbound.github`, `outbound.linkedin`, `outbound.scholar` (null, self-hides), `outbound.x`, `outbound.instagram` all inserted. X and Instagram wired in `evidence.tsx` + `footer.tsx` with graceful-absence guards (additive outbound extension — no closed set in docs/14 or docs/24). Checklist items 7, 8, 9 ✅ DONE. Build: `/` 152 kB, zero warnings, three.js absent from First Load JS.
+
+**Project corpus inserted (session 26):** all 18 projects in `content/site.ts` as `status: "draft"`. None published — LAW-003 requires `question` first. `/projects` shows EmptyState (correct). `getProjects()` now sorts newest-first (was missing before). `context` → `problem`, `stack` → `tags` field mapping documented. Featured flag already existed. Checklist updated: per-project list with 6 featured first. Publishing flow: write question → flip status → project appears.
+
+**Known follow-ups (out of scope):** other lanes (Research/Posts/About + Publications/Skills/Timeline/Contact/Search) still unbuilt (correctly hidden from chrome); docs/09 must answer the Project↔Memory convergence question.
 
 ## V2 · Landing Experience rebuilt (latest — product-experience sprint)
 

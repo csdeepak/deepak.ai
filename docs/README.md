@@ -31,6 +31,8 @@ These documents are numbered to be read in order. They capture *decisions* and *
 | [`21-HERO_BLENDER_PIPELINE.md`](21-HERO_BLENDER_PIPELINE.md) | Blender production pipeline — assets, rig, clips, export chain, budgets; the artist's handbook (D-035). |
 | [`22-HERO_RUNTIME_ARCHITECTURE.md`](22-HERO_RUNTIME_ARCHITECTURE.md) | Hero runtime architecture — R3F structure, state, scroll sync, performance, error ladder (D-036). |
 | [`23-PERSONAL_OS_RUNTIME.md`](23-PERSONAL_OS_RUNTIME.md) | Personal OS runtime — the kernel, two-plane decoupling, and ten coordinated runtimes (D-038). |
+| [`27-ADMIN_CMS_ARCHITECTURE.md`](27-ADMIN_CMS_ARCHITECTURE.md) | Admin CMS architecture — route structure, auth strategy (D-046/047), bundle isolation, editor IA, version history, scheduled publishing, threat model. |
+| [`28-RICH_METADATA_AND_MEDIA.md`](28-RICH_METADATA_AND_MEDIA.md) | Rich typed metadata field matrix + media architecture (D-048/049) — per-type optional field sets, `media`/`content_media`/`content_links` tables, Cloudflare R2 storage, upload security. |
 
 ## Conventions
 

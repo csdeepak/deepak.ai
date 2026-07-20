@@ -49,36 +49,32 @@ must pass **both** before it ships:
 
 ## Part 1 — Landing copy (blocks the Landing V2 release)
 
-### 1. The identity headline — the single most important line ⟨R4⟩
+### 1. The identity headline — the single most important line ⟨R4⟩ — ✅ DONE
 
-- **File + line:** `apps/web/src/features/landing/sections/arrival.tsx`
-  **lines 38–41** (the public, LCP `<h1>`), currently:
-  *"I build intelligent systems. / And I publish the research behind
-  them."*
-- **What it's for:** the first thing every evaluator reads; it *is* the
-  90-second brief's opening (LAW-009) and the page's LCP element.
-- **Constraints:** present tense, ≤ ~12 words across the two lines, plain,
-  no banned vocabulary. **Must pass the R4 10-second + read-aloud tests.**
-- **Guiding question:** *If a hiring manager read only this line and
-  nothing else, what is the one true thing about you they must leave
-  with?*
-- **⚠ Note (wiring divergence to resolve):** `site.ts` also has an
-  `identitySentence` field (item 2) that currently feeds **only** the
-  `/dev/hero` Tier-0 preview, **not** this public headline. Decide whether
-  these two should say the same thing. If yes, tell the engineer to wire
-  the Arrival `<h1>` to `site.ts` so there is one source of truth; until
-  then, **edit both** so they agree.
+- **Status:** ✅ **Complete (owner-ratified).** The public LCP `<h1>` is now
+  **wired to `site.ts.identitySentence`** — one source of truth (the earlier
+  hardcoded-string divergence is resolved; the Arrival component holds no
+  copy). Current value: *"Deepak learns and enjoy building intelligent
+  systems."*
+- **File:** rendered by `apps/web/src/features/landing/sections/arrival.tsx`;
+  edited in `apps/web/content/site.ts` (`identitySentence`).
+- **Constraint check:** present tense ✓ · length ✓ · banned vocabulary ✓.
+  Two honest observations flagged to the owner (not auto-corrected): a
+  subject-verb agreement in "learns and enjoy" and a first→third-person
+  voice shift. See the session note / AI_HANDOFF for detail.
 
-### 2. `identitySentence` (metadata + Tier-0 preview) ⟨R4⟩
+### 2. `identitySentence` + `identitySupport` (the hero identity block) ⟨R4⟩ — ✅ DONE
 
-- **File + line:** `apps/web/content/site.ts` **line 22–23**.
-- **What it's for:** the one-sentence identity string. Feeds the
-  `/dev/hero` Tier-0 preview headline today; the natural home for your
-  SEO / social-share identity line.
-- **Constraints:** one sentence, present tense, plain, no banned vocab.
-  R4 tests apply.
-- **Guiding question:** *In one breath, what do you do and why does it
-  matter — with no adjectives?*
+- **Status:** ✅ **Complete (owner-ratified).**
+- **File:** `apps/web/content/site.ts` — `identitySentence` (the `<h1>`) and
+  the new companion **`identitySupport`** (the supporting line beneath the
+  heading; docs/24 assigns no named field, so this one was added). Both are
+  single-sourced and self-hide if emptied (graceful absence).
+- **`identitySupport` value:** *"An adaptive mind working across agentic AI,
+  memory, and software engineering — documenting not just what he builds,
+  but how he thinks, learns, and evolves."*
+- **Constraint check:** present tense ✓ · length ✓ (supporting-line measure)
+  · banned vocabulary ✓.
 
 ### 3. `mission.statement` — the beat that makes them stop scrolling ⟨R4⟩
 
@@ -130,46 +126,48 @@ must pass **both** before it ships:
 - **Guiding question:** *What is the most honest one-line promise you can
   make about what a curious visitor will find here as it fills in?*
 
-### 7. Collaborate close — heading + `contactSentence` + `contactEmail`
+### 7. Collaborate close — heading + `contactSentence` + `contactEmail` — ✅ DONE
 
+- **Status:** ✅ **Complete (owner-ratified).**
+  - `contactEmail` = `csdeepak2005@gmail.com` (live `mailto:` + copy button).
+  - `contactSentence` = *"Working toward full-time AI engineering — open to
+    roles, collaborations, and good questions."*
+  - Heading ("Let's build something worth understanding.") left as-is — it
+    passes the read-aloud test; no banned vocab.
 - **File + lines:**
   - Heading — `apps/web/src/features/landing/sections/collaborate.tsx`
-    **line 24** ("Let's build something worth understanding.") ⟨R4⟩
-  - `contactSentence` — `apps/web/content/site.ts` **lines 38–40**
-    (what's-welcome sentence).
-  - `contactEmail` — `apps/web/content/site.ts` **line 35** (currently
-    `null` → the email block self-hides until filled).
-- **What it's for:** the page's final breath — one honest invitation, one
-  real action (the email is both copyable and a `mailto:` link).
-- **Constraints:** the heading must not use "let's build something
-  amazing" (banned) — the current draft is close to that pattern, so give
-  it a read-aloud pass. `contactSentence` = one honest sentence about what
-  is genuinely welcome. `contactEmail` = a real address you check.
-- **Guiding question:** *What kind of message would you actually be glad
-  to receive — and what should someone know before sending it?*
+    **line 24**.
+  - `contactSentence` / `contactEmail` — `apps/web/content/site.ts`.
 
-### 8. `currentFocus` — what you're working on right now (optional, R5-gated)
+### 8. `currentFocus` — what you're working on right now (optional, R5-gated) — ✅ DONE
 
-- **File + line:** `apps/web/content/site.ts` **line 30**
-  (`{ phrase, updatedAt } | null`). Feeds the `/dev/hero` Tier-0 preview.
-- **What it's for:** a single "currently…" line. **Self-hides when
-  `null`, and the freshness stamp only renders while ≤ 30 days old (R5)** —
-  so leaving it `null` is honest if you won't keep it fresh.
-- **Constraints:** `phrase` = one present-tense clause; `updatedAt` = an
-  ISO date (`"2026-07-11"`). Only fill this if you will update it.
-- **Guiding question:** *Is there one thing you're actively working on
-  this month that you'll remember to refresh? If not, leave it empty.*
+- **Status:** ✅ **Complete (owner-ratified).**
+  - Value: *"Building AI automation with agentic systems — exploring how
+    agents plan, act, and adapt across real workflows."* · `updatedAt:
+    "2026-07-11"`.
+  - **R5 gate status (reported):** the freshness stamp (the "updated Jul 11"
+    text) renders only while ≤ 30 days old — currently fresh, expires
+    2026-08-10. The phrase itself renders whenever non-null. Note:
+    `currentFocus` is wired only in `hero.tsx` (the `/dev/hero` dev-only
+    route, 404 in production); the V2 landing (`arrival.tsx`) does not
+    render this field. It will need wiring in `arrival.tsx` if you want it
+    visible on `/`.
+- **File + line:** `apps/web/content/site.ts` (`currentFocus`).
 
-### 9. `outbound` links — GitHub · Scholar · LinkedIn
+### 9. `outbound` links — GitHub · Scholar · LinkedIn · X · Instagram — ✅ DONE
 
-- **File + lines:** `apps/web/content/site.ts` **lines 42–46**. Rendered
-  in `evidence.tsx` (trust seeds) and `footer.tsx` — **each link appears
-  only when its URL is filled** (graceful absence).
-- **What it's for:** the real external profiles that corroborate the work.
-- **Constraints:** full `https://` profile URLs, or leave `null`. Never a
-  placeholder or a profile that isn't really yours.
-- **Guiding question:** *Which of your external profiles is current enough
-  that you'd want an evaluator to land on it today?*
+- **Status:** ✅ **Complete (owner-ratified).** Outbound set extended additively
+  with `x` and `instagram` (docs/14 + docs/24 define no closed set; see
+  session note in `AI_HANDOFF.md`).
+  - `github` = `https://github.com/csdeepak`
+  - `linkedin` = `https://www.linkedin.com/in/c-s-deepak-b1b41228b`
+  - `x` = `https://x.com/CSDeepak08`
+  - `instagram` = `https://www.instagram.com/deep_in.ai/`
+  - `scholar` = `null` — no Scholar profile yet; **self-hides everywhere
+    (LAW-008)** — verified in `evidence.tsx` and `footer.tsx`.
+- **File:** `apps/web/content/site.ts` (`outbound` object). Rendered in
+  `evidence.tsx` (trust seeds) + `footer.tsx`. All five fields use the
+  graceful-absence pattern — each link appears only when its URL is filled.
 
 ### 10. `cvUrl` — the CV asset (optional)
 
@@ -202,46 +200,123 @@ must pass **both** before it ships:
 
 ## Part 1b — Project content (the `/projects` Work pages)
 
-The `/projects` index and detail pages are built and live, reading the
-`projects` array in `apps/web/content/site.ts` (empty today → the index
-shows an honest empty state, which is correct). When you add a real
-project, each entry is a `Project` object with these **content** fields:
+All 18 projects are now in `apps/web/content/site.ts` as `status: "draft"`.
+**Drafts are invisible on `/projects` and generate no public URLs.** The
+index shows the designed EmptyState (honest — correct until real questions exist).
 
-### P1. `question` — REQUIRED per project ⚠ (LAW-003)
+**Publishing flow:** write the `question` → set `status: "published"` in
+`apps/web/content/site.ts` → the project appears on `/projects` and its
+detail page becomes accessible. You can publish one at a time.
 
-- **Where:** each object in `projects` (`apps/web/content/site.ts`), field
-  `question`. Rendered as the detail page's lead section ("The question
-  that created it").
-- **The rule:** *every artifact answers "what question created me?"* — a
-  real project **without a `question` is not publishable.** This is
-  distinct from `problem` (what it solves); the question is what caused it
-  to exist.
-- **Guiding question:** *What were you actually trying to find out or make
-  possible when this project started — phrased as a question?*
+**The six FEATURED projects make `/projects` launch-ready — write these first.**
 
-### P2. `abandonedBranches` — optional but expected (LAW-004)
+> **Optional enrichment (D-048, not launch-blocking):** in DB mode each project
+> can now also carry a **cover image**, a **gallery**, **PDF attachments**
+> (report/paper/poster), an **overview** (decisions & trade-offs body),
+> **start/end dates**, **context**, **role**, **collaborators**, **outcomes**,
+> **"What I learned"** takeaways, and **live/video links** — all edited in
+> Admin → Projects, all self-hiding when empty. None of these are required to
+> publish; the only publish gate is still the `question`. Media requires R2 to
+> be configured (README → "Media / R2 setup").
 
-- **Where:** each project's `abandonedBranches?: { tried, whyAbandoned,
-  learned }[]`. Rendered as the "Abandoned branches" section; **empty or
-  absent = the section self-hides** (honest, LAW-008).
-- **The rule:** *every conclusion exposes its abandoned branches.* Failure
-  is first-class. Keep the real dead ends — do not sanitize them away, and
-  do not invent them either.
-- **Guiding question:** *What did you try that didn't work, why did you
-  drop it, and what did that teach you?*
+---
 
-### P3. The rest of each project
+### Featured projects — write these first ⭐
 
-- `title`, `problem` (one-line), `year`, `projectStatus` (`active` /
-  `archived`), `tags`, `featured`, optional `repoUrl`, and typed
-  `relations` (evidence links — only relations to **built** pages render;
-  the rest self-hide, so no dead links). No fabricated metrics or counts.
-- **Guiding question:** *Is every field here something you can stand
-  behind as true today? If not, leave it out — empty beats invented.*
+> Publishing any one of these makes `/projects` non-empty. Publishing all
+> six gives the site a credible, curated Work section at launch.
 
-> Note on schema: `question` + `abandonedBranches` were added additively
-> this sprint (D-042); the full Project↔Memory content-model convergence
-> is deferred to the docs/09 database sprint.
+#### asmos · ASMOS — Multi-Agent Memory Management System (2026-06)
+- [ ] **question** — What question created it? (LAW-003, required to publish)
+- [ ] **abandonedBranches** — What did you try that didn't work? (LAW-004, optional — self-hides if empty)
+
+#### shortcutscore · ShortcutScore (2026-04)
+- [ ] **question** — What question created it?
+- [ ] **abandonedBranches** — optional
+
+#### docksmith-engine · Docksmith Engine (2026-03)
+- [ ] **question** — What question created it?
+- [ ] **abandonedBranches** — optional
+
+#### turb-detr · Turb-DETR (2026-02)
+- [ ] **question** — What question created it?
+- [ ] **abandonedBranches** — optional
+
+#### pesu-vault · PESU Vault (2026-01)
+- [ ] **question** — What question created it?
+- [ ] **abandonedBranches** — optional
+
+#### dental-ai-pipeline · Dental AI Pipeline (2025-10 → 2026-05)
+- [ ] **question** — What question created it?
+- [ ] **abandonedBranches** — optional
+
+---
+
+### Remaining 12 projects — write after the featured six
+
+> These publish independently. Order doesn't matter — publish whenever
+> you're ready to document each one.
+
+#### sahayai-club-website · SahayAI Club Website (2025-12)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### humanizer · Humanizer (2025-12)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### ml-hangman · Machine Learning Hangman (2025-11)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### recipe-ingredient-optimizer · Recipe Ingredient Optimizer / RIO (2025-11)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### sediment-particle-size-prediction · Sediment Particle Size Prediction (2025-10)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### gym-management-system · Gym Management System (2025-10)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### smart-door-lock · Smart Door Lock System (2025-03)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### amplify · Amplify (2024-10)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### flight-booking-app · Flight Booking App (2023-11)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### weather-app · Weather App (2023-10)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### bmi-calculator · BMI Calculator (2023-10)
+- [ ] **question** · [ ] **abandonedBranches**
+
+#### incrementor-app · Incrementor App (2023-09)
+- [ ] **question** · [ ] **abandonedBranches**
+
+---
+
+### What each question looks like
+
+`question` is distinct from `problem` (the one-line description already
+pre-filled from your context). The **question** is what caused the project
+to exist: *"What were you actually trying to find out or make possible when
+this project started — phrased as a question?"*
+
+For `abandonedBranches`, each entry is `{ tried, whyAbandoned, learned }`.
+The dead ends are kept on purpose — they are where the design actually
+happened. Leave empty if you don't remember clearly enough to be honest.
+
+Also check and correct these pre-filled fields in `site.ts` before publishing:
+- `problem` — currently maps from the brief's context summary; rewrite in
+  your voice as the one-line problem statement for the card.
+- `projectStatus` — all set to `"archived"` by default; flip to `"active"`
+  for any project you are still actively working on.
+- `tags` — currently the tech stack; edit to whatever labels you want on cards.
+
+> Note: `question` + `abandonedBranches` added D-042. Full Project↔Memory
+> convergence deferred to docs/09. `featured` flag exists in data; no
+> visual distinction is rendered in the current index (docs/24 defines no
+> featured card treatment; a future sprint can add one when requested).
 
 ---
 
