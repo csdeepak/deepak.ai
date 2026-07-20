@@ -73,7 +73,7 @@ export function Brief({
         <p className="mt-3 text-body text-muted">{memory.oneLine}</p>
 
         <dl className="mt-8 space-y-4">
-          {rows.map(([label, value]) => (
+          {rows.filter(([, value]) => value).map(([label, value]) => (
             <div key={label} className="grid grid-cols-[6rem_1fr] gap-4">
               <dt className="font-mono text-micro uppercase tracking-[0.12em] text-faint">
                 {label}

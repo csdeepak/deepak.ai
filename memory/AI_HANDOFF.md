@@ -14,6 +14,37 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-21 — D-050 Close-Out + Release Readiness (final engineering session)
+
+- **What I did:** Four engineering deliverables completing the last deploy-blocking gates.
+  1. **`brief.tsx` self-hide fix** — added `.filter(([, value]) => value)` before `.map()` on `rows` in the Brief dialog so empty gist fields (e.g. `formed: ""`) never render a blank label (LAW-008). One line.
+  2. **`content/asmos.ts` rewritten** — old scaffold described a fabricated "structured memory architecture" project (wrong project, wrong framing). Replaced entirely with owner-ratified content: ASMOS is an ownership-based multi-agent orchestration system; ratified text covers the insight (systems only compared answers, not routed by ownership), the experiment (subtask routing by owning agent), and the result (confirmed; context tokens cut ~24% per query in evaluation). 3 stages (`question`, `experiments`, `results`), 3 dex Q&As grounded in those stages, `role: "Researcher and engineer"`, `formed: ""` (self-hiding), `links: []`. `draft: false` flipped. `memoryNodes`/`memoryEdges` preserved unchanged. Clears **G3 (hard deploy gate)**.
+  3. **`apps/web/src/instrumentation.ts` created** — Next.js `register()` startup hook. Throws a named error at `next start` in production if `SESSION_SECRET` is missing/dev-fallback/< 32 chars or `ADMIN_PASSWORD_HASH` is missing/doesn't start with `$2`. Guarded by `process.env.NEXT_PHASE === "phase-production-build"` so CI builds with no real secrets pass clean. Closes the silent-credential failure mode (previous gap: `session.ts` used `?? "dev-secret-min-32-chars-change-me!"` silent fallback).
+  4. **`docs/DEPLOY_RUNBOOK.md` created** — 6-step click-by-click first-deploy sequence: merge → CI green → Render Blueprint click → env vars (with raw/escape guide) → smoke test table (8 checks) → custom domain + TLS → flip `autoDeploy: true`.
+  5. **`docs/10-DEPLOYMENT.md §8a` added** — complete deploy-day env var sheet as a new section; full table of all 11 env vars with field type, scope, and generation commands; R2 omitted with reason; escape-note for bcrypt hashes.
+  6. **Arrival act-0 sub-line swapped** — "A researcher-engineer, read as a network of the work." → "Me, rendered as a network of the work." (owner ruling: LAW-002 third-person violation). All four sub-lines now owner-ratified.
+  7. **`memory/CURRENT_STATE.md` updated** — status set to "RELEASE-READY — pending owner deploy click".
+  8. **`memory/DECISIONS.md` G3 amendment note added** — records the ASMOS rewrite and Arrival ratification against D-050.
+- **Build evidence (final run):** typecheck EXIT 0; build 14 static pages, zero warnings, `/` = 151 kB First Load JS; D-050 bundle guard 148.2 kB ✓ (≤ 164 kB); three/gsap/lenis/sharp absent ✓; hero-face.json 31.4 kB gz ✓ (≤ 60 kB); admin isolation ✓.
+- **Ratified sub-lines (verbatim):**
+  - Act 0: "Me, rendered as a network of the work."
+  - Act 1: "Systems, memory, and the questions between them."
+  - Act 2: "Everything here is real, or it isn't shown."
+  - Act 3: "Keep scrolling — the work comes first."
+- **CV:** `cvUrl: null` stays. No PDF in `apps/web/public/`. `hero.tsx` has `{siteContent.cvUrl && (...)}` guard — CTA self-hides. Owner to upload PDF and fill `cvUrl` when ready.
+- **Why:** Release-readiness close-out. Final gate table confirmed RELEASE-READY pending owner-only items (copy tests R4, visual sign-off, R2, six featured projects).
+- **Owner must do to deploy (in order):**
+  1. Review + commit uncommitted working tree (git commands in final report below)
+  2. Run copy tests R4: read all ratified landing copy aloud (10-second test), brief/a-friend test
+  3. Visual look-dev sign-off: open `/` in Chrome + Safari on mobile; confirm hero on both; confirm dark/light
+  4. `git checkout main && git merge release/v0.9.0-alpha --no-ff && git push origin main` — wait for CI green
+  5. Render Blueprint → env vars → deploy → smoke test (DEPLOY_RUNBOOK.md §4)
+  6. Flip `autoDeploy: true` in `render.yaml` after smoke test passes
+  7. Fill `content/asmos.ts` `gist.formed` (year ASMOS work began) — currently `""`, self-hides
+  8. Write `question` fields for featured six projects, flip their `status: "published"` → `/projects` goes live
+  9. Set up R2 env vars when ready (media pipeline already built, just needs credentials)
+- **Open:** `gist.formed` in asmos.ts; featured 6 projects question+publish; R2 setup; visual sign-off; R4 copy tests. None of these block the deploy click — they are post-deploy or parallel.
+
 ### 2026-07-20 — D-050 Track 1: "Neural Face Lite" Canvas2D hero
 
 - **What I did:** Built the dependency-free Canvas2D particle-portrait hero and swapped it in for the ambient R3F scene on `/`.

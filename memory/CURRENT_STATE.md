@@ -2,11 +2,35 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-21
 
 ## Current Phase
 
-**D-050 Track 1 — "Neural Face Lite" hero shipped (Canvas2D, zero runtime deps).**
+**RELEASE-READY — pending owner deploy click.**
+
+All engineering gates are GREEN. The working tree is clean to commit and merge to `main`. Owner triggers the first Render deploy per `docs/DEPLOY_RUNBOOK.md`.
+
+**What cleared in this final session (2026-07-21):**
+- G3 (deploy-blocking gate) cleared: `content/asmos.ts` rewritten with owner-ratified ASMOS content (ownership-based multi-agent routing; 24% context token reduction); `draft: false` flipped.
+- D-050 Arrival act-0 sub-line owner-ratified: "Me, rendered as a network of the work." All four sub-lines now owner-ratified.
+- `apps/web/src/instrumentation.ts` added: loud startup check for `SESSION_SECRET` / `ADMIN_PASSWORD_HASH` at `next start` in production.
+- `docs/10-DEPLOYMENT.md §8a`: deploy-day env var sheet with raw-vs-escaped note.
+- `docs/DEPLOY_RUNBOOK.md`: single-page click-by-click deploy sequence.
+- `brief.tsx`: 1-line fix to self-hide empty gist fields (LAW-008 — avoids blank "Formed" row).
+- Arrival HEIGHT_FRAC mobile shrink (0.62 at ≤640px → 0.82 at ≥900px) ready to commit.
+- `content/asmos.ts` `gist.formed` is `""` (self-hiding) — owner to fill the year ASMOS began.
+
+**Remaining owner actions (ordered):**
+1. Commit + push on `release/v0.9.0-alpha` (git commands below in AI_HANDOFF).
+2. Review Final Gate Table in AI_HANDOFF — all gates GREEN.
+3. Merge to `main` → confirm CI green → Render Blueprint deploy.
+4. Post-deploy smoke test per `docs/DEPLOY_RUNBOOK.md` Step 4.
+5. Fill `gist.formed` in `content/asmos.ts` (year ASMOS began — single string).
+6. R4 copy tests + visual look-dev sign-off on live production URL.
+
+---
+
+### D-050 Track 1 — "Neural Face Lite" hero shipped (Canvas2D, zero runtime deps).
 
 The public landing `/` has a new dependency-free **Canvas2D particle-portrait hero**. An offline `sharp` pipeline (`apps/web/scripts/generate-hero-face.mjs`, `npm run hero:generate`) turns a personal source photo into a quantized constellation (`public/hero-face.json`: ≤3,000 nodes, ≤6,000 KNN edges, pulse paths, luminance-derived pseudo-depth — no ML) that a `"use client"` `<NeuralFaceHero />` **fetches** (never imports) and renders as dim nodes + sub-perceptual edges + a rare accent pulse + pointer parallax + ambient breathing. Feature folder: `apps/web/src/features/neural-face/`.
 

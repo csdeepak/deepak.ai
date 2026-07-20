@@ -432,4 +432,13 @@ Each decision uses:
 
 ---
 
+## D-050 amendment note — G3 cleared, Arrival sub-lines ratified (2026-07-21)
+
+- **Date:** 2026-07-21
+- **Status:** Amendment note (no new ADR number — updates D-050 governance term)
+- **G3 cleared:** `content/asmos.ts` rewritten with owner-ratified ASMOS content. ASMOS is an ownership-based multi-agent orchestration system (not the memory-architecture scaffold). The ratified text is the owner's first-person narrative: insight (systems only compared answers, not routed by ownership), experiment (subtask routing by owning agent), result (confirmed; ~24% context token reduction). `draft: false` flipped. `gist.formed` left `""` (self-hiding per brief.tsx fix) pending owner fill.
+- **D-050 Arrival sub-lines ratified:** act 0 owner-replaced: "Me, rendered as a network of the work." Acts 1–3 ratified as authored: "Systems, memory, and the questions between them." / "Everything here is real, or it isn't shown." / "Keep scrolling — the work comes first."
+
+---
+
 _Add new decisions below, incrementing the ID._
