@@ -14,6 +14,19 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-20 — D-050 Track 1: "Neural Face Lite" Canvas2D hero
+
+- **What I did:** Built the dependency-free Canvas2D particle-portrait hero and swapped it in for the ambient R3F scene on `/`.
+  - **Pipeline:** `apps/web/scripts/generate-hero-face.mjs` (`npm run hero:generate`) — `sharp` reads a downscaled (≤220px) greyscale portrait; per-pixel score = 0.45·luminance + 0.55·Sobel-edge (edge-biased so eyes/nose/mouth/jaw win); rank-then-clamp keeps ≤3,000 nodes (MIN 300 floor guarantees a face even for very dark images); KNN (k=3) edges via a spatial bucket index, median-pruned (>2.5×) and capped ≤6,000; 4–6 pulse paths as region-seeded random walks; output `public/hero-face.json` (flat quantized arrays + meta). Prints raw+gz sizes, **fails over 60 KB gz after one auto-retry** at a 2,000-node cap. Missing photo ⇒ loud one-line failure (LAW-008), never a fake face.
+  - **Component:** `apps/web/src/features/neural-face/` — `renderer.ts` (imperative Canvas2D: DPR cap 2, offscreen static edge layer blitted per frame, brightness-tiered node batching, ≤2 pulses with `lighter` comp + ≥2s gaps, pointer-lerp parallax + touch autonomous drift, per-node breathing, 800ms smoothstep fade-in, **zero per-frame allocation**), `NeuralFaceHero.tsx` (SSR-safe shell, **fetch-only** load, IntersectionObserver + visibility pause, debounced resize, reduced-motion single static frame, full listener teardown, `aria-hidden`), `types.ts` (+ structural validator), `NeuralFaceHeroRegion.tsx`, `constants.ts`, `use-scroll-act.ts`.
+  - **Integration:** `app/(site)/page.tsx` now mounts `NeuralFaceHeroRegion` (was `HeroSceneRegion ambient`). `arrival.tsx` reads `useScrollAct()` (was `useHeroStore`) and its ambient sub-line copy was rewritten for the no-scene hero. `features/hero-scene/` untouched; the 3D scene still lives at `/dev/hero`.
+  - **Guardrails:** `.gitignore` ignores `apps/web/scripts/assets/*` (keeps `README.md`); `apps/web/scripts/assets/README.md` documents the drop location; `package.json` gains `hero:generate` + `check:bundle`; `scripts/check-bundle-budget.mjs` + a new CI step enforce the 164 kB `/` ceiling, banned-dep absence (three/gsap/lenis/sharp), and fetch-not-bundled dataset.
+  - **Governance:** D-050 added to `DECISIONS.md` (two-track ruling + budgets + zero-dep term + the R3F-removal amendment + the sharp-devDep **conflict note**). `CURRENT_STATE.md` + this entry updated.
+- **Why:** owner directive (D-050 sprint) — a distinctive "alive-not-animated" hero with no WebGL on the public critical path. Owner ruled (this session) to **replace** the ambient R3F mount on `/` rather than coexist, with a minimal self-contained sub-line driver, reversible in one commit for v1.5.
+- **Verification:** typecheck clean. Pipeline validated on **synthetic** images (normal/tiny-180px/very-dark/oversized-4000×5000) — all green, ≈28 KB gz at the 3,000-node cap; those synthetic outputs are **not committed**. Build/budget numbers + the T9 tester table are in the final report.
+- **Owner must do to activate:** drop a real `apps/web/scripts/assets/portrait-source.jpg` (or `.png`) → `cd apps/web && npm run hero:generate` → commit the produced `public/hero-face.json`. Until then the hero copy stands alone (correct graceful absence). Also pending: ratify the rewritten Arrival sub-line copy.
+- **Note:** the local `.env.local` has `CONTENT_SOURCE=db`; with no Postgres running, `npm run build` fails on `/projects/[slug]` (ECONNREFUSED) — **pre-existing, unrelated to this sprint**. CI + the public/zero-DB build run in **file mode** (build with `CONTENT_SOURCE=file`).
+
 ### 2026-07-12 — Rich Metadata + Media Sprint complete (Phases 1–3)
 
 - **What I did:** Enriched the content model + built the deferred media pipeline (`docs/28`, D-048/D-049).

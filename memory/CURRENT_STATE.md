@@ -2,11 +2,25 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-12
+**Last updated:** 2026-07-20
 
 ## Current Phase
 
-**v0.9.0-alpha — Rich metadata + media sprint complete (Phases 1–3).**
+**D-050 Track 1 — "Neural Face Lite" hero shipped (Canvas2D, zero runtime deps).**
+
+The public landing `/` has a new dependency-free **Canvas2D particle-portrait hero**. An offline `sharp` pipeline (`apps/web/scripts/generate-hero-face.mjs`, `npm run hero:generate`) turns a personal source photo into a quantized constellation (`public/hero-face.json`: ≤3,000 nodes, ≤6,000 KNN edges, pulse paths, luminance-derived pseudo-depth — no ML) that a `"use client"` `<NeuralFaceHero />` **fetches** (never imports) and renders as dim nodes + sub-perceptual edges + a rare accent pulse + pointer parallax + ambient breathing. Feature folder: `apps/web/src/features/neural-face/`.
+
+**D-050 amendment (owner-ratified):** the ambient **R3F scene was removed from `/`** — `HeroSceneRegion` now lives **only at `/dev/hero`**. `features/hero-scene/` was **not touched**. The Arrival sub-line's old `useHeroStore` scene-act coupling was replaced by a **self-contained, dependency-free** `useScrollAct` driver (native scroll → act index; no GSAP/Lenis). One-commit reversible for v1.5 (swap `NeuralFaceHeroRegion`→`HeroSceneRegion ambient` in `page.tsx`, repoint `arrival.tsx` import).
+
+**Budgets (D-050, CI-enforced):** `/` First Load JS ceiling amended **152 → 164 kB** (≤ +12 kB for Track 1). `hero-face.json` ≤ **60 KB gzipped** (pipeline prints raw+gz, fails over budget after one auto-retry; synthetic-image validation measured ≈28 KB gz at the 3,000-node cap). New CI guard (`scripts/check-bundle-budget.mjs`) fails on three/gsap/lenis/sharp in `/`'s First Load JS, on `/` > 164 kB, or if the hero-face dataset is bundled instead of fetched.
+
+**No-fake-data / graceful absence:** there is **no real owner photo in the repo**, so **no `hero-face.json` is committed** — the hero copy stands alone until the owner drops `apps/web/scripts/assets/portrait-source.jpg` and runs `npm run hero:generate`. Missing photo = the pipeline fails loudly with the exact drop path; missing JSON = the component renders nothing. `scripts/assets/` is gitignored (README kept tracked). Zero-DB + zero-asset public build verified.
+
+**Owner copy ruling pending:** the Arrival ambient **sub-line** was rewritten (old lines narrated the now-removed 3D scene + Dex → dishonest to keep, LAW-008). New lines are authored dev copy, flagged for owner ratification; the ratified identity + support lines were untouched.
+
+---
+
+### v0.9.0-alpha — Rich metadata + media sprint complete (Phases 1–3).
 
 D-048 (rich typed field matrix) + D-049 (Cloudflare R2 media) ratified & implemented (`docs/28`). Every content type gained a generous set of **optional, typed, self-hiding** fields — no JSONB bag, no custom-field builder (D-043 upheld). Projects (the one live public page) render cover / duration / context / role / collaborators / overview / gallery / outcomes / "What I learned" / live+video+PDF evidence, each self-hiding; an empty project renders identically to before. Media pipeline: `media`/`content_media`/`content_links` tables + migration 0002, R2 S3 client (server-only), magic-byte + size + EXIF-strip validation, auth-gated upload with alt-text-required, `/admin/media` library, reference-checked delete, `npm run media:backup` bucket mirror. Version history extended to all new fields + media (round-trip verified). **Budgets:** `/` 152 kB, `/projects` 106 kB (both unchanged); `/projects/[slug]` 106→111 kB (+5 kB next/image, the required optimization path). three.js + admin + aws-sdk absent from all public First Load JS (CI guards pass). Typecheck + build green, zero warnings.
 

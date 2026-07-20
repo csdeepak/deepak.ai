@@ -12,7 +12,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:ingest": "tsx scripts/db-ingest.ts",
     "db:publish-scheduled": "tsx scripts/db-publish-scheduled.ts",
-    "media:backup": "tsx scripts/media-backup.ts"
+    "media:backup": "tsx scripts/media-backup.ts",
+    "hero:generate": "node scripts/generate-hero-face.mjs",
+    "check:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1085.0",

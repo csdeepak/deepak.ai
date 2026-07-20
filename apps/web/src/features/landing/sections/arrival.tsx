@@ -2,30 +2,35 @@
 
 import { Container } from "@/components/layout/container";
 import { SoundToggle } from "@/components/ui/sound-toggle";
-import { useHeroStore } from "@/features/hero-scene/shared/hero-store";
+import { useScrollAct } from "@/features/neural-face/use-scroll-act";
 import { siteContent } from "../../../../content/site";
 
 /**
- * Screen 1 — ARRIVAL (bible §6, landing IA). The identity lives INSIDE
- * the scene — anchored low-left like a title card, never a left-text /
+ * Screen 1 — ARRIVAL (bible §6, landing IA). The identity lives OVER the
+ * hero — anchored low-left like a title card, never a left-text /
  * right-image poster. The headline is server-rendered with a CSS-only
  * entrance (LCP never waits on JS).
  *
- * Scroll choreography: the sub-line tracks the scene's act as the camera
- * travels the ~200vh rail, so the pinned first screen reads as
- * progression, not a static hold. Everything here amplifies the scene;
- * it does not compete with it.
+ * Sub-line: a calm progression driven by native scroll through the hero
+ * region (D-050 amendment — `useScrollAct`, dependency-free). It replaced
+ * the old `useHeroStore` scene-act coupling when the ambient R3F scene was
+ * removed from `/`. The face is atmosphere; the copy does not compete.
+ *
+ * NOTE (copy — owner ruling pending): these ambient sub-lines were rewritten
+ * for the no-3D-scene hero (the old lines narrated the scene's camera acts
+ * and Dex, which no longer render on `/` — keeping them would have been
+ * dishonest, LAW-008). They are authored dev copy, not owner-ratified —
+ * flagged for review.
  */
 const ACT_LINE: Record<number, string> = {
-  0: "A researcher-engineer's workspace. Scroll to look around.",
-  1: "The current work — close, and warm.",
-  2: "The systems, in orbit.",
-  3: "The research, glowing.",
-  4: "And Dex — soon you'll be able to ask it anything about the work.",
+  0: "A researcher-engineer, read as a network of the work.",
+  1: "Systems, memory, and the questions between them.",
+  2: "Everything here is real, or it isn't shown.",
+  3: "Keep scrolling — the work comes first.",
 };
 
 export function Arrival() {
-  const act = useHeroStore((s) => s.act);
+  const act = useScrollAct();
 
   return (
     <Container
