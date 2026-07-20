@@ -19,6 +19,14 @@ photograph. This is the deliberate, correct use of the repo's otherwise
 avoided "gitignored path" pattern: the source is private, the derivative
 is public.
 
+## Framing (affects quality)
+
+Use a **roughly-centred head-and-shoulders headshot**. A portrait prior
+concentrates the node budget on the upper-centre face (eyes/nose/mouth/
+jaw), so the closer the face is to centre, the more recognizable the
+constellation. A tightly-cropped or off-centre photo will bias the nodes
+off the features. (Tunable via `FACE_*` constants in the generator.)
+
 ## Budget
 
 `npm run hero:generate` prints the raw + gzipped size of the output and

@@ -56,8 +56,18 @@ const PULSE_MAX = 6;
 const PULSE_LEN_MIN = 25;
 const PULSE_LEN_MAX = 60;
 const GZIP_BUDGET_BYTES = 60 * 1024; // ≤ 60 KB gzipped
-const LUM_WEIGHT = 0.45; // score = LUM_WEIGHT·luminance + ·edge
-const EDGE_WEIGHT = 0.55; // edge-biased so eyes/nose/mouth/jaw win
+const LUM_WEIGHT = 0.4; // score = LUM_WEIGHT·luminance + ·edge
+const EDGE_WEIGHT = 0.6; // edge-biased so eyes/nose/mouth/jaw win
+// Portrait prior — a soft gaussian over the upper-centre (the face), so the
+// node budget concentrates on identity-carrying features (eyes/nose/mouth/
+// jaw) instead of the high-contrast suit lapels + bright shirt. Assumes a
+// roughly-centred headshot (documented in scripts/assets/README.md). The
+// FLOOR keeps the silhouette/shoulders faintly present.
+const FACE_CX = 0.5; // face centre, x (fraction of grid width)
+const FACE_CY = 0.4; // face centre, y (upper portion of a headshot)
+const FACE_SX = 0.3; // gaussian spread, x
+const FACE_SY = 0.34; // gaussian spread, y
+const FACE_FLOOR = 0.45; // periphery keeps this share (keeps the outline)
 const FORMAT_VERSION = 2;
 
 // Deterministic PRNG (mulberry32) — seeded from the image hash so a given
@@ -106,7 +116,13 @@ function build({ lum, edge, gw, gh, seed, sourceHash, nodeCap }) {
   for (let i = 0; i < total; i++) {
     const nl = lum[i] / 255;
     const ne = edge[i] / maxEdge;
-    score[i] = LUM_WEIGHT * nl + EDGE_WEIGHT * ne;
+    const x = i % gw;
+    const y = (i / gw) | 0;
+    // Portrait prior: gaussian over the upper-centre face region.
+    const dx = (x - gw * FACE_CX) / (gw * FACE_SX);
+    const dy = (y - gh * FACE_CY) / (gh * FACE_SY);
+    const prior = FACE_FLOOR + (1 - FACE_FLOOR) * Math.exp(-(dx * dx + dy * dy));
+    score[i] = (LUM_WEIGHT * nl + EDGE_WEIGHT * ne) * prior;
   }
 
   // Adaptive threshold: mean + 0.4·std of the score field. Then take the
