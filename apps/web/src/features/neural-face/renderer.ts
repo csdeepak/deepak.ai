@@ -36,7 +36,15 @@ const DRIFT_OMEGA = 0.13; // autonomous drift speed (touch / no-hover)
 const INTRO_MS = 800; // constellation fade-in
 const EDGE_ALPHA = 0.09; // sub-perceptual edges (0.05–0.12)
 const NODE_TIERS = 6; // brightness buckets (few fillStyle switches)
-const HEIGHT_FRAC = 0.82; // face height as a fraction of canvas height
+// Face height as a fraction of canvas height. Width-responsive (owner
+// ruling, D-050): on phones the hero is nearly full-height, which eats the
+// negative space the restraint spec (T5) trades on — so the face SHRINKS on
+// narrow widths (≈62% viewport height) and ramps back to 82% on desktop.
+// Alphas are deliberately untouched: the fix is presence, not brightness.
+const HEIGHT_FRAC_NARROW = 0.62; // ≤ NARROW_MAX px (phones)
+const HEIGHT_FRAC_WIDE = 0.82; // ≥ WIDE_MIN px (desktop)
+const NARROW_MAX = 640; // design sm breakpoint
+const WIDE_MIN = 900;
 const PULSE_SLOTS = 2; // ≤2 concurrent pulses
 const PULSE_GAP_MIN = 2.0; // ≥2s idle gap (s)
 const PULSE_GAP_RAND = 3.0; // extra random gap (s)
@@ -246,12 +254,21 @@ export class NeuralFaceRenderer {
     this.layout();
   }
 
+  /** Width-responsive height fraction (phones shrink; desktop full). */
+  private heightFrac(): number {
+    const w = this.cssW;
+    if (w <= NARROW_MAX) return HEIGHT_FRAC_NARROW;
+    if (w >= WIDE_MIN) return HEIGHT_FRAC_WIDE;
+    const t = (w - NARROW_MAX) / (WIDE_MIN - NARROW_MAX);
+    return HEIGHT_FRAC_NARROW + t * (HEIGHT_FRAC_WIDE - HEIGHT_FRAC_NARROW);
+  }
+
   private layout() {
     const data = this.data;
     if (!data) return;
     // Contain the portrait by height, centered, nudged slightly up so the
     // face doesn't sit dead-centre behind the low-left copy.
-    this.scale = (this.cssH * HEIGHT_FRAC) / this.gh;
+    this.scale = (this.cssH * this.heightFrac()) / this.gh;
     const faceW = this.gw * this.scale;
     const faceH = this.gh * this.scale;
     this.originX = (this.cssW - faceW) / 2;
