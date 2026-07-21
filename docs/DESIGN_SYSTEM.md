@@ -55,6 +55,16 @@ Exposed as tokens:
 - Any single view stays **≥ 92 % neutral** (stage + ink + hairline). The gradient is a spark, not a surface.
 - For places that cannot render a gradient (e.g. `::selection`, some outlines), fall back to the **blue leading-edge stop** `--grad-1` as a solid (`--signal-solid`) — it is the highest-contrast stop and reads as the same signal in both themes.
 
+**Hero-region accent uses (D-052.1 — dark stage only, restraint enforced):**
+
+These are the only three colour additions introduced in D-052.1. All live exclusively inside the hero stage. No gradient may be added to nav, cards, mission, projects grid, or footer.
+
+1. **Ambient stage bloom:** A large soft radial gradient plane (blue → violet → pink, additive blending) rendered in the WebGL stage at **~8 % peak opacity** (6–8 % breathing range, ±2 % over a 10-second sinusoidal cycle). Reads as ambient light, never as brand colour. Fades with the surface layer during the dive beat.
+2. **Sub-line warm tint:** The four hero beat sub-lines receive a warm gradient tint applied via `.hero-subline-gradient` — the accent gradient at **40 % strength blended over dark-mode ink**. Contrast against the dark stage remains ≥ 4.5 : 1 (WCAG AA). Dark stage only.
+3. **CTA secondary hover underline:** "Read the memory" text link receives an accent-gradient underline on hover via `.gradient-underline-hover`. No colour change at rest.
+
+**Hero region always-dark rule (D-052.1):** The hero section (`[data-hero-section]`) carries `class="dark"` unconditionally. The nav adds `class="dark"` while any part of the hero section intersects the viewport. Below the hero, the site respects the user's theme choice normally.
+
 ### Status (state only, reserved)
 
 `success #34C759 / #1E934A` · `warning #FFB020 / #B26B00` · `danger #FF5A5F / #D22D2D`. Never decorative.

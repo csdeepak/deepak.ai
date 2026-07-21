@@ -458,3 +458,17 @@ Each decision uses:
 ---
 
 _Add new decisions below, incrementing the ID._
+
+---
+
+## D-052.1 — Hero fixes: theme mismatch, headline, accent glow (amendment to D-052)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** After D-052 landed, four issues were identified during owner visual review: (1) the hero DOM overlay (nav, headline, CTAs) rendered in light-mode styles over the dark WebGL canvas in light-mode setting; (2) the headline needed updating; (3) the 3D surface layer lacked facial feature density (FIX 3 blocked — source photo absent); (4) the hero stage read as pure monochrome.
+- **Decisions:**
+  1. **Theme mismatch root fix:** The hero `<section>` now carries `class="dark"` unconditionally, forcing all DOM overlay descendants to resolve dark-mode CSS variables regardless of global site theme. `NavShell` adds `class="dark"` to the `<header>` while `[data-hero-section]` intersects the viewport (IntersectionObserver). The always-dark hero rule is now documented in `docs/DESIGN_SYSTEM.md` §Accent.
+  2. **Headline:** `identitySentence` in `content/site.ts` is now **"Turning curiosity into working systems."** — supersedes "I build intelligent systems." Owner ruling: more honest to career stage and process-focused per LAW-002. DB note: the public `<h1>` reads `content/site.ts` directly (not `site_settings`); no DB migration needed.
+  3. **Facial density (FIX 3 — BLOCKED):** Source photo `apps/web/scripts/assets/portrait-source.jpg` absent. Per LAW-008/T3, no fake face data. Regeneration is deferred until owner drops the portrait source and runs `npm run hero:generate`.
+  4. **Accent glow:** Three restrained accent additions inside the hero stage only: (a) WebGL ambient bloom plane (8 % peak, 10s breath); (b) sub-line warm gradient tint via `.hero-subline-gradient` utility; (c) CTA secondary gradient underline on hover via `.gradient-underline-hover`. Documented in `docs/DESIGN_SYSTEM.md` §Accent.
+- **Consequences:** The hero always reads as a dark stage with legible light-coloured copy in both site-theme settings. The theme toggle remains functional and visible in both modes; the rest of the site respects the user's theme normally. FIX 3 is an open owner action.

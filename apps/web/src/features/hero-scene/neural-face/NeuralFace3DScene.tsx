@@ -233,6 +233,53 @@ function SceneContent({
     return { group, nodeMat, edgeMat, pool, paths, nodeGeo, edgeGeo };
   }, [data]);
 
+  // ── Ambient stage glow (D-052.1 FIX 4) ──────────────────────────────
+  const glow = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(2.0, 2.5);
+    const uniforms = {
+      uOpacity: { value: 1 as number },
+      uBreath: { value: 0.5 as number },
+    };
+    const mat = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uOpacity;
+        uniform float uBreath;
+        varying vec2 vUv;
+        void main() {
+          vec2 c = vUv - vec2(0.5, 0.54);
+          float d = length(c * vec2(0.9, 1.1));
+          float r = max(0.0, 1.0 - d * 2.1);
+          r = r * r;
+          float t = vUv.x;
+          vec3 blue   = vec3(0.31, 0.55, 1.0);
+          vec3 violet = vec3(0.71, 0.61, 1.0);
+          vec3 pink   = vec3(1.0,  0.61, 0.69);
+          vec3 col = t < 0.5
+            ? mix(blue, violet, t * 2.0)
+            : mix(violet, pink, (t - 0.5) * 2.0);
+          float a = r * (0.06 + uBreath * 0.02) * uOpacity;
+          gl_FragColor = vec4(col, a);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(0, 0.08, -0.3);
+    mesh.renderOrder = -1;
+    return { mesh, geo, mat, uniforms };
+  }, []);
+
   // ── Camera rail: back → between the eyes → inside the network ────────
   const rail = useMemo(
     () =>
@@ -256,6 +303,8 @@ function SceneContent({
     return () => {
       surface.geo.dispose();
       surface.mat.dispose();
+      glow.geo.dispose();
+      glow.mat.dispose();
       inner.nodeGeo.dispose();
       inner.edgeGeo.dispose();
       inner.nodeMat.dispose();
@@ -265,7 +314,7 @@ function SceneContent({
         p.mat.dispose();
       }
     };
-  }, [surface, inner]);
+  }, [surface, glow, inner]);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -279,6 +328,11 @@ function SceneContent({
       1 - smoothstep(BEAT.surfaceFadeStart, BEAT.surfaceFadeEnd, off);
     surface.uniforms.uOpacity.value = surfaceOpacity;
     surface.points.visible = surfaceOpacity > 0.001;
+
+    // Ambient glow: breathes on 10-second cycle, tied to surface opacity.
+    glow.uniforms.uBreath.value = (Math.sin((t * Math.PI * 2) / 10) + 1) * 0.5;
+    glow.uniforms.uOpacity.value = surfaceOpacity;
+    glow.mesh.visible = surfaceOpacity > 0.001;
 
     // Inner network fades in over the same window.
     const innerOpacity = smoothstep(BEAT.surfaceFadeStart, BEAT.surfaceFadeEnd, off);
@@ -318,6 +372,7 @@ function SceneContent({
 
   return (
     <>
+      <primitive object={glow.mesh} />
       <primitive object={surface.points} />
       <primitive object={inner.group} />
     </>

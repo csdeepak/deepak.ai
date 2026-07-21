@@ -31,7 +31,7 @@ export const siteContent = {
    * single source of truth for hero copy in BOTH `CONTENT_SOURCE=file` and
    * `db` modes. Empty → heading self-hides (graceful absence).
    */
-  identitySentence: "I build intelligent systems.",
+  identitySentence: "Turning curiosity into working systems.",
 
   /**
    * Supporting line beneath the hero identity line (docs/24 Part 6).

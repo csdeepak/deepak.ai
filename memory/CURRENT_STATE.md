@@ -6,7 +6,17 @@
 
 ## Current Phase
 
-**D-052 IN PROGRESS on `feat/instrument-redesign` — Phases 0–5 complete, pending owner visual sign-off + commit.**
+**D-052.1 COMPLETE on `feat/instrument-redesign`** — four surgical fixes on top of D-052. Committed and pushed.
+
+**What landed in D-052.1 (2026-07-21):**
+- **FIX 1 — Theme mismatch resolved:** Hero `<section>` now carries `class="dark"` unconditionally → copy overlay always uses dark-mode tokens. `NavShell` adds `class="dark"` via IntersectionObserver while `[data-hero-section]` is visible.
+- **FIX 2 — Headline:** `identitySentence` = "Turning curiosity into working systems." in `content/site.ts`.
+- **FIX 3 — BLOCKED:** `apps/web/scripts/assets/portrait-source.jpg` absent. Per LAW-008, regeneration deferred until owner drops the source photo and runs `npm run hero:generate`.
+- **FIX 4 — Accent glow:** (a) Ambient WebGL glow plane, accent gradient ~8% peak, 10s breathing cycle; (b) `.hero-subline-gradient` utility; (c) `.gradient-underline-hover` on CTA secondary.
+
+---
+
+**D-052 — Phases 0–5 complete.**
 
 The Instrument redesign + 3D neural-face hero (D-052, supersedes D-050 Track 1) is built and statically verified on branch `feat/instrument-redesign` (cut off the release work). Nothing committed by the AI (T1). Owner reviews in-browser, then commits/merges.
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -22,8 +23,29 @@ export function NavShell() {
   const pathname = usePathname();
   const lanes = NAV_LANES.filter((lane) => isRouteBuilt(lane.href)).slice(0, 5);
 
+  // Force dark-glass nav while the hero stage is in view.
+  // The hero section has `data-hero-section=""` and is always dark (#0A0B0D).
+  // In light mode the default glass tint is warm-white; the IntersectionObserver
+  // switches the header to `.dark` so `bg-glass` resolves to dark-glass instead.
+  const [overHero, setOverHero] = useState(false);
+  useEffect(() => {
+    const hero = document.querySelector("[data-hero-section]");
+    if (!hero) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setOverHero(entry?.isIntersecting ?? false),
+      { threshold: 0.01 },
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <header className="sticky top-0 z-(--z-nav) border-b border-border bg-glass backdrop-blur-[8px] theme-surface">
+    <header
+      className={cn(
+        "sticky top-0 z-(--z-nav) border-b border-border bg-glass backdrop-blur-[8px] theme-surface",
+        overHero && "dark",
+      )}
+    >
       <Container width="wide" className="flex h-16 items-center justify-between">
         <Link
           href="/"

@@ -435,4 +435,20 @@
       opacity: 1;
     }
   }
+
+  /* Hero beat sub-line warm accent tint (D-052.1 §Accent use #2).
+     Blends the Gemini accent gradient at 40% strength over dark-mode ink,
+     yielding pastel warm hues that remain ≥ 4.5:1 against the dark stage.
+     Only meaningful inside the hero section (which is always .dark). */
+  .hero-subline-gradient {
+    background-image: linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--grad-1) 40%, var(--text-primary) 60%),
+      color-mix(in srgb, var(--grad-2) 40%, var(--text-primary) 60%),
+      color-mix(in srgb, var(--grad-3) 40%, var(--text-primary) 60%)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
