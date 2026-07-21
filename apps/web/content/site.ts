@@ -20,11 +20,18 @@ export const siteContent = {
   name: "Deepak",
 
   /**
-   * Hero identity line (docs/24 Part 6 — the LCP text node). Owner-ratified.
-   * The single source of truth for the Arrival <h1>. Empty → the heading
-   * self-hides (graceful absence).
+   * Hero identity line (docs/24 Part 6 — the LCP text node). Owner-ratified
+   * (D-052, 2026-07-21) — supersedes the earlier literal string.
+   *
+   * PRECEDENCE (file vs DB): the public Arrival <h1> reads THIS field via a
+   * static import of `siteContent`; it does NOT read the `site_settings` DB
+   * table. The admin SettingsEditor writes `site_settings.identitySentence`,
+   * but no public read path consumes it yet (ContentService exposes no
+   * getSiteSettings()). Until that read path exists, content/site.ts is the
+   * single source of truth for hero copy in BOTH `CONTENT_SOURCE=file` and
+   * `db` modes. Empty → heading self-hides (graceful absence).
    */
-  identitySentence: "Deepak learns and enjoy building intelligent systems..",
+  identitySentence: "I build intelligent systems.",
 
   /**
    * Supporting line beneath the hero identity line (docs/24 Part 6).

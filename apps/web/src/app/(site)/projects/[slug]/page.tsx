@@ -152,10 +152,10 @@ export default async function ProjectDetailPage({
               <Badge tone="neutral">archived</Badge>
             )}
           </div>
-          <h1 className="mt-5 text-h1 font-semibold tracking-tight text-ink">
+          <h1 className="mt-5 text-section font-display font-semibold text-ink">
             {project.title}
           </h1>
-          <p className="mt-4 text-reading text-muted">{project.problem}</p>
+          <p className="mt-4 text-lead text-muted">{project.problem}</p>
 
           {/* Context row — context · role · collaborators (self-hides). */}
           {hasContextRow && (
@@ -190,29 +190,30 @@ export default async function ProjectDetailPage({
           )}
         </header>
 
-        {/* The question that created it (LAW-003 — always present). */}
-        <section aria-labelledby="q-heading" className="mt-14">
+        {/* The question that created it (LAW-003) — the large display
+            pull-quote at the top of the body (docs/DESIGN_SYSTEM §3). */}
+        <section aria-labelledby="q-heading" className="mt-12 md:mt-16">
           <h2
             id="q-heading"
             className="font-mono text-micro uppercase tracking-[0.2em] text-accent"
           >
             The question that created it
           </h2>
-          <p className="mt-4 text-h3 font-medium leading-snug text-ink">
+          <p className="mt-5 text-section font-display font-medium text-ink">
             {project.question}
           </p>
         </section>
 
         {/* Overview — the decisions & trade-offs body (self-hides when empty). */}
         {overviewParagraphs.length > 0 && (
-          <section aria-labelledby="overview-heading" className="mt-16">
+          <section aria-labelledby="overview-heading" className="mt-24 md:mt-40">
             <h2
               id="overview-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
             >
               Decisions &amp; trade-offs
             </h2>
-            <div className="mt-6 space-y-5 text-reading text-muted">
+            <div className="mt-6 space-y-5 text-lead text-muted">
               {overviewParagraphs.map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
@@ -222,7 +223,7 @@ export default async function ProjectDetailPage({
 
         {/* Gallery (self-hides when empty). */}
         {gallery.length > 0 && (
-          <section aria-labelledby="gallery-heading" className="mt-16">
+          <section aria-labelledby="gallery-heading" className="mt-24 md:mt-40">
             <h2
               id="gallery-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
@@ -256,7 +257,7 @@ export default async function ProjectDetailPage({
 
         {/* Outcomes (self-hides when empty). */}
         {outcomes.length > 0 && (
-          <section aria-labelledby="outcomes-heading" className="mt-16">
+          <section aria-labelledby="outcomes-heading" className="mt-24 md:mt-40">
             <h2
               id="outcomes-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
@@ -276,7 +277,7 @@ export default async function ProjectDetailPage({
 
         {/* What I learned — skillsLearned (self-hides when empty). */}
         {skillsLearned.length > 0 && (
-          <section aria-labelledby="learned-heading" className="mt-16">
+          <section aria-labelledby="learned-heading" className="mt-24 md:mt-40">
             <h2
               id="learned-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
@@ -293,7 +294,7 @@ export default async function ProjectDetailPage({
 
         {/* Abandoned branches (LAW-004 — self-hides when empty). */}
         {branches.length > 0 && (
-          <section aria-labelledby="branches-heading" className="mt-16">
+          <section aria-labelledby="branches-heading" className="mt-24 md:mt-40">
             <h2
               id="branches-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
@@ -326,7 +327,7 @@ export default async function ProjectDetailPage({
 
         {/* Evidence (Law 6 — self-hides when none; no dead links). */}
         {hasEvidence && (
-          <section aria-labelledby="evidence-heading" className="mt-16">
+          <section aria-labelledby="evidence-heading" className="mt-24 md:mt-40">
             <h2
               id="evidence-heading"
               className="font-mono text-micro uppercase tracking-[0.2em] text-faint"

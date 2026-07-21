@@ -441,4 +441,20 @@ Each decision uses:
 
 ---
 
+## D-052 — The Instrument redesign + 3D neural-face hero (Track 2 pulled forward)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified; the D-052 sprint prompt is the ratification). **Supersedes D-050 Track 1** and folds in the D-051 draft.
+- **Context:** The Canvas2D "Neural Face Lite" (D-050 Track 1) shipped the hero as a dependency-free constellation, with the full 3D hero deferred to v1.5. The owner ratified pulling the 3D hero forward now and establishing one cohesive design language across the whole site.
+- **Decision:**
+  1. **The Instrument design system** (`docs/DESIGN_SYSTEM.md`): dark-first stage/ink, muted/faint as ink-opacity, hairline = ink @ 8%, a **Gemini accent gradient** (`#4F8CFF → #B69CFF → #FF9CB0`) used ONLY as directed energy (never a flat brand fill), a **six-size type scale** (hero/section/card-title/lead/body/micro) in Inter Tight (display) + Inter (body), two energy easings (`ease-instrument`, `ease-arc`), and chrome rules (glass nav, pill CTA, gradient focus/active). Implemented in `globals.css` + `layout.tsx`; every public page + admin chrome reskinned.
+  2. **The 3D neural-face hero** (`features/hero-scene/neural-face/`): a scroll-scrubbed particle-portrait → dive → inner-network sequence (custom GLSL points, CatmullRom camera rail, meshline pulses, selective bloom). Pipeline v2 (`generate-hero-face.mjs`) emits `hero-face-3d.json` + a static poster; `--depth-map` flag reserved for a real depth source. Five new deps ratified: `three`, `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`, `meshline`.
+  3. **Bundle-law amendment:** "three.js absent from public bundles" → **"three.js absent from the First Load JS of any route."** The 3D scene loads ONLY via `next/dynamic({ ssr:false })` after idle + intersection. `/` First Load ceiling amended once **164 → 170 kB**; the lazy 3D chunk ≤ **500 kB gz**. Enforced by `check-bundle-budget.mjs` (+ poster/3D-asset existence & budgets) in CI.
+  4. **Canvas2D hero retired from `/`** — its renderer stays in the repo for poster generation and as the emergency fallback (`features/neural-face/`).
+  5. **The hero is a dark stage regardless of site theme** (a "screen within the page") — ratified; the scene's stage colour is intentionally hardcoded, not a theme token.
+- **Deviation (recorded):** the scene is driven by **native window-scroll progress**, not drei `<ScrollControls>` — ScrollControls owns its own scroll container and fights the document flow of the sections below the hero. This honours "native scroll always wins" and keeps the page flowing.
+- **Consequences:** the public hero now pays a lazy WebGL cost (gated, budgeted, poster-first LCP, full fallback ladder); the design system is single-sourced and enforced. Verified statically (typecheck, build, bundle guard, pipeline budgets); live-browser QA (fps, context-loss, LCP timing, memory) is an owner sign-off item.
+
+---
+
 _Add new decisions below, incrementing the ID._

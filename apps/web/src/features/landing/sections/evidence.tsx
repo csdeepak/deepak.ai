@@ -23,12 +23,12 @@ export function Evidence() {
     <Section aria-labelledby="evidence-heading" className="py-24 md:py-40">
       <Container width="content">
         <ScrollReveal>
-          <p className="font-mono text-small uppercase tracking-[0.2em] text-faint">
+          <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
             The work
           </p>
           <h2
             id="evidence-heading"
-            className="mt-6 max-w-[20ch] text-h1 font-medium leading-tight tracking-tight text-ink"
+            className="mt-6 max-w-[20ch] text-section font-display font-medium text-ink"
           >
             The territory: intelligent systems, and the research that keeps them
             honest.

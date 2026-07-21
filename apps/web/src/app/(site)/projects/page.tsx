@@ -24,13 +24,13 @@ export default async function WorkIndexPage() {
     <Section>
       <Container width="content">
         <header className="max-w-[46ch]">
-          <p className="font-mono text-small uppercase tracking-[0.2em] text-faint">
+          <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
             Work
           </p>
-          <h1 className="mt-4 text-h1 font-semibold tracking-tight text-ink">
+          <h1 className="mt-4 text-section font-display font-semibold text-ink">
             Projects
           </h1>
-          <p className="mt-4 text-body text-muted">
+          <p className="mt-4 text-lead text-muted">
             Shipped systems — where reasoning became real. Each carries the
             question that created it and the branches abandoned along the way.
           </p>

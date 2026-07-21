@@ -85,9 +85,10 @@ jobs:
             console.log("Admin bundle absent from all public First Load JS ✓");
           '
 
-      # D-050: hero JS budget (/ First Load JS ≤ 164 kB), banned heavy deps
-      # (three/gsap/lenis/sharp) absent from /'s First Load JS, and the
-      # hero-face dataset fetched-not-bundled. Scripted so it can't regress.
-      - name: Guard — neural-face budgets & banned deps (D-050)
+      # D-052: hero budgets — / First Load JS ≤ 170 kB, three/gsap/lenis/sharp
+      # absent from /'s First Load JS, hero-face dataset fetched-not-bundled,
+      # the lazy 3D chunk ≤ 500 kB gz, and the 3D dataset + posters present and
+      # within budget. Scripted so it can't silently regress.
+      - name: Guard — hero budgets, banned deps & 3D assets (D-052)
         working-directory: apps/web
         run: node scripts/check-bundle-budget.mjs

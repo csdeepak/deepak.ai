@@ -39,7 +39,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         className="flex w-56 flex-shrink-0 flex-col border-r border-border bg-surface"
       >
         <div className="border-b border-border px-4 py-4">
-          <span className="font-semibold text-ink">dL admin</span>
+          <span className="font-display font-semibold tracking-[-0.01em] text-ink">
+            dL admin
+          </span>
         </div>
 
         <div className="flex flex-col gap-0.5 p-2 pt-3">

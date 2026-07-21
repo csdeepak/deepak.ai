@@ -1,7 +1,6 @@
 "use client";
 
 import { Container } from "@/components/layout/container";
-import { SoundToggle } from "@/components/ui/sound-toggle";
 import { useScrollAct } from "@/features/neural-face/use-scroll-act";
 import { siteContent } from "../../../../content/site";
 
@@ -40,14 +39,14 @@ export function Arrival() {
       {/* Identity, single-sourced from content/site.ts (single-writer law).
           Heading + supporting line each self-hide if their field is empty. */}
       <div className="animate-entrance">
-        <p className="font-mono text-small text-faint">{siteContent.name}</p>
+        <p className="font-mono text-micro text-faint">{siteContent.name}</p>
         {siteContent.identitySentence && (
-          <h1 className="mt-4 max-w-[18ch] text-display font-semibold leading-[1.02] tracking-tight text-ink">
+          <h1 className="mt-4 max-w-[18ch] text-hero font-display font-semibold text-ink">
             {siteContent.identitySentence}
           </h1>
         )}
         {siteContent.identitySupport && (
-          <p className="mt-5 max-w-[52ch] text-reading text-muted">
+          <p className="mt-5 max-w-[52ch] text-lead text-muted">
             {siteContent.identitySupport}
           </p>
         )}
@@ -58,17 +57,17 @@ export function Arrival() {
         {ACT_LINE[act] ?? ACT_LINE[0]}
       </p>
 
-      {/* Ambient controls: scroll cue + the sound placeholder. */}
-      <div className="mt-10 flex items-center justify-between">
-        {/* Static cue — the scene + the peek below ARE the motion; no
-            second ambient loop (only Dex breathes, bible §6.3). */}
+      {/* Scroll cue — the scene + the peek below ARE the motion; no second
+          ambient loop (only Dex breathes, bible §6.3). The ambient-sound
+          placeholder was removed (D-052 Phase 0.2 — no dead affordances,
+          LAW-008); it returns as a real control when the sound layer ships. */}
+      <div className="mt-10 flex items-center">
         <span className="flex items-center gap-3 text-faint">
           <span className="h-8 w-px bg-current opacity-60" aria-hidden />
           <span className="font-mono text-micro uppercase tracking-[0.2em]">
             Scroll
           </span>
         </span>
-        <SoundToggle />
       </div>
     </Container>
   );

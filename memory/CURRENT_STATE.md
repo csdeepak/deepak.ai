@@ -6,6 +6,26 @@
 
 ## Current Phase
 
+**D-052 IN PROGRESS on `feat/instrument-redesign` — Phases 0–5 complete, pending owner visual sign-off + commit.**
+
+The Instrument redesign + 3D neural-face hero (D-052, supersedes D-050 Track 1) is built and statically verified on branch `feat/instrument-redesign` (cut off the release work). Nothing committed by the AI (T1). Owner reviews in-browser, then commits/merges.
+
+**What landed this session (2026-07-21, D-052):**
+- **Phase 0** — fixed the live hero copy regression at root (`content/site.ts` held the old rejected headline; hero reads the file, `site_settings` DB is write-only — documented) → `"I build intelligent systems."`; removed the dead "sound" toggle (LAW-008).
+- **Phase 1** — `docs/DESIGN_SYSTEM.md` + the Instrument token layer (`globals.css`): dark-first stage/ink, Gemini accent gradient (energy-only), six-size type scale, Inter Tight display, two energy easings.
+- **Phase 3** — site-wide reskin: glass nav with active gradient underline, 96/160 rhythm, six-token type migration on `/` + `/projects`, ProjectCard rebuilt (hover gradient underline, no tile imagery), detail page question-as-pull-quote, admin chrome quiet.
+- **Phase 2** — the 3D hero (`features/hero-scene/neural-face/`): pipeline v2 (`hero-face-3d.json` 43.8 kB gz, posters 86 kB, `--depth-map` flag), custom-shader particle relief → CatmullRom dive → inner network with meshline pulses + bloom; poster-first SSR LCP; fallback ladder (reduced-motion/tier-0/no-WebGL/context-loss → poster); lazy `next/dynamic({ssr:false})` mount. `/` First Load **154 kB** (≤170); lazy 3D chunk **253.5 kB gz** (≤500); three.js absent from `/` First Load.
+- **Phase 4** — `check-bundle-budget.mjs` extended (170 kB ceiling, lazy chunk ≤500 kB, 3D-asset + poster existence & budgets); CI step relabelled D-052; D-052 logged in `DECISIONS.md`.
+- **Phase 5** — 15-item tester pass: static/code items PASS; live-browser items (fps, context-loss, LCP timing, memory ×10, mobile emulation) flagged as owner sign-off (no browser in the build env — not faked).
+
+**Owner sign-off before commit (D-052):** `npm run dev` → `/` desktop (poster → face → dive → network); reduced-motion (poster only); mobile (2500-node tier, no bloom); light theme (hero stays a dark stage); DevTools (3D chunks load post-idle only). Owner git block is in `AI_HANDOFF.md`.
+
+---
+
+## Prior phase (release/v0.9.0-alpha) — RELEASE-READY
+
+The pre-D-052 release work (below) remains valid on its branch. D-052 builds on top of it.
+
 **RELEASE-READY — pending owner deploy click.**
 
 All engineering gates are GREEN. The working tree is clean to commit and merge to `main`. Owner triggers the first Render deploy per `docs/DEPLOY_RUNBOOK.md`.

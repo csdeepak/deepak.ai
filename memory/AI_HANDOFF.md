@@ -14,6 +14,31 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-07-21 — D-052: Instrument redesign + 3D neural-face hero (Phases 0–5)
+
+- **Branch:** `feat/instrument-redesign` (cut off the release work). **Nothing committed by the AI (T1)** — owner reviews in-browser, then commits/merges.
+- **What I did (five phases):**
+  - **Phase 0 — regressions:** root-caused the live hero copy bug. The hero `<h1>` (`arrival.tsx` → now `NeuralFace3DClient`) reads `siteContent.identitySentence` via a **static file import**; the `site_settings` DB table is **write-only** (admin `SettingsEditor` writes it, no public read path exists), so the file was the sole source and held the old rejected string. Fixed at the file (`"I build intelligent systems."`), documented file-vs-DB precedence in a code comment, flagged the write-only-settings latent gap. Removed the dead `SoundToggle` (LAW-008).
+  - **Phase 1 — design system:** `docs/DESIGN_SYSTEM.md` + the Instrument token layer in `globals.css` (dark-first stage/ink, muted/faint as ink-opacity, hairline ink@8%, Gemini accent gradient energy-only, six-size type scale, `ease-instrument`/`ease-arc`, `.cta-pill`/`.gradient-underline*`/`.section-rhythm` utilities). Inter Tight wired in `layout.tsx`. Motion primitives aligned (`tokens.ts`/`variants.ts`: 400ms/12px reveal).
+  - **Phase 3 — reskin:** nav → glass + active gradient underline (+client for `usePathname`); Section rhythm 96/160; mission/evidence/collaborate/arrival + projects index → six-token scale + display face; ProjectCard rebuilt (title + role, hover gradient underline, no imagery); detail page question → large display pull-quote at 160px rhythm; AdminShell wordmark → display (admin stays gradient-free).
+  - **Phase 2 — 3D hero (`features/hero-scene/neural-face/`):** pipeline v2 extends `generate-hero-face.mjs` → `hero-face-3d.json` (8000 surface / 2500 mobile / 280 inner + 12 pulses) + `hero-face-poster.webp` (+`-sm`), `--depth-map` flag. Scene = custom-shader particle relief (additive, circular mask, drift+breathing) → CatmullRom camera dive with fog cross-fade → instanced inner nodes + faint edges + meshline `dashOffset` pulses + selective bloom. `NeuralFace3DClient` owns the poster-first SSR LCP, tier/idle/intersection gating, native-scroll offset, copy overlay, and the fallback ladder. `next/dynamic({ssr:false})` keeps three lazy.
+  - **Phase 4 — governance/CI:** `check-bundle-budget.mjs` extended (170 kB ceiling; lazy 3D chunk ≤500 kB gz; `hero-face-3d.json` ≤140 kB gz + posters ≤90 kB existence/budget); `ci.yml` step relabelled; **D-052** logged in `DECISIONS.md` (supersedes D-050 Track 1, amends the bundle law, records the ScrollControls→native-scroll deviation).
+  - **Phase 5 — tester pass:** static/code items verified; browser-only items flagged, not faked.
+- **Verified numbers:** typecheck clean; `next build` green, 0 warnings, 14 pages; `/` First Load **154 kB** (Next) / 150.4 kB (guard) ≤170; three.js **absent** from `/` First Load; lazy 3D stack **253.5 kB gz** (5 chunks) ≤500; `hero-face-3d.json` 43.8 kB gz; posters 86.0 kB; `--depth-map` flag works.
+- **Deliberate deviation (flagged):** native window-scroll drives the scene, not drei `<ScrollControls>` (which owns its own scroll container and fights the document flow of the sections below the hero). Honours "native scroll wins" + keeps the page flowing. Recorded in D-052 + the scene header.
+- **Needs owner's browser (NOT faked as PASS):** 60/40 fps, visual/likeness correctness, LCP under Fast 3G, real `WEBGL_lose_context` recovery, mount/unmount ×10 memory, mobile emulation smoothness.
+- **Owner sign-off checklist:** `npm run dev` → `/` desktop (poster → face → dive → network); confirm copy overlays Beat 1 and fades; reduced-motion → poster only; mobile emulation → 2500 nodes, no bloom; light theme → hero stays a dark stage; DevTools Network → 3D chunks load only after idle.
+- **Owner git commands (run after in-browser sign-off):**
+  ```bash
+  # Stage the D-052 work (Phases 0–5) on the current branch:
+  git add -A
+  git commit -m "feat: D-052 — Instrument design system + 3D neural-face hero (supersedes D-050 Track 1)"
+  git push origin feat/instrument-redesign
+  # After sign-off, open a PR into main (or, once CI green):
+  git checkout main && git merge feat/instrument-redesign --no-ff && git push origin main
+  ```
+- **Open / next:** wire a `getSiteSettings()` read path so admin copy edits reach the public site (the write-only gap); optionally add `/memory` to the reskin scope (it still has `text-[0.65rem]` micro-labels outside the six-token scale); real depth map via `--depth-map` for richer relief; the live-browser QA sign-off above.
+
 ### 2026-07-21 — D-050 Close-Out + Release Readiness (final engineering session)
 
 - **What I did:** Four engineering deliverables completing the last deploy-blocking gates.

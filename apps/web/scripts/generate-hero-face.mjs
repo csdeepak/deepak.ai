@@ -70,6 +70,30 @@ const FACE_SY = 0.34; // gaussian spread, y
 const FACE_FLOOR = 0.45; // periphery keeps this share (keeps the outline)
 const FORMAT_VERSION = 2;
 
+// ── 3D pipeline v2 (D-052 Track 2) ────────────────────────────────────
+// Emits hero-face-3d.json (surface relief + inner network) and a static
+// poster webp at two sizes. The 2D output above is left untouched.
+const OUT_3D_PATH = join(__dirname, "..", "public", "hero-face-3d.json");
+const POSTER_PATH = join(__dirname, "..", "public", "hero-face-poster.webp");
+const POSTER_SM_PATH = join(__dirname, "..", "public", "hero-face-poster-sm.webp");
+const SURFACE_MAX = 8000; // desktop tier node cap
+const SURFACE_MOBILE = 2500; // mobile tier (first N by score)
+const SURFACE_RELIEF = 0.16; // z relief depth in normalized units (subtle)
+const INNER_NODES = 280; // "inside the head" network
+const INNER_KNN = 3;
+const INNER_Z_MIN = -0.3; // pushed behind the surface
+const INNER_Z_MAX = -0.06;
+const INNER_PULSE_MIN = 10;
+const INNER_PULSE_MAX = 14;
+const INNER_PULSE_LEN_MIN = 25;
+const INNER_PULSE_LEN_MAX = 50;
+const POS_QUANT = 2048; // positions quantized to signed ints /POS_QUANT
+const JSON3D_GZIP_BUDGET = 140 * 1024; // ≤ 140 KB gzipped
+const POSTER_BUDGET = 90 * 1024; // ≤ 90 KB combined
+const POSTER_W = 1440;
+const POSTER_SM_W = 720;
+const FORMAT_3D_VERSION = 1;
+
 // Deterministic PRNG (mulberry32) — seeded from the image hash so a given
 // photo always yields the same constellation (reproducible builds).
 function makeRng(seed) {
@@ -366,6 +390,227 @@ function build({ lum, edge, gw, gh, seed, sourceHash, nodeCap }) {
   };
 }
 
+/**
+ * Compute the per-pixel identity score field (luminance + edge, biased by
+ * the face prior). Shared shape with build()'s inline scorer; kept separate
+ * so the 2D path stays byte-for-byte unchanged.
+ */
+function scoreField(lum, edge, gw, gh) {
+  const total = gw * gh;
+  let maxEdge = 1;
+  for (let i = 0; i < total; i++) if (edge[i] > maxEdge) maxEdge = edge[i];
+  const score = new Float32Array(total);
+  for (let i = 0; i < total; i++) {
+    const nl = lum[i] / 255;
+    const ne = edge[i] / maxEdge;
+    const x = i % gw;
+    const y = (i / gw) | 0;
+    const dx = (x - gw * FACE_CX) / (gw * FACE_SX);
+    const dy = (y - gh * FACE_CY) / (gh * FACE_SY);
+    const prior = FACE_FLOOR + (1 - FACE_FLOOR) * Math.exp(-(dx * dx + dy * dy));
+    score[i] = (LUM_WEIGHT * nl + EDGE_WEIGHT * ne) * prior;
+  }
+  return score;
+}
+
+/**
+ * build3D — the Track-2 dataset. Surface layer = the portrait as a 3D
+ * particle relief (z from luminance OR an optional depth map); nodes are
+ * ordered by score so the first SURFACE_MOBILE are the mobile tier. Inner
+ * layer = ~INNER_NODES sampled inside the head volume, kNN-connected, with
+ * precomputed pulse paths (directed energy). All positions quantized.
+ */
+function build3D({ lum, edge, depthArr, gw, gh, seed, sourceHash }) {
+  const total = gw * gh;
+  const rng = makeRng(seed ^ 0x9e3779b9);
+  const score = scoreField(lum, edge, gw, gh);
+
+  // Order pixels by score desc; keep the top SURFACE_MAX (MIN_NODES floor).
+  const orderArr = Array.from({ length: total }, (_, i) => i).sort(
+    (a, b) => score[b] - score[a],
+  );
+  const N = Math.min(SURFACE_MAX, Math.max(MIN_NODES, orderArr.length));
+  const keep = orderArr.slice(0, N);
+
+  const aspect = gw / gh;
+  const q = (v) => Math.round(v * POS_QUANT);
+  const sx = new Array(N);
+  const sy = new Array(N);
+  const sz = new Array(N);
+  const sb = new Array(N); // brightness 0-255
+  const gpx = new Array(N); // grid px (poster)
+  const gpy = new Array(N);
+  for (let k = 0; k < N; k++) {
+    const idx = keep[k];
+    const px = idx % gw;
+    const py = (idx / gw) | 0;
+    gpx[k] = px;
+    gpy[k] = py;
+    // Centered, aspect-correct, y-up normalized coords.
+    const nx = (px / gw - 0.5) * aspect;
+    const ny = 0.5 - py / gh;
+    const zd = depthArr[idx] / 255; // 0..1 (bright/near = 1)
+    const nz = (zd - 0.5) * SURFACE_RELIEF;
+    sx[k] = q(nx);
+    sy[k] = q(ny);
+    sz[k] = q(nz);
+    sb[k] = lum[idx];
+  }
+
+  // ── Inner network: sample inside the face ellipse, pushed behind ──────
+  // Ellipse from the face prior (normalized, aspect-correct), inset so the
+  // points sit inside the head volume rather than on the silhouette.
+  const ecx = (FACE_CX - 0.5) * aspect;
+  const ecy = 0.5 - FACE_CY;
+  const erx = FACE_SX * aspect * 0.85;
+  const ery = FACE_SY * 0.95;
+  const ix = new Array(INNER_NODES);
+  const iy = new Array(INNER_NODES);
+  const iz = new Array(INNER_NODES);
+  const inx = new Float64Array(INNER_NODES);
+  const iny = new Float64Array(INNER_NODES);
+  const inz = new Float64Array(INNER_NODES);
+  for (let k = 0; k < INNER_NODES; k++) {
+    // Rejection-sample within the unit disk, then map to the inset ellipse.
+    let ux, uy;
+    do {
+      ux = rng() * 2 - 1;
+      uy = rng() * 2 - 1;
+    } while (ux * ux + uy * uy > 1);
+    const nx = ecx + ux * erx * 0.72;
+    const ny = ecy + uy * ery * 0.72;
+    const nz = INNER_Z_MIN + rng() * (INNER_Z_MAX - INNER_Z_MIN);
+    inx[k] = nx;
+    iny[k] = ny;
+    inz[k] = nz;
+    ix[k] = q(nx);
+    iy[k] = q(ny);
+    iz[k] = q(nz);
+  }
+
+  // kNN (k=3) among inner nodes — O(n²) is trivial at 280.
+  const innerEdgeSet = new Set();
+  const innerEdges = [];
+  const adj = Array.from({ length: INNER_NODES }, () => []);
+  for (let k = 0; k < INNER_NODES; k++) {
+    const best = [];
+    for (let j = 0; j < INNER_NODES; j++) {
+      if (j === k) continue;
+      const dx = inx[k] - inx[j];
+      const dy = iny[k] - iny[j];
+      const dz = inz[k] - inz[j];
+      const d2 = dx * dx + dy * dy + dz * dz;
+      best.push([d2, j]);
+    }
+    best.sort((a, b) => a[0] - b[0]);
+    for (let s = 0; s < INNER_KNN; s++) {
+      const j = best[s][1];
+      const a = k < j ? k : j;
+      const b = k < j ? j : k;
+      const key = a * INNER_NODES + b;
+      if (innerEdgeSet.has(key)) continue;
+      innerEdgeSet.add(key);
+      innerEdges.push(a, b);
+      adj[a].push(b);
+      adj[b].push(a);
+    }
+  }
+
+  // Pulse paths: random walks along inner edges spanning the volume.
+  const pulseCount =
+    INNER_PULSE_MIN + Math.floor(rng() * (INNER_PULSE_MAX - INNER_PULSE_MIN + 1));
+  const innerPulses = [];
+  for (let p = 0; p < pulseCount; p++) {
+    let cur = Math.floor(rng() * INNER_NODES);
+    if (!adj[cur].length) {
+      cur = adj.findIndex((a) => a.length > 0);
+      if (cur < 0) break;
+    }
+    const targetLen =
+      INNER_PULSE_LEN_MIN +
+      Math.floor(rng() * (INNER_PULSE_LEN_MAX - INNER_PULSE_LEN_MIN + 1));
+    const path = [cur];
+    let prev = -1;
+    for (let step = 0; step < targetLen; step++) {
+      const nbrs = adj[cur];
+      if (!nbrs.length) break;
+      let choices = nbrs.filter((n) => n !== prev);
+      if (!choices.length) choices = nbrs;
+      const next = choices[Math.floor(rng() * choices.length)];
+      path.push(next);
+      prev = cur;
+      cur = next;
+    }
+    if (path.length >= 3) innerPulses.push(path);
+  }
+
+  const json = {
+    meta: {
+      version: FORMAT_3D_VERSION,
+      format: "3d",
+      surfaceNodes: N,
+      mobileCount: Math.min(SURFACE_MOBILE, N),
+      innerNodes: INNER_NODES,
+      innerEdges: innerEdges.length / 2,
+      innerPulses: innerPulses.length,
+      quant: POS_QUANT,
+      relief: SURFACE_RELIEF,
+      aspect,
+      sourceHash,
+      generatedAt: new Date().toISOString(),
+    },
+    surface: { x: sx, y: sy, z: sz, b: sb },
+    inner: { x: ix, y: iy, z: iz, edges: innerEdges, pulses: innerPulses },
+  };
+  return { json, gpx, gpy, sb, N };
+}
+
+/**
+ * renderPoster — a real matte render of the real surface data (T5/LAW-008:
+ * a render of the data, never a mockup). Splats a soft cool dot per node
+ * onto the dark stage, additively, then encodes to webp. No motion.
+ */
+async function renderPoster(width, gpx, gpy, sb, N, gw, gh) {
+  const height = Math.max(1, Math.round((width * gh) / gw));
+  const buf = Buffer.alloc(width * height * 3);
+  // Stage color #0A0B0D.
+  for (let i = 0; i < width * height; i++) {
+    buf[i * 3] = 0x0a;
+    buf[i * 3 + 1] = 0x0b;
+    buf[i * 3 + 2] = 0x0d;
+  }
+  // Cool node tint (blue-white leading edge of the gradient).
+  const TINT = [188, 205, 245];
+  const r = Math.max(1, Math.round(width / 900)); // splat radius (px)
+  const splat = (cx, cy, a) => {
+    for (let dy = -r; dy <= r; dy++) {
+      const y = cy + dy;
+      if (y < 0 || y >= height) continue;
+      for (let dx = -r; dx <= r; dx++) {
+        const x = cx + dx;
+        if (x < 0 || x >= width) continue;
+        const d2 = dx * dx + dy * dy;
+        const fall = Math.exp(-d2 / (r * r + 0.0001));
+        const alpha = a * fall;
+        if (alpha <= 0.003) continue;
+        const o = (y * width + x) * 3;
+        buf[o] = Math.min(255, buf[o] + TINT[0] * alpha);
+        buf[o + 1] = Math.min(255, buf[o + 1] + TINT[1] * alpha);
+        buf[o + 2] = Math.min(255, buf[o + 2] + TINT[2] * alpha);
+      }
+    }
+  };
+  for (let k = 0; k < N; k++) {
+    const x = Math.round((gpx[k] / gw) * width);
+    const y = Math.round((gpy[k] / gh) * height);
+    const a = 0.18 + 0.55 * (sb[k] / 255); // brightness-weighted
+    splat(x, y, a);
+  }
+  return sharp(buf, { raw: { width, height, channels: 3 } })
+    .webp({ quality: 58, effort: 6 })
+    .toBuffer();
+}
+
 async function main() {
   const src = findSource();
   if (!src) {
@@ -462,6 +707,64 @@ async function main() {
   console.log(`  pulse paths       : ${json.meta.pulses}`);
   console.log(`  raw size          : ${rawKb} KB`);
   console.log(`  gzipped size      : ${gzKb} KB  (budget 60 KB)\n`);
+
+  // ── Track 2 (D-052): 3D dataset + static poster ─────────────────────
+  // Optional --depth-map <path>: a grayscale depth image (e.g. MiDaS /
+  // ARPortraitDepth) used for the surface z instead of luminance.
+  const dmFlag = process.argv.indexOf("--depth-map");
+  let depthArr = lum; // default: luminance-based pseudo-depth
+  if (dmFlag !== -1 && process.argv[dmFlag + 1]) {
+    const dmPath = process.argv[dmFlag + 1];
+    if (!existsSync(dmPath)) die(`--depth-map file not found: ${dmPath}`);
+    const dm = await sharp(readFileSync(dmPath))
+      .rotate()
+      .resize({ width: W, height: H, fit: "fill" })
+      .greyscale()
+      .raw()
+      .toBuffer()
+      .catch((e) => die(`Could not read depth map: ${e.message}`));
+    depthArr = dm;
+    console.log(`  depth source      : ${dmPath.replace(/\\/g, "/")} (--depth-map)`);
+  }
+
+  const { json: json3d, gpx, gpy, sb, N: n3d } = build3D({
+    lum,
+    edge,
+    depthArr,
+    gw: W,
+    gh: H,
+    seed,
+    sourceHash,
+  });
+  const json3dStr = JSON.stringify(json3d);
+  const gz3d = gzipSync(json3dStr);
+  const gz3dKb = (gz3d.length / 1024).toFixed(1);
+  if (gz3d.length > JSON3D_GZIP_BUDGET) {
+    die(
+      `hero-face-3d.json is ${gz3dKb} KB gzipped — over the 140 KB budget. Lower SURFACE_MAX or POS_QUANT and regenerate.`,
+    );
+  }
+  writeFileSync(OUT_3D_PATH, json3dStr);
+
+  const posterLg = await renderPoster(POSTER_W, gpx, gpy, sb, n3d, W, H);
+  const posterSm = await renderPoster(POSTER_SM_W, gpx, gpy, sb, n3d, W, H);
+  const posterTotal = posterLg.length + posterSm.length;
+  const posterKb = (posterTotal / 1024).toFixed(1);
+  if (posterTotal > POSTER_BUDGET) {
+    die(
+      `posters total ${posterKb} KB — over the 90 KB budget. Lower webp quality or poster width and regenerate.`,
+    );
+  }
+  writeFileSync(POSTER_PATH, posterLg);
+  writeFileSync(POSTER_SM_PATH, posterSm);
+
+  console.log(`✓ hero-face-3d.json → apps/web/public/hero-face-3d.json`);
+  console.log(`  surface nodes     : ${json3d.meta.surfaceNodes} (mobile ${json3d.meta.mobileCount})`);
+  console.log(`  inner nodes/edges : ${json3d.meta.innerNodes} / ${json3d.meta.innerEdges}`);
+  console.log(`  inner pulses      : ${json3d.meta.innerPulses}`);
+  console.log(`  gzipped size      : ${gz3dKb} KB  (budget 140 KB)`);
+  console.log(`✓ posters → hero-face-poster.webp (${(posterLg.length / 1024).toFixed(1)} KB) + -sm (${(posterSm.length / 1024).toFixed(1)} KB)`);
+  console.log(`  posters total     : ${posterKb} KB  (budget 90 KB)\n`);
 }
 
 main().catch((e) => die(e.stack || String(e)));
