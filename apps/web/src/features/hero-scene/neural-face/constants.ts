@@ -15,13 +15,26 @@ export const SCROLL_PAGES = 4;
 /** Scroll-scrub damping (lerp) — native scroll owns truth. */
 export const SCROLL_DAMPING = 0.07;
 
-/** Beat boundaries over scroll offset 0..1 (docs/DESIGN_SYSTEM · Phase 2). */
+/** Fraction of hero scroll before animations begin — 8% dead-zone at top. */
+export const SCROLL_START = 0.08;
+
+/** Beat boundaries over scroll offset 0..1 (docs/DESIGN_SYSTEM · Phase 2).
+ *
+ * Beat 2 cross-fade (D-052.2 FIX 1):
+ *   surfaceFadeStart / surfaceFadeEnd span the entire Beat 2 window so the
+ *   face dissolves fully before the inner network is bright.
+ *   networkFadeStart lags surfaceFadeStart by +0.05 so the face has begun
+ *   fading before a single network node appears. At any point during the
+ *   dive, total visible opacity (surface + network) stays ≤ ~0.90× max of
+ *   either layer — verified by construction (smoothstep math at t=0.485).
+ */
 export const BEAT = {
-  faceEnd: 0.32, // Beat 1 → 2
-  diveEnd: 0.6, // Beat 2 → 3
-  copyFadeOut: 0.28, // hero copy fully gone by here
-  surfaceFadeStart: 0.45, // surface cross-fades out during the dive
-  surfaceFadeEnd: 0.58,
+  faceEnd: 0.32,          // Beat 1 → 2 (face phase ends)
+  diveEnd: 0.60,          // Beat 2 → 3 (dive ends)
+  copyFadeOut: 0.28,      // hero copy fully gone by here
+  surfaceFadeStart: 0.32, // surface cross-fade begins at Beat 1→2 boundary
+  surfaceFadeEnd: 0.60,   // surface gone by diveEnd
+  networkFadeStart: 0.37, // network fade-in lags surface by +0.05
 } as const;
 
 /** The dark stage (never theme-swaps — the scene is a screen). */
@@ -45,6 +58,17 @@ export const PULSE_CONCURRENT = 3;
 export const PULSE_INTERVAL_MIN = 1.8;
 export const PULSE_INTERVAL_MAX = 2.4;
 
-/** Camera rail depth: starts back, dives through the surface (z≈0) inward. */
+/** Camera rail depth. D-052.3 Pillar 3: the Beat-3 rest position is pulled
+ *  back to z=+0.12 (was +0.05) — ~40% more standoff from the inner-node
+ *  centroid (z≈-0.18) — so the glowing bulbs read as a DEPTH FIELD with
+ *  parallax rather than a close wall. Bulb screen size is clamped in-shader
+ *  (4–8 px) so the pull-back does not shrink them below legibility. */
 export const CAM_START_Z = 1.15;
-export const CAM_END_Z = -0.42;
+export const CAM_END_Z = 0.12;
+
+/** Face composition right-shift on desktop (D-052.2 FIX 4).
+ *  Scene group shifts +FACE_X_OFFSET in world X when canvas px width
+ *  is ≥ FACE_X_BREAKPOINT, centering the headline on the left third.
+ *  On narrow viewports the face stays centered. */
+export const FACE_X_OFFSET = 0.15;
+export const FACE_X_BREAKPOINT = 640; // px

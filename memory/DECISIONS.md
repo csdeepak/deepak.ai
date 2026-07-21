@@ -472,3 +472,32 @@ _Add new decisions below, incrementing the ID._
   3. **Facial density (FIX 3 — BLOCKED):** Source photo `apps/web/scripts/assets/portrait-source.jpg` absent. Per LAW-008/T3, no fake face data. Regeneration is deferred until owner drops the portrait source and runs `npm run hero:generate`.
   4. **Accent glow:** Three restrained accent additions inside the hero stage only: (a) WebGL ambient bloom plane (8 % peak, 10s breath); (b) sub-line warm gradient tint via `.hero-subline-gradient` utility; (c) CTA secondary gradient underline on hover via `.gradient-underline-hover`. Documented in `docs/DESIGN_SYSTEM.md` §Accent.
 - **Consequences:** The hero always reads as a dark stage with legible light-coloured copy in both site-theme settings. The theme toggle remains functional and visible in both modes; the rest of the site respects the user's theme normally. FIX 3 is an open owner action.
+
+---
+
+## D-052.2 — Semantic node layers + Beat 2/3 cross-fade + scroll dead-zone (recovered)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (recovered from reflog `fae4dab` after an intervening revert; re-verified)
+- **Context:** D-052.2 was committed then lost when the branch was reset to `18d07c5`/`efc0cbc`. The code survived only in the reflog. D-052.3 recovered it FROM that commit rather than rebuilding.
+- **Decisions:**
+  1. **Semantic node layers (LAW-005):** `npm run hero:enrich` (`scripts/enrich-hero-network.ts`) annotates the inner network with project / skill / ambient categories by degree-centrality over the kNN graph. Output is the optional `network` section in `hero-face-3d.json` (6 project + 7 skill + 267 ambient, 491 edges, 11 pulse paths, 48.3 KB gz). Face surface data is UNCHANGED by enrichment (LAW-008). Absent `network` → homogeneous single-layer fallback.
+  2. **Beat 2 cross-fade:** surface fades `0.32→0.60`; network fades `0.37→0.60` (+0.05 lag). Fog closes `20/30 → 1.5/5`. Constructed so the two layers are never both above ~0.70 opacity (surface >0.70 only for off<0.42; network >0.70 only for off>0.52 — disjoint).
+  3. **Scroll dead-zone:** `SCROLL_START=0.08` — the hero holds its Beat-1 state for the first 8 % of the region before the timeline runs.
+  4. **Budget:** `hero-face-3d.json` gz budget raised 140 → 160 KB for the network metadata.
+- **Consequences:** The semantic model is the foundation for D-053 (clickable graph). It ships as data + optional render; nothing downstream depends on it yet.
+
+---
+
+## D-052.3 — Restore glowing-nodes hero: bulb shader, background glow, camera depth field
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** The "glowing bulb-nodes" hero aesthetic was lost in the revert. This sprint reconstructs it from specification on top of the recovered D-052.2 foundation. Recovery path: D-052.2 structure restored from reflog `fae4dab`; the bulb shader, glow boost, camera pull-back and portrait refinement are NEW (D-052.2 rendered flat `MeshBasicMaterial` spheres).
+- **Decisions:**
+  1. **Bulb-node shader (Pillar 3):** inner nodes render as `THREE.Points` with a custom `ShaderMaterial` — a bright emissive pinpoint CORE (intensity >1.2 → blooms) inside a soft fresnel-style HALO (dim body ~0.2). Additive blending, `depthWrite:false`, circular `smoothstep` mask, size clamped in-shader to 4–8 device px, per-node breathing ±15 %. Density guard: halo body kept dim so 4+ overlaps stay < 0.9 luminance. Project bulbs bloom (blue, core 1.6), skill bulbs mid (violet, core 1.25), ambient bulbs never bloom (cool grey, core 0.7).
+  2. **Ambient background glow (Pillar 2):** the "bulb behind the face" — a large heavily-blurred accent-gradient radial plane, peak ~12–15 % (was 8 %), breathing on a 10 s cycle, fading with the surface so it does not wash the Beat-3 network.
+  3. **Camera depth field:** `CAM_END_Z` pulled back `+0.05 → +0.12` (~40 % more standoff from the node centroid); rail tail re-splined monotonic. Bloom kept at intensity 0.35 / threshold 1.2.
+  4. **Portrait-prior refinement (Pillar 1):** the prior was already implemented; tightened `FACE_SY 0.34→0.32` and `FACE_FLOOR 0.45→0.40`, regenerated from the real `portrait-source.jpeg`. Feature concentration 26.5× → 30.9× (93 % of the 8 000 nodes in the face ellipse; silhouette preserved at 7 %). FIX 3 from D-052.1 (previously blocked on a missing `.jpg`) is resolved — the source is present as `.jpeg`.
+  5. **Sub-line legibility:** a subtle bottom stage-colour scrim keeps Beat-3 sub-lines 3 & 4 ≥ 4.5:1 over the network.
+- **Consequences:** The lost checkpoint is reconstructed and should be tagged `stable-glow-hero`. All fallbacks (poster LCP, WebGL-fail, reduced-motion, low-tier) preserved. Budgets green.

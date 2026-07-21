@@ -3,7 +3,62 @@
  * `scripts/generate-hero-face.mjs`. Positions are signed ints quantized to
  * `meta.quant`; decode by dividing. Fetched at runtime — NEVER imported, so
  * three.js + this dataset stay out of the First Load JS of `/`.
+ *
+ * D-052.2 adds the optional `network` section: semantic node layers prepared
+ * by `npm run hero:enrich` for use by D-053 (clickable graph navigation).
+ * If `network` is absent the scene falls back to homogeneous inner rendering.
  */
+
+// ── Semantic node types (D-052.2 FIX 3) ──────────────────────────────────────
+
+export interface NetworkProjectNode {
+  id: string;
+  projectSlug: string;
+  /** Index into inner.x/y/z arrays for position lookup. */
+  posIndex: number;
+  /** Visual scale relative to the base bulb size (1.4 for project nodes). */
+  size: number;
+  glowIntensity: number;
+}
+
+export interface NetworkSkillNode {
+  id: string;
+  skillName: string;
+  posIndex: number;
+  /** Project slugs that use this skill. Empty until D-053 hydration if
+   *  the skill↔project relation table has no data. */
+  connectedProjectIds: string[];
+}
+
+export interface NetworkAmbientNode {
+  id: string;
+  posIndex: number;
+}
+
+export interface NetworkEdge {
+  fromId: string;
+  toId: string;
+  kind: "project-skill" | "skill-skill" | "ambient";
+}
+
+export interface NetworkPulsePath {
+  pathId: string;
+  /** Node ID sequence (project-connection pulses traverse project→skill routes;
+   *  ambient pulses wander atmosphere nodes). */
+  nodeIdSequence: string[];
+  kind: "project-connection" | "ambient";
+}
+
+export interface HeroNetwork {
+  projectNodes: NetworkProjectNode[];
+  skillNodes: NetworkSkillNode[];
+  ambientNodes: NetworkAmbientNode[];
+  edges: NetworkEdge[];
+  pulsePaths: NetworkPulsePath[];
+}
+
+// ── Core 3D face dataset ──────────────────────────────────────────────────────
+
 export interface HeroFace3D {
   meta: {
     version: number;
@@ -22,6 +77,8 @@ export interface HeroFace3D {
   };
   surface: { x: number[]; y: number[]; z: number[]; b: number[] };
   inner: { x: number[]; y: number[]; z: number[]; edges: number[]; pulses: number[][] };
+  /** Optional semantic layer — present after `npm run hero:enrich`. */
+  network?: HeroNetwork;
 }
 
 /** Minimal structural validation before we build GPU buffers. */

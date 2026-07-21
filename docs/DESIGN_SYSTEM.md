@@ -153,7 +153,33 @@ Default everywhere. A small custom cursor dot (8px ink) with a 32px follow ring 
 
 ---
 
-## 7. Governance
+## 7. Hero-scene — the glowing network (D-052.2 / D-052.3)
+
+The 3D hero renders on its own dark stage (a "screen within the page"); its colours are the scene's own, but the accent stops match `--grad-1/2/3`.
+
+**Ambient background glow (the "bulb behind the face"):** a large, heavily-blurred accent-gradient radial plane behind the head at **~12–15 % peak opacity**, breathing on a 10 s cycle (±1.5 %). It reads as a light source illuminating the body, never as brand fill. It fades out with the face during the dive so it does not wash the Beat-3 network.
+
+**Bulb-nodes (Beat 3):** every inner-network node is a *lit bulb*, not a flat sphere — a `THREE.Points` sprite with a custom shader:
+
+| Layer | Colour | Core intensity | Blooms? | Size |
+|-------|--------|----------------|---------|------|
+| Project | `--grad-1` (blue) | 1.6 (> 1.2 threshold) | Yes — pinpoint core | 1.4× (≈7 px) |
+| Skill | `--grad-2` (violet) | 1.25 | Faintly | 1.0× (≈5 px) |
+| Ambient | cool grey | 0.7 (< 1.2) | No — atmosphere | 0.6× (≈4 px) |
+
+- **Core + halo:** a bright ~1 px emissive core inside a soft fresnel halo. The core exceeds the bloom threshold so a spark blooms; the halo body stays dim (~0.2).
+- **Density guard:** halo brightness is capped so 4+ overlapping bulbs stay under 0.9 luminance — never a wall of white.
+- **Size clamp:** node size is clamped **4–8 device px** in the vertex shader, independent of camera distance.
+- **Breathing:** per-node ±15 %, unique phase, ~10 s.
+- **Camera:** the Beat-3 rest position sits at `z=+0.12`, a depth-field standoff from the node centroid (`z≈-0.18`), so the network reads with parallax, not as a wall. Bloom stays restrained at intensity 0.35 / threshold 1.2.
+
+**Beat 2 cross-fade:** surface `0.32→0.60`, network `0.37→0.60` (+0.05 lag). The two layers are never both above ~0.70 opacity. A bottom stage-colour scrim keeps sub-lines 3 & 4 ≥ 4.5:1 over the network.
+
+**Data:** node categories are algorithm-derived (LAW-005) via `npm run hero:enrich`. Re-run after any project publish/unpublish. Face data comes from `npm run hero:generate` (portrait-prior sampling, LAW-008-gated on the real photo).
+
+---
+
+## 8. Governance
 
 - **One-file retune:** all colour/type/motion primitives live in `globals.css`. Touching primitives recolours the entire product.
 - **Closed sets:** 6 type sizes, 3 weights, 2 energy easings, 1 gradient. Additions require a decision entry.

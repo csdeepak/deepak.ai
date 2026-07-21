@@ -66,8 +66,11 @@ const EDGE_WEIGHT = 0.6; // edge-biased so eyes/nose/mouth/jaw win
 const FACE_CX = 0.5; // face centre, x (fraction of grid width)
 const FACE_CY = 0.4; // face centre, y (upper portion of a headshot)
 const FACE_SX = 0.3; // gaussian spread, x
-const FACE_SY = 0.34; // gaussian spread, y
-const FACE_FLOOR = 0.45; // periphery keeps this share (keeps the outline)
+// D-052.3 Pillar 1: tightened vertical spread + lower floor so more of the
+// 8k budget lands in the eye-line→mouth band (identity features) while the
+// FLOOR still keeps the silhouette/shoulders faintly lit under the glow.
+const FACE_SY = 0.32; // gaussian spread, y (was 0.34)
+const FACE_FLOOR = 0.4; // periphery share (was 0.45)
 const FORMAT_VERSION = 2;
 
 // ── 3D pipeline v2 (D-052 Track 2) ────────────────────────────────────

@@ -6,6 +6,20 @@
 
 ## Current Phase
 
+**D-052.3 COMPLETE (no commit — T1) on `feat/instrument-redesign`** — the glowing-nodes hero, reconstructed. Owner reviews in-browser, then commits + tags `stable-glow-hero`.
+
+**What landed in D-052.3 (2026-07-21):**
+- **Recovery:** D-052.2 (semantic node layers, Beat 2/3 cross-fade, scroll dead-zone) was lost in a revert; restored FROM reflog `fae4dab`. The bulb shader, glow boost, camera pull-back and portrait refinement are new on top.
+- **Pillar 1 — face:** portrait-prior refined (`FACE_SY 0.34→0.32`, `FACE_FLOOR 0.45→0.40`), regenerated from real `portrait-source.jpeg`. Feature concentration 26.5× → 30.9× (93 % in-face, silhouette kept). Poster + `network` (48.3 KB gz) regenerated. Face shifts +0.15 right on desktop ≥640 px, centred on mobile.
+- **Pillar 2 — glow:** ambient background glow 8 % → **12–15 %** peak, heavily blurred, 10 s breath.
+- **Pillar 3 — bulbs:** inner nodes are custom-shader lit bulbs (emissive core + fresnel halo), additive, 4–8 px clamped, density-guarded, per-node breathing. Project/skill/ambient layers preserved.
+- **Beat 2 / camera:** cross-fade never both >70 %; `CAM_END_Z +0.05 → +0.12` depth field; bloom 0.35/1.2; bottom scrim for sub-line legibility.
+- **Gates:** tsc clean; `next build` exit 0, no warnings; `/` 154 kB; 3D chunk 253.5 kB gz; JSON 48.3 KB gz; posters 85.4 KB.
+
+**Owner action:** review in-browser, commit, then `git tag stable-glow-hero && git push origin stable-glow-hero` (this is the checkpoint we lost).
+
+---
+
 **D-052.1 COMPLETE on `feat/instrument-redesign`** — four surgical fixes on top of D-052. Committed and pushed.
 
 **What landed in D-052.1 (2026-07-21):**

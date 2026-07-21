@@ -14,7 +14,7 @@
  *   4. D-052: the lazy 3D chunk (three+R3F+drei+post+meshline+scene) total
  *      gzipped size exceeds 500 kB.
  *   5. D-052: the 3D dataset + posters exist and stay within budget
- *      (hero-face-3d.json ≤ 140 kB gz; posters combined ≤ 90 kB).
+ *      (hero-face-3d.json ≤ 160 kB gz; posters combined ≤ 90 kB).
  *
  * Uses only Node fs — no grep dependency, so it runs identically on the
  * Linux CI runner and on Windows dev.
@@ -28,7 +28,7 @@ const CHUNKS_DIR = join(NEXT, "static", "chunks");
 const PUBLIC = "public";
 const BUDGET_KB = 170; // D-052 (was 164 under D-050)
 const LAZY_3D_BUDGET_KB = 500; // D-052: whole 3D stack, lazy
-const JSON3D_BUDGET_KB = 140; // D-052: hero-face-3d.json gz
+const JSON3D_BUDGET_KB = 160; // D-052.2: hero-face-3d.json gz (raised from 140 for network section)
 const POSTER_BUDGET_KB = 90; // D-052: posters combined
 
 function fail(msg) {

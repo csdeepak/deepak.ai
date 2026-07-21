@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { decideTier } from "../gate";
-import { REGION_VH, BEAT } from "./constants";
+import { REGION_VH, BEAT, SCROLL_START } from "./constants";
 import { isHeroFace3D, type HeroFace3D } from "./types";
 import { siteContent } from "../../../../content/site";
 
@@ -109,7 +109,11 @@ export default function NeuralFace3DClient() {
       raf = 0;
       const rect = section.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
-      const off = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      const rawOff = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      const off =
+        rawOff < SCROLL_START
+          ? 0
+          : (rawOff - SCROLL_START) / (1 - SCROLL_START);
       offsetRef.current = off;
       if (copyRef.current) {
         copyRef.current.style.opacity = String(
@@ -140,8 +144,9 @@ export default function NeuralFace3DClient() {
   return (
     <section
       ref={sectionRef}
+      data-hero-section=""
       style={{ height: `${REGION_VH}vh` }}
-      className="relative bg-[#0A0B0D]"
+      className="dark relative bg-[#0A0B0D]"
     >
       <div className="sticky top-0 h-svh overflow-hidden">
         {/* (1) Poster — the LCP element. Real render of the real data. */}
@@ -166,6 +171,18 @@ export default function NeuralFace3DClient() {
           />
         )}
 
+        {/* (2b) Bottom legibility scrim (D-052.3): a subtle stage-colour fade
+            behind the lower copy so Beat-3 sub-lines 3 & 4 stay ≥ 4.5:1 over
+            the glowing network. Fades to transparent well below the face. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[42svh]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to top, rgba(10,11,13,0.62), rgba(10,11,13,0.28) 40%, transparent)",
+          }}
+        />
+
         {/* (3) Copy overlay — DOM, always present, fades out during the dive. */}
         <Container
           width="content"
@@ -189,7 +206,7 @@ export default function NeuralFace3DClient() {
               </Link>
               <Link
                 href="/projects/asmos"
-                className="text-body text-muted underline-offset-4 hover:text-ink hover:underline"
+                className="gradient-underline-hover text-body text-muted underline-offset-4"
               >
                 Read the memory
               </Link>
@@ -199,7 +216,7 @@ export default function NeuralFace3DClient() {
           {/* Beat sub-line — fixed slot, updated directly on scroll. */}
           <p
             ref={sublineRef}
-            className="mt-8 h-6 max-w-[46ch] text-body text-muted"
+            className="hero-subline-gradient mt-8 h-6 max-w-[46ch] text-body"
           >
             {SUBLINES[0]}
           </p>
