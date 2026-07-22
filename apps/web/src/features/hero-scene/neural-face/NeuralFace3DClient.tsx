@@ -50,6 +50,8 @@ export default function NeuralFace3DClient() {
   const copyRef = useRef<HTMLDivElement>(null);
   const sublineRef = useRef<HTMLParagraphElement>(null);
   const offsetRef = useRef(0);
+  // Up to 3 DOM label slots the scene positions from 3D during the flight (D-052.6).
+  const labelSlots = useRef<(HTMLElement | null)[]>([null, null, null]);
 
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<HeroFace3D | null>(null);
@@ -167,8 +169,26 @@ export default function NeuralFace3DClient() {
             data={data}
             tier={tier}
             offsetRef={offsetRef}
+            labelSlots={labelSlots}
             onLost={() => setMounted(false)}
           />
+        )}
+
+        {/* Proximity labels (D-052.6): 3 DOM slots the scene projects from the
+            node positions during the fly-through. Positioned/faded by the scene. */}
+        {mounted && data && (
+          <div aria-hidden className="pointer-events-none absolute inset-0 z-[7]">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                ref={(el) => {
+                  labelSlots.current[i] = el;
+                }}
+                className="absolute left-0 top-0 whitespace-nowrap font-mono text-[11px] tracking-wide opacity-0 transition-opacity duration-200 will-change-transform"
+                style={{ textShadow: "0 1px 6px rgba(10,11,13,0.9)" }}
+              />
+            ))}
+          </div>
         )}
 
         {/* (2b) Bottom legibility scrim (D-052.3): a subtle stage-colour fade

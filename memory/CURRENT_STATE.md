@@ -6,7 +6,22 @@
 
 ## Current Phase
 
-**D-052.4 COMPLETE (no commit — T1) on `feat/instrument-redesign`** — node glow reads as a colour constellation + edge pulses fire on a cadence. Owner reviews in-browser, then commits + tags `stable-glow-hero-v2`.
+**D-052.6 COMPLETE (no commit) on `feat/instrument-redesign`** — real node size + camera flight through the graph.
+- **Phase 1 (root cause, browser evidence):** the sub-3px pinpoints were `gl.POINTS` **driver size-cap** (ANGLE/D3D on Windows), not the geometry — the D-052.5 shader had a 14px floor so the shrink is downstream in the GPU. Confirmed via a real Playwright WebGL probe (headless SwiftShader reports `[1,1023]`, would render large → the fault is the owner's hardware point path).
+- **Phase 2 (instanced billboards):** all layers re-authored as camera-facing **world-sized quads** (no `gl_PointSize`) → no cap + real parallax. Core radius 0.5 (bright body). **Browser-MEASURED** (Playwright, 1440×900 dpr2): at the settled camera **project ≈43px, skill ≈24, ambient ≈10** (targets 34-48/20-28/9-14); close passes 60–108px.
+- **Phase 3 (camera flight):** scroll-driven `CatmullRomCurve3` (off 0.60→1.0) flies **through** the field; control points **derived from graph data** (depth-band centroids, weave, node-avoid). smootherstep speed, look-ahead + slerp 0.08, fog tracks camera. Proximity (≤0.14) brightens project/skill +40% and fades in a **DOM label** from the node name — **max 3, nearest**, projected from 3D.
+- **Tooling:** Playwright/Chromium installed locally for measurement, **reverted from tracked package files** (not committed).
+- **Scope:** no committed deps, no JSON/data-model/nav/DB/copy change. Budgets unchanged (`/` 150.7 kB; lazy 3D 253.5 kB gz). Click/nav/panels = next sprint. Final in-browser aesthetic pass = owner sign-off.
+- **Owner action:** review in-browser, commit, then `git tag stable-glow-hero-v2 && git push origin stable-glow-hero-v2` (moving the tag — see git block in the report).
+
+**D-052.5 COMPLETE (no commit) on `feat/instrument-redesign`** — bulb nodes made legible. After D-052.4, nodes were effectively invisible (hero read as bare wireframe) because a blanket 4–8 px cap + 0.90 density guard erased them. Retuned node rendering only:
+- **Per-layer size ranges** (replaces the 4–8 px cap): project **14–20 px**, skill **10–14 px**, ambient **6–10 px** at the resting Beat-3 camera — non-overlapping, hierarchy readable at a glance. Verified analytically vs. real geometry + camera rail at t=0.65/0.80/0.95 (`BULB_SIZE 1.05→3.8`, per-layer `uMinPx/uMaxPx`).
+- **Higher cores + readable halos** (project 2.4/0.35, skill 1.7/0.28, ambient 1.0/0.20; core mask 0.28→0.34) → each reads as a lit bulb.
+- **Layered saturation** (project 1.0, skill 0.85, ambient 0.62) → ambient recedes as atmosphere.
+- **Density guard relaxed 0.90 → 0.95**; edges unchanged (0.14); copy legibility protected by existing right-shift + faded-headline + scrim.
+- Scope: node rendering only. Budgets unchanged. Live in-browser look = owner sign-off (no browser in build env). D-052.5 logged.
+
+**D-052.4 COMPLETE (committed `36775ff`, tagged `stable-glow-hero-v2`) on `feat/instrument-redesign`** — node glow reads as a colour constellation + edge pulses fire on a cadence.
 
 **What landed in D-052.4 (2026-07-22):**
 - **Honest finding first (LAW-008):** the owner's "flat grey dots / static wireframe" screenshot was **not** a code strip. Git proves HEAD (D-052.3) added the bulb shader; tree clean; shader + pulses + correct cross-fade all present. The real cause: **267 of 280 inner nodes (95 %) are the ambient layer, which was hard-coded a single cool grey** — so the network was dominated by grey dots and the 13 coloured bulbs were lost. Pulses ran continuously (cadence constants unused). Cross-fade was already correct.

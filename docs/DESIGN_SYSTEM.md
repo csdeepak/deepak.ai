@@ -153,25 +153,26 @@ Default everywhere. A small custom cursor dot (8px ink) with a 32px follow ring 
 
 ---
 
-## 7. Hero-scene — the glowing network (D-052.2 / D-052.3 / D-052.4)
+## 7. Hero-scene — the glowing network (D-052.2 → D-052.6)
 
 The 3D hero renders on its own dark stage (a "screen within the page"); its colours are the scene's own, but the accent stops match `--grad-1/2/3`.
 
 **Ambient background glow (the "bulb behind the face"):** a large, heavily-blurred accent-gradient radial plane behind the head at **~12–15 % peak opacity**, breathing on a 10 s cycle (±1.5 %). It reads as a light source illuminating the body, never as brand fill. It fades out with the face during the dive so it does not wash the Beat-3 network.
 
-**Bulb-nodes (Beat 3):** every inner-network node is a *lit bulb*, not a flat sphere — a `THREE.Points` sprite with a custom `ShaderMaterial` (additive, `depthWrite:false`, `toneMapped:false`, circular `smoothstep` mask). **Colour is per-node (`aColor`): every node is biased to a point along the accent gradient (`--grad-1` → `--grad-2` → `--grad-3`) by its POSITION** — projected onto the ~10° gradient axis and normalised across the whole cloud. Layer identity is carried by **brightness + bloom**, not by a flat hue — so the majority ambient nodes span the gradient instead of rendering as one uniform grey (D-052.4 FIX 1):
+**Bulb-nodes (Beat 3) — instanced billboards (D-052.6):** every inner node is a **camera-facing WORLD-SIZED quad** (an `InstancedBufferGeometry` of unit planes billboarded in the vertex shader), **not** a `gl.POINTS` sprite. Point size is capped by the driver on real Windows GPUs (ANGLE/D3D), which rendered nodes as sub-3 px pinpoints regardless of the requested `gl_PointSize`; world-sized quads have **no size cap** and give true fly-through parallax (near nodes grow into orbs, far ones recede). Apparent size is normalised to a reference viewport height (`uViewScale = 900 / actualHeight`). Additive, `depthWrite:false`, `toneMapped:false`, circular mask. **Colour is per-node** — biased along the accent gradient (`--grad-1`→`--grad-2`→`--grad-3`) by POSITION (projected onto the ~10° axis, normalised across the cloud), with per-layer saturation:
 
-| Layer | Gradient bias | Core intensity | Blooms? | Size |
-|-------|---------------|----------------|---------|------|
-| Project | blue-leaning (bias −0.12, spread 0.7) | 1.6 (> 1.2 threshold) | Yes — pinpoint core | 1.4× (≈7 px) |
-| Skill | violet-leaning (bias +0.05, spread 0.9) | 1.25 | Faintly | 1.0× (≈5 px) |
-| Ambient | full blue→violet→pink (bias 0, spread 1.0) | 0.7 (< 1.2) | No — atmosphere | 0.6× (≈4 px) |
+| Layer | Gradient bias · saturation | Core / halo | Base world Ø · core radius | Measured CSS px @ settle |
+|-------|----------------------------|-------------|----------------------------|--------------------------|
+| Project | blue-leaning · **full sat** | 2.8 / 0.45 | 0.0125 · 0.5 | **~43** (target 34–48) |
+| Skill | violet-leaning · **0.85 sat** | 1.9 / 0.34 | 0.0066 · 0.5 | **~24** (target 20–28) |
+| Ambient | full spread · **0.62 sat** | 1.0 / 0.22 | 0.0038 · 0.5 | **~10** (target 9–14) |
 
-- **Core + halo:** a bright ~1 px emissive core inside a soft fresnel halo. The core exceeds the bloom threshold so a spark blooms; the halo body stays dim (~0.2).
-- **Density guard:** halo brightness is capped so 4+ overlapping bulbs stay under 0.9 luminance — never a wall of white. (Colouring by gradient does not touch the halo/core intensities, so the guard is unchanged.)
-- **Size clamp:** node size is clamped **4–8 device px** in the vertex shader, independent of camera distance.
-- **Breathing:** per-node ±15 %, unique phase, ~10 s.
-- **Camera:** the Beat-3 rest position sits at `z=+0.12`, a depth-field standoff from the node centroid (`z≈-0.18`), so the network reads with parallax, not as a wall. Bloom stays restrained at intensity 0.35 / threshold 1.2.
+- **Bright body, not a pinpoint:** the fragment core occupies **half the sprite (radius 0.5)**, then a soft halo ring to the edge — each node reads as a lit bulb with a real bright body. Project/skill cores clear the 1.2 bloom threshold; ambient stays below (atmosphere).
+- **Sizes are browser-MEASURED** (Playwright, real WebGL, 1440×900 dpr2) — not analytic. At the settled flight camera project ≈ 43 px, skill ≈ 24, ambient ≈ 10; close fly-through passes render much larger (parallax), the approach (off≈0.65) smaller.
+- **Density guard 0.95:** halo/core × layer opacity keep typical overlaps under 0.95 luminance; ambient desaturated so it recedes.
+- **Breathing:** per-node ±12 %, unique phase.
+
+**Camera flight THROUGH the network (Beat 3, D-052.6):** for `off ∈ [0.60, 1.0]` the camera flies **into and through** the node field on a second `CatmullRomCurve3` whose control points are **derived from the graph data** (LAW-005): waypoints sit at the xy-centroid of nodes in successive depth bands, offset to alternating sides so the camera weaves between nodes, then nudged away from any node it would clip; it settles just in front of the deep cluster. Speed uses `smootherstep` (slow-in / steady / slow-out); orientation is a look-ahead (`getPointAt(u+0.006)` / end-tangent) with quaternion **slerp damping 0.08**; fog tracks the camera (near 0.04 / far 0.6) so depth reads. As the camera passes within ~0.14 of a project/skill node it brightens **+40 %** and a **DOM label** (project/skill name from the data) fades in beside it — **never more than 3 at once** (the nearest 3), projected from the node's 3D position, positioned/faded directly by the scene (no React churn).
 
 **Edge pulses (Beat 3, D-052.4 FIX 2):** signal pulses travel the network via `meshline` + animated `dashOffset`. They are **launched on a cadence — a new pulse every 1.8–2.4 s** on a fresh path (`PULSE_INTERVAL_MIN/MAX`), each with a `PULSE_LIFETIME ≈ 4.5 s` so **2–3 pulses travel concurrently**. An opacity envelope (fast in, hold, diffuse out) makes each pulse read as a discrete event, not a constant glow. Two bright slots run project-connection paths (`--grad-1 ×2.4`, blooms); one dim slot runs ambient paths (`--grad-2 ×0.9`). **Static (non-pulsing) structural edges stay very dim (alpha 0.14)** so pulses register as events.
 
