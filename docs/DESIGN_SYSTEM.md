@@ -153,27 +153,29 @@ Default everywhere. A small custom cursor dot (8px ink) with a 32px follow ring 
 
 ---
 
-## 7. Hero-scene — the glowing network (D-052.2 / D-052.3)
+## 7. Hero-scene — the glowing network (D-052.2 / D-052.3 / D-052.4)
 
 The 3D hero renders on its own dark stage (a "screen within the page"); its colours are the scene's own, but the accent stops match `--grad-1/2/3`.
 
 **Ambient background glow (the "bulb behind the face"):** a large, heavily-blurred accent-gradient radial plane behind the head at **~12–15 % peak opacity**, breathing on a 10 s cycle (±1.5 %). It reads as a light source illuminating the body, never as brand fill. It fades out with the face during the dive so it does not wash the Beat-3 network.
 
-**Bulb-nodes (Beat 3):** every inner-network node is a *lit bulb*, not a flat sphere — a `THREE.Points` sprite with a custom shader:
+**Bulb-nodes (Beat 3):** every inner-network node is a *lit bulb*, not a flat sphere — a `THREE.Points` sprite with a custom `ShaderMaterial` (additive, `depthWrite:false`, `toneMapped:false`, circular `smoothstep` mask). **Colour is per-node (`aColor`): every node is biased to a point along the accent gradient (`--grad-1` → `--grad-2` → `--grad-3`) by its POSITION** — projected onto the ~10° gradient axis and normalised across the whole cloud. Layer identity is carried by **brightness + bloom**, not by a flat hue — so the majority ambient nodes span the gradient instead of rendering as one uniform grey (D-052.4 FIX 1):
 
-| Layer | Colour | Core intensity | Blooms? | Size |
-|-------|--------|----------------|---------|------|
-| Project | `--grad-1` (blue) | 1.6 (> 1.2 threshold) | Yes — pinpoint core | 1.4× (≈7 px) |
-| Skill | `--grad-2` (violet) | 1.25 | Faintly | 1.0× (≈5 px) |
-| Ambient | cool grey | 0.7 (< 1.2) | No — atmosphere | 0.6× (≈4 px) |
+| Layer | Gradient bias | Core intensity | Blooms? | Size |
+|-------|---------------|----------------|---------|------|
+| Project | blue-leaning (bias −0.12, spread 0.7) | 1.6 (> 1.2 threshold) | Yes — pinpoint core | 1.4× (≈7 px) |
+| Skill | violet-leaning (bias +0.05, spread 0.9) | 1.25 | Faintly | 1.0× (≈5 px) |
+| Ambient | full blue→violet→pink (bias 0, spread 1.0) | 0.7 (< 1.2) | No — atmosphere | 0.6× (≈4 px) |
 
 - **Core + halo:** a bright ~1 px emissive core inside a soft fresnel halo. The core exceeds the bloom threshold so a spark blooms; the halo body stays dim (~0.2).
-- **Density guard:** halo brightness is capped so 4+ overlapping bulbs stay under 0.9 luminance — never a wall of white.
+- **Density guard:** halo brightness is capped so 4+ overlapping bulbs stay under 0.9 luminance — never a wall of white. (Colouring by gradient does not touch the halo/core intensities, so the guard is unchanged.)
 - **Size clamp:** node size is clamped **4–8 device px** in the vertex shader, independent of camera distance.
 - **Breathing:** per-node ±15 %, unique phase, ~10 s.
 - **Camera:** the Beat-3 rest position sits at `z=+0.12`, a depth-field standoff from the node centroid (`z≈-0.18`), so the network reads with parallax, not as a wall. Bloom stays restrained at intensity 0.35 / threshold 1.2.
 
-**Beat 2 cross-fade:** surface `0.32→0.60`, network `0.37→0.60` (+0.05 lag). The two layers are never both above ~0.70 opacity. A bottom stage-colour scrim keeps sub-lines 3 & 4 ≥ 4.5:1 over the network.
+**Edge pulses (Beat 3, D-052.4 FIX 2):** signal pulses travel the network via `meshline` + animated `dashOffset`. They are **launched on a cadence — a new pulse every 1.8–2.4 s** on a fresh path (`PULSE_INTERVAL_MIN/MAX`), each with a `PULSE_LIFETIME ≈ 4.5 s` so **2–3 pulses travel concurrently**. An opacity envelope (fast in, hold, diffuse out) makes each pulse read as a discrete event, not a constant glow. Two bright slots run project-connection paths (`--grad-1 ×2.4`, blooms); one dim slot runs ambient paths (`--grad-2 ×0.9`). **Static (non-pulsing) structural edges stay very dim (alpha 0.14)** so pulses register as events.
+
+**Beat 2 cross-fade:** surface `0.32→0.60`, network `0.37→0.60` (+0.05 lag). The two layers are never both above ~0.70 opacity (verified: surface >0.70 only for off < 0.42; network >0.70 only for off > 0.52 — disjoint). A bottom stage-colour scrim keeps sub-lines 3 & 4 ≥ 4.5:1 over the network.
 
 **Data:** node categories are algorithm-derived (LAW-005) via `npm run hero:enrich`. Re-run after any project publish/unpublish. Face data comes from `npm run hero:generate` (portrait-prior sampling, LAW-008-gated on the real photo).
 

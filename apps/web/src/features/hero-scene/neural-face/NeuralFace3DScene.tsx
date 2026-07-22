@@ -21,7 +21,7 @@
  *                  (project / skill / ambient) visually distinct (D-052.2 FIX 3)
  */
 
-import { useEffect, useMemo, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -37,7 +37,10 @@ import {
   FACE_X_OFFSET,
   GRAD_1,
   GRAD_2,
+  GRAD_3,
   PULSE_CONCURRENT,
+  PULSE_INTERVAL_MAX,
+  PULSE_INTERVAL_MIN,
   STAGE_COLOR,
   SURFACE_TINT,
 } from "./constants";
@@ -113,13 +116,28 @@ function PerfGuard() {
 }
 
 // ── Pulse item type ────────────────────────────────────────────────────────────
+// Each slot is a traveling signal pulse. It is LAUNCHED on a cadence (a new
+// pulse every 1.8–2.4 s, D-052.4 FIX 2) rather than glowing continuously: it
+// spends most of its life idle (invisible), then lights, travels one path via
+// animated dashOffset, fades, and returns to idle. `paths` is the slot's own
+// pool (project-connection routes for bright slots, ambient routes for the dim
+// slot) so a launch always picks "a different path".
 interface PulseItem {
   geo: MeshLineGeometry;
   mat: MeshLineMaterial;
   mesh: THREE.Mesh;
-  pathIndex: number;
   speed: number;
+  /** -1 = idle (invisible); 0..1 = active-lifetime progress. */
+  phase: number;
+  /** This slot's path pool (project-connection or ambient). */
+  paths: Float32Array[];
+  /** Last path index launched (so the next launch differs). */
+  last: number;
 }
+
+/** Seconds a launched pulse stays alive. Tuned with the 1.8–2.4 s launch
+ *  cadence so 2–3 pulses are concurrently traveling (lifetime ÷ interval ≈ 2). */
+const PULSE_LIFETIME = 4.5;
 
 // ── Inner-network scene data ───────────────────────────────────────────────────
 /** One bulb-node layer (project / skill / ambient, or the single fallback). */
@@ -134,7 +152,6 @@ interface InnerScene {
   bulbs: BulbLayer[];
   edgeMat: THREE.LineBasicMaterial;
   pool: PulseItem[];
-  paths: Float32Array[];
   dispose: () => void;
 }
 
@@ -171,6 +188,30 @@ function makePulseMesh(
   return { geo, mat, mesh };
 }
 
+/** Build a pool of idle pulse slots (invisible until launched on cadence). */
+function makePulsePool(
+  group: THREE.Group,
+  specs: { paths: Float32Array[]; bright: boolean }[],
+  rng: () => number,
+): PulseItem[] {
+  const pool: PulseItem[] = [];
+  for (const spec of specs) {
+    if (spec.paths.length === 0) continue;
+    const { geo, mat, mesh } = makePulseMesh(spec.paths[0]!, spec.bright);
+    pool.push({
+      geo,
+      mat,
+      mesh,
+      speed: 0.45 + rng() * 0.35,
+      phase: -1, // start idle; the launcher lights it on cadence
+      paths: spec.paths,
+      last: -1,
+    });
+    group.add(mesh);
+  }
+  return pool;
+}
+
 function rngFactory(seed: number) {
   let a = seed >>> 0;
   return () => {
@@ -182,13 +223,71 @@ function rngFactory(seed: number) {
   };
 }
 
-// ── Bulb-node shader (D-052.3 Pillar 3) ─────────────────────────────────────────
+// ── Accent-gradient node colouring (D-052.4 FIX 1) ──────────────────────────────
+// The inner network must read as a colour constellation, NOT a field of uniform
+// grey dots. Every node is biased to a point along the D-052 accent gradient
+// (blue → violet → warm pink) by its POSITION, projected onto the ~10° gradient
+// axis and normalised across the whole cloud. Layer identity (project/skill/
+// ambient) is carried by BRIGHTNESS + bloom, not by a flat hue — so the 267
+// ambient nodes span the gradient instead of all rendering cool grey.
+const GRAD_DIR_X = 0.985; // cos(~10°) — matches --accent-gradient's 100deg sweep
+const GRAD_DIR_Y = 0.174; // sin(~10°)
+
+function accentGradientRGB(t: number, out: Float32Array, o: number) {
+  const x = t < 0 ? 0 : t > 1 ? 1 : t;
+  if (x < 0.5) {
+    const k = x * 2;
+    out[o] = GRAD_1[0] + (GRAD_2[0] - GRAD_1[0]) * k;
+    out[o + 1] = GRAD_1[1] + (GRAD_2[1] - GRAD_1[1]) * k;
+    out[o + 2] = GRAD_1[2] + (GRAD_2[2] - GRAD_1[2]) * k;
+  } else {
+    const k = (x - 0.5) * 2;
+    out[o] = GRAD_2[0] + (GRAD_3[0] - GRAD_2[0]) * k;
+    out[o + 1] = GRAD_2[1] + (GRAD_3[1] - GRAD_2[1]) * k;
+    out[o + 2] = GRAD_2[2] + (GRAD_3[2] - GRAD_2[2]) * k;
+  }
+}
+
+/** Projection range of an interleaved xyz buffer onto the gradient axis. */
+function gradientAxisRange(pos: Float32Array): { min: number; max: number } {
+  let min = Infinity;
+  let max = -Infinity;
+  for (let i = 0; i < pos.length; i += 3) {
+    const p = pos[i]! * GRAD_DIR_X + pos[i + 1]! * GRAD_DIR_Y;
+    if (p < min) min = p;
+    if (p > max) max = p;
+  }
+  return { min, max };
+}
+
+/** Per-node RGB (length n×3) along the accent gradient by position.
+ *  `bias` shifts a layer along the gradient (project → blue, skill → violet);
+ *  `spread` compresses (<1) or fills (=1) the layer's gradient range. */
+function gradientColors(
+  positions: Float32Array,
+  range: { min: number; max: number },
+  bias: number,
+  spread: number,
+): Float32Array {
+  const n = positions.length / 3;
+  const out = new Float32Array(n * 3);
+  const span = Math.max(1e-4, range.max - range.min);
+  for (let i = 0; i < n; i++) {
+    const px = positions[i * 3]! * GRAD_DIR_X + positions[i * 3 + 1]! * GRAD_DIR_Y;
+    const base = (px - range.min) / span; // 0..1 along the axis
+    accentGradientRGB(0.5 + (base - 0.5) * spread + bias, out, i * 3);
+  }
+  return out;
+}
+
+// ── Bulb-node shader (D-052.3 Pillar 3 · D-052.4 per-node colour) ───────────────
 // Each inner node renders as a small LIT BULB via a Points sprite, not a flat
 // sphere: a bright emissive pinpoint CORE inside a soft radial HALO (fresnel-
 // style falloff). The core exceeds the bloom threshold (1.2) so a tiny spark
 // blooms; the halo body stays dim (~0.2) so 4+ overlapping halos sum well under
 // 0.9 luminance (density guard — never a wall of white). Size is clamped to
 // 4–8 device px at the resting Beat 3 camera. Per-node phase → gentle breathing.
+// Colour is per-node (aColor) — the accent gradient biased by node position.
 const BULB_SIZE = 1.05; // base world→px size factor (tuned to ~5px at rest)
 
 const bulbVertexShader = /* glsl */ `
@@ -198,11 +297,14 @@ const bulbVertexShader = /* glsl */ `
   uniform float uTime;
   attribute float aScale;
   attribute float aPhase;
+  attribute vec3 aColor;
   varying float vBreath;
+  varying vec3 vColor;
   void main() {
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     // Per-node ambient breathing, ±15%, unique phase, ~10s period.
     vBreath = 1.0 + 0.15 * sin(uTime * 0.62 + aPhase);
+    vColor = aColor;
     float px = uSize * uScale * aScale / max(0.0001, -mv.z);
     // Enforce the 4–8 px bulb size regardless of exact node depth.
     gl_PointSize = clamp(px, 4.0, 8.0) * uPixelRatio;
@@ -212,11 +314,11 @@ const bulbVertexShader = /* glsl */ `
 
 const bulbFragmentShader = /* glsl */ `
   precision mediump float;
-  uniform vec3 uColor;
   uniform float uCore;    // core emissive intensity (>1.2 → blooms)
   uniform float uHalo;    // halo body intensity (dim, density-safe)
   uniform float uOpacity;
   varying float vBreath;
+  varying vec3 vColor;
   void main() {
     vec2 uv = gl_PointCoord - 0.5;
     float dist = length(uv) * 2.0;      // 0 center → 1 edge
@@ -226,21 +328,21 @@ const bulbFragmentShader = /* glsl */ `
     halo *= halo;
     float b = vBreath * uOpacity;
     // Emissive: additive blending adds col directly (srcAlpha=1).
-    vec3 col = uColor * (uCore * core + uHalo * halo) * b;
+    vec3 col = vColor * (uCore * core + uHalo * halo) * b;
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
 interface BulbOpts {
-  color: THREE.Color;
   core: number;
   halo: number;
   scale: number;
 }
 
-/** Build one bulb Points layer from per-node positions. */
+/** Build one bulb Points layer from per-node positions + per-node colours. */
 function makeBulbLayer(
   positions: Float32Array,
+  colors: Float32Array,
   scales: Float32Array,
   phases: Float32Array,
   pixelRatio: number,
@@ -248,11 +350,11 @@ function makeBulbLayer(
 ): { points: THREE.Points; mat: THREE.ShaderMaterial; geo: THREE.BufferGeometry } {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
   geo.setAttribute("aScale", new THREE.BufferAttribute(scales, 1));
   geo.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
   const mat = new THREE.ShaderMaterial({
     uniforms: {
-      uColor: { value: opts.color },
       uCore: { value: opts.core },
       uHalo: { value: opts.halo },
       uScale: { value: opts.scale },
@@ -266,6 +368,7 @@ function makeBulbLayer(
     transparent: true,
     depthWrite: false,
     depthTest: true,
+    toneMapped: false,
     blending: THREE.AdditiveBlending,
   });
   const points = new THREE.Points(geo, mat);
@@ -310,6 +413,8 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
   const group = new THREE.Group();
   const rng = rngFactory(0x52a71c00);
   const px = bulbPixelRatio();
+  // Shared gradient axis across the whole cloud so all layers read one sweep.
+  const axis = gradientAxisRange(pos);
 
   // Build nodeId → position lookup
   const idToXYZ = new Map<string, [number, number, number]>();
@@ -320,35 +425,44 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
   for (const s of network.skillNodes) registerPos(s.id, s.posIndex);
   for (const a of network.ambientNodes) registerPos(a.id, a.posIndex);
 
-  // ── Project bulbs: brightest, blue leading edge — cores bloom ──────────
+  // ── Project bulbs: brightest, blue-biased along the gradient — cores bloom ──
   const projPos = gatherPositions(pos, network.projectNodes.map((p) => p.posIndex));
   const projAttr = bulbAttribs(network.projectNodes.length, rng);
-  const project = makeBulbLayer(projPos, projAttr.scales, projAttr.phases, px, {
-    color: new THREE.Color(GRAD_1[0], GRAD_1[1], GRAD_1[2]),
-    core: 1.6,   // > 1.2 bloom threshold → tiny pinpoint core blooms
-    halo: 0.24,  // dim body (density guard: 4 overlaps ≈ 0.8 < 0.9)
-    scale: 1.4,
-  });
+  const project = makeBulbLayer(
+    projPos,
+    gradientColors(projPos, axis, -0.12, 0.7), // lean blue leading edge
+    projAttr.scales, projAttr.phases, px,
+    {
+      core: 1.6,   // > 1.2 bloom threshold → tiny pinpoint core blooms
+      halo: 0.24,  // dim body (density guard: 4 overlaps ≈ 0.8 < 0.9)
+      scale: 1.4,
+    },
+  );
 
-  // ── Skill bulbs: cool violet, mid brightness ───────────────────────────
+  // ── Skill bulbs: violet-biased, mid brightness ─────────────────────────
   const skillPos = gatherPositions(pos, network.skillNodes.map((s) => s.posIndex));
   const skillAttr = bulbAttribs(network.skillNodes.length, rng);
-  const skill = makeBulbLayer(skillPos, skillAttr.scales, skillAttr.phases, px, {
-    color: new THREE.Color(GRAD_2[0], GRAD_2[1], GRAD_2[2]),
-    core: 1.25,
-    halo: 0.20,
-    scale: 1.0,
-  });
+  const skill = makeBulbLayer(
+    skillPos,
+    gradientColors(skillPos, axis, 0.05, 0.9), // lean violet
+    skillAttr.scales, skillAttr.phases, px,
+    { core: 1.25, halo: 0.20, scale: 1.0 },
+  );
 
-  // ── Ambient bulbs: dim cool atmosphere — cores stay below bloom ────────
+  // ── Ambient bulbs: dim, but coloured across the FULL gradient by position ──
+  //    (D-052.4 FIX 1 — no longer flat cool grey; cores stay below bloom).
   const ambPos = gatherPositions(pos, network.ambientNodes.map((a) => a.posIndex));
   const ambAttr = bulbAttribs(network.ambientNodes.length, rng);
-  const ambient = makeBulbLayer(ambPos, ambAttr.scales, ambAttr.phases, px, {
-    color: new THREE.Color(0.55, 0.62, 0.85),
-    core: 0.7,   // < 1.2 → never blooms; pure atmosphere
-    halo: 0.16,
-    scale: 0.6,
-  });
+  const ambient = makeBulbLayer(
+    ambPos,
+    gradientColors(ambPos, axis, 0.0, 1.0), // full blue→violet→pink spread
+    ambAttr.scales, ambAttr.phases, px,
+    {
+      core: 0.7,   // < 1.2 → never blooms; pure atmosphere
+      halo: 0.16,
+      scale: 0.6,
+    },
+  );
 
   // ── Edges from inner.edges (structural graph, unchanged) ───────────────
   const edgeArr = data.inner.edges;
@@ -371,9 +485,9 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
 
   group.add(project.points, skill.points, ambient.points, edges);
 
-  // ── Semantic pulse pool ─────────────────────────────────────────────────
-  const paths: Float32Array[] = [];
-  const isProjectPulse: boolean[] = [];
+  // ── Semantic pulse paths, split by kind ─────────────────────────────────
+  const projectPaths: Float32Array[] = [];
+  const ambientPaths: Float32Array[] = [];
 
   for (const pp of network.pulsePaths) {
     const f = new Float32Array(pp.nodeIdSequence.length * 3);
@@ -384,31 +498,35 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
       f[k * 3] = xyz[0]; f[k * 3 + 1] = xyz[1]; f[k * 3 + 2] = xyz[2];
     });
     if (valid && pp.nodeIdSequence.length >= 3) {
-      paths.push(f);
-      isProjectPulse.push(pp.kind === "project-connection");
+      (pp.kind === "project-connection" ? projectPaths : ambientPaths).push(f);
     }
   }
 
-  // Fallback: use inner.pulses as ambient paths if no semantic paths
-  if (paths.length === 0) {
+  // Fallback: derive paths from inner.pulses if the semantic set is empty.
+  if (projectPaths.length === 0 && ambientPaths.length === 0) {
     for (const path of data.inner.pulses) {
       const f = new Float32Array(path.length * 3);
       path.forEach((ni, k) => {
         f[k * 3] = pos[ni * 3]!; f[k * 3 + 1] = pos[ni * 3 + 1]!; f[k * 3 + 2] = pos[ni * 3 + 2]!;
       });
-      paths.push(f);
-      isProjectPulse.push(false);
+      ambientPaths.push(f);
     }
   }
 
-  const pool: PulseItem[] = [];
-  const count = Math.min(PULSE_CONCURRENT, paths.length);
-  for (let i = 0; i < count; i++) {
-    const pathIndex = i % paths.length;
-    const { geo, mat, mesh } = makePulseMesh(paths[pathIndex]!, isProjectPulse[pathIndex] ?? false);
-    pool.push({ geo, mat, mesh, pathIndex, speed: 0.45 + rng() * 0.35 });
-    group.add(mesh);
-  }
+  const brightPool = projectPaths.length > 0 ? projectPaths : ambientPaths;
+  const dimPool = ambientPaths.length > 0 ? ambientPaths : projectPaths;
+
+  // Three slots: two bright (project-connection) + one dim (ambient). Each is
+  // launched on a cadence (see useFrame) — never a constant glow.
+  const pool = makePulsePool(
+    group,
+    [
+      { paths: brightPool, bright: true },
+      { paths: brightPool, bright: true },
+      { paths: dimPool, bright: false },
+    ],
+    rng,
+  );
 
   return {
     group,
@@ -419,7 +537,6 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
     ],
     edgeMat,
     pool,
-    paths,
     dispose: () => {
       project.geo.dispose(); project.mat.dispose();
       skill.geo.dispose(); skill.mat.dispose();
@@ -432,18 +549,19 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
 
 // ── Build homogeneous inner scene (fallback when data.network absent) ─────────
 function buildHomogeneousInner(data: HeroFace3D, pos: Float32Array): InnerScene {
-  const n = data.meta.innerNodes;
+  const n = pos.length / 3;
   const group = new THREE.Group();
   const rng = rngFactory(0x2fa81c01);
 
-  // Single bulb layer (no semantic split) — violet, cores just above bloom.
+  // Single bulb layer (no semantic split) — coloured across the full accent
+  // gradient by position (D-052.4), cores just above bloom.
   const nq = bulbAttribs(n, rng);
-  const bulb = makeBulbLayer(pos, nq.scales, nq.phases, bulbPixelRatio(), {
-    color: new THREE.Color(GRAD_2[0], GRAD_2[1], GRAD_2[2]),
-    core: 1.3,
-    halo: 0.22,
-    scale: 1.0,
-  });
+  const bulb = makeBulbLayer(
+    pos,
+    gradientColors(pos, gradientAxisRange(pos), 0.0, 1.0),
+    nq.scales, nq.phases, bulbPixelRatio(),
+    { core: 1.3, halo: 0.22, scale: 1.0 },
+  );
 
   const edgeArr = data.inner.edges;
   const ePos = new Float32Array(edgeArr.length * 3);
@@ -463,34 +581,32 @@ function buildHomogeneousInner(data: HeroFace3D, pos: Float32Array): InnerScene 
   });
   const edges = new THREE.LineSegments(edgeGeo, edgeMat);
 
-  const paths = data.inner.pulses.map((path) => {
-    const f = new Float32Array(path.length * 3);
-    path.forEach((ni, k) => {
-      f[k * 3] = pos[ni * 3]!;
-      f[k * 3 + 1] = pos[ni * 3 + 1]!;
-      f[k * 3 + 2] = pos[ni * 3 + 2]!;
+  const paths = data.inner.pulses
+    .filter((path) => path.length >= 3)
+    .map((path) => {
+      const f = new Float32Array(path.length * 3);
+      path.forEach((ni, k) => {
+        f[k * 3] = pos[ni * 3]!;
+        f[k * 3 + 1] = pos[ni * 3 + 1]!;
+        f[k * 3 + 2] = pos[ni * 3 + 2]!;
+      });
+      return f;
     });
-    return f;
-  });
 
-  const pool: PulseItem[] = [];
   group.add(bulb.points, edges);
 
-  const count = Math.min(PULSE_CONCURRENT, paths.length > 0 ? PULSE_CONCURRENT : 0);
-  for (let i = 0; i < count; i++) {
-    const pathIndex = i % Math.max(1, paths.length);
-    // bright=true → GRAD_1*2.4 accent pulses for homogeneous fallback
-    const { geo, mat, mesh } = makePulseMesh(paths[pathIndex]!, true);
-    pool.push({ geo, mat, mesh, pathIndex, speed: 0.50 + rng() * 0.35 });
-    group.add(mesh);
-  }
+  // Three bright slots, all drawing from the single (homogeneous) path pool.
+  const pool = makePulsePool(
+    group,
+    Array.from({ length: PULSE_CONCURRENT }, () => ({ paths, bright: true })),
+    rng,
+  );
 
   return {
     group,
     bulbs: [{ mat: bulb.mat, opa: 1.0 }],
     edgeMat,
     pool,
-    paths,
     dispose: () => {
       bulb.geo.dispose(); bulb.mat.dispose();
       edgeGeo.dispose(); edgeMat.dispose();
@@ -625,6 +741,9 @@ function SceneContent({
   // Beat 3 fixed look-into-network target (inner nodes at z=-0.06 → -0.30)
   const beat3Look = useMemo(() => new THREE.Vector3(0, 0, -0.18), []);
 
+  // Next scheduled pulse-launch time (clock seconds); 0 → launch immediately.
+  const pulseNext = useRef(0);
+
   useEffect(() => {
     return () => {
       surface.geo.dispose();
@@ -663,18 +782,43 @@ function SceneContent({
       b.mat.uniforms.uOpacity!.value = innerOpacity * b.opa;
       b.mat.uniforms.uTime!.value = t;
     }
-    inner.edgeMat.opacity = 0.18 * innerOpacity;
+    // Static structural edges stay very dim (0.14) so traveling pulses read as
+    // events, not constant glow (D-052.4 FIX 2).
+    inner.edgeMat.opacity = 0.14 * innerOpacity;
+
+    // ── Pulse cadence: launch a new pulse every 1.8–2.4 s on a fresh path ──
+    // Only while the network is visible. Idle slots are invisible; an active
+    // slot lights (envelope), travels its path via dashOffset, then idles.
+    if (innerOpacity > 0.02 && t >= pulseNext.current) {
+      const idle = inner.pool.find((p) => p.phase < 0);
+      if (idle && idle.paths.length > 0) {
+        let idx = Math.floor(Math.random() * idle.paths.length);
+        if (idle.paths.length > 1 && idx === idle.last) {
+          idx = (idx + 1) % idle.paths.length;
+        }
+        idle.last = idx;
+        idle.geo.setPoints(idle.paths[idx]!);
+        idle.mat.dashOffset = 0;
+        idle.phase = 0;
+      }
+      pulseNext.current =
+        t + PULSE_INTERVAL_MIN + Math.random() * (PULSE_INTERVAL_MAX - PULSE_INTERVAL_MIN);
+    }
 
     for (const p of inner.pool) {
+      if (p.phase < 0) {
+        p.mat.opacity = 0;
+        continue;
+      }
+      p.phase += d / PULSE_LIFETIME;
       p.mat.dashOffset -= d * p.speed;
-      p.mat.opacity = innerOpacity;
       (p.mat.resolution as THREE.Vector2).set(state.size.width, state.size.height);
-      if (p.mat.dashOffset < -1) {
-        p.mat.dashOffset += 1;
-        if (inner.paths.length > 0) {
-          p.pathIndex = (p.pathIndex + 1) % inner.paths.length;
-          p.geo.setPoints(inner.paths[p.pathIndex]!);
-        }
+      // Fade in fast, hold, diffuse out → the pulse reads as a discrete event.
+      const env = smoothstep(0, 0.1, p.phase) * (1 - smoothstep(0.82, 1, p.phase));
+      p.mat.opacity = env * innerOpacity;
+      if (p.phase >= 1) {
+        p.phase = -1;
+        p.mat.opacity = 0;
       }
     }
 

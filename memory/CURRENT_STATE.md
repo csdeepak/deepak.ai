@@ -2,9 +2,22 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-21
+**Last updated:** 2026-07-22
 
 ## Current Phase
+
+**D-052.4 COMPLETE (no commit — T1) on `feat/instrument-redesign`** — node glow reads as a colour constellation + edge pulses fire on a cadence. Owner reviews in-browser, then commits + tags `stable-glow-hero-v2`.
+
+**What landed in D-052.4 (2026-07-22):**
+- **Honest finding first (LAW-008):** the owner's "flat grey dots / static wireframe" screenshot was **not** a code strip. Git proves HEAD (D-052.3) added the bulb shader; tree clean; shader + pulses + correct cross-fade all present. The real cause: **267 of 280 inner nodes (95 %) are the ambient layer, which was hard-coded a single cool grey** — so the network was dominated by grey dots and the 13 coloured bulbs were lost. Pulses ran continuously (cadence constants unused). Cross-fade was already correct.
+- **FIX 1 — per-node gradient colour:** every node biased along `--grad-1→2→3` by its position (projected onto the ~10° accent axis, normalised across the cloud). Layer = brightness/bloom, not flat hue. Ambient nodes now span blue→violet→pink instead of grey. Density guard untouched; bulb material gains `toneMapped:false`.
+- **FIX 2 — pulse cadence:** a new pulse every 1.8–2.4 s on a fresh path, ~4.5 s lifetime → 2–3 concurrent, opacity envelope = discrete events. Static edges dimmed 0.18 → 0.14.
+- **FIX 3 — no change:** cross-fade already correct (verified off = 0.32/0.45/0.50/0.55/0.60; never both > 0.70). Reported PASS.
+- **Scope held:** no new deps, no JSON regeneration, no data-model/nav/routing/DB/copy change. `hero-face-3d.json` still 49 KB gz.
+- **Gates:** tsc clean; build + budgets — see final report. Live visual confirmation is the owner sign-off item (no browser in build env).
+- **Owner action:** review in-browser, commit, then `git tag stable-glow-hero-v2 && git push origin stable-glow-hero-v2`.
+
+---
 
 **D-052.3 COMPLETE (no commit — T1) on `feat/instrument-redesign`** — the glowing-nodes hero, reconstructed. Owner reviews in-browser, then commits + tags `stable-glow-hero`.
 
