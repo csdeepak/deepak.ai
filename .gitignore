@@ -53,3 +53,9 @@ temp/
 # Framework caches (to be refined once stack is chosen)
 .vercel/
 .output/
+
+# D-050 hero-face pipeline — personal source photo is never committed;
+# the derived apps/web/public/hero-face.json IS. Keep the README tracked
+# so the drop location stays discoverable.
+apps/web/scripts/assets/*
+!apps/web/scripts/assets/README.md

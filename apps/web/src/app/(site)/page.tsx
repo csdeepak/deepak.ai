@@ -1,29 +1,27 @@
-import { HeroSceneRegion } from "@/features/hero-scene/HeroSceneRegion";
-import { Arrival } from "@/features/landing/sections/arrival";
+import NeuralFace3DClient from "@/features/hero-scene/neural-face/NeuralFace3DClient";
 import { Mission } from "@/features/landing/sections/mission";
 import { Evidence } from "@/features/landing/sections/evidence";
 import { Collaborate } from "@/features/landing/sections/collaborate";
 
 /**
- * Landing — the Landing Experience (docs/24 bible + landing IA rebuild).
+ * Landing — the Landing Experience (D-052 Track 2).
  *
- * A four-beat story, built around the live workspace scene:
- *   1. Arrival    — identity, inside the scene (the hero region)
+ * A four-beat story, built around the hero:
+ *   1. Hero       — the 3D neural-face: face → dive → inner network
  *   2. Mission    — what he's building, why he's different
  *   3. Evidence   — the domains of work + honest trust seeds
  *   4. Collaborate— the quiet close
  *
- * The scene runs in `ambient` mode: the graph is atmosphere, not a data
- * claim, until real ContentService data feeds it (no fake data). The
- * Tier-0 floor (no 3D) is the server-rendered Arrival — LCP is the
- * headline text, never the canvas.
+ * D-052 (supersedes D-050 Track 1): the Canvas2D hero is retired from `/`
+ * (its renderer stays in the repo for poster generation + emergency
+ * fallback). The hero region's poster is the LCP element and the permanent
+ * fallback; the 3D scene mounts client-only after idle, three.js never in
+ * `/` First Load JS. The ratified copy overlays the hero (DOM).
  */
 export default function LandingPage() {
   return (
     <>
-      <HeroSceneRegion ambient>
-        <Arrival />
-      </HeroSceneRegion>
+      <NeuralFace3DClient />
       <Mission />
       <Evidence />
       <Collaborate />

@@ -23,11 +23,11 @@ export function Mission() {
         <ScrollReveal>
           <p
             id="mission-heading"
-            className="font-mono text-small uppercase tracking-[0.2em] text-faint"
+            className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
           >
             {mission.kicker}
           </p>
-          <p className="mt-8 max-w-4xl text-h1 font-medium leading-[1.16] tracking-tight text-ink md:text-[2.6rem]">
+          <p className="mt-8 max-w-4xl text-section font-display font-medium text-ink">
             {mission.statement}
           </p>
 

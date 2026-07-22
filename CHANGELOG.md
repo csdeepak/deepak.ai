@@ -8,6 +8,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.9.0-alpha] — Rich Metadata + Media Sprint (typed optional fields · Cloudflare R2)
+
+### Added
+- **`docs/28-RICH_METADATA_AND_MEDIA.md`** — field matrix (per-type optional field sets, editor controls, rendering homes) + media architecture; D-048/D-049 rationale.
+- **Rich typed columns (D-048)** on `projects` (overview, start/end dates, context, role, collaborators[], liveUrl, videoUrl, outcomes[], skillsLearned[]), `publications` (pubDate, pubStatus, arxivUrl), `timeline_entries` (place, highlights[]), `skills` (category, sinceYear). All optional, all self-hiding (LAW-008). No JSONB bag, no custom-field builder (D-043 upheld).
+- **Media pipeline (D-049 — Cloudflare R2):** `media`, `content_media` (typed cover/gallery/attachment roles + reference-checked delete), `content_links` tables; migration `0002_romantic_martin_li.sql` with `ck_image_has_alt` CHECK + `uq_content_media_cover` partial unique index.
+- **`lib/media/`** — `storage.ts` (R2 S3 client, server-only), `validate.ts` (magic-byte sniff + size limits + sharp EXIF strip), `url.ts` (env-derived public URLs).
+- **`actions/media.ts`** — `uploadMedia` (auth-gated, alt-text-required for images) + reference-checked `deleteMedia`; **`/admin/media`** library page + upload form + `queries/media.ts`.
+- **Enriched Project editor** — grouped Basics / Body / Dates & Context / Links / Skills / Media / Advanced; `StringListEditor` (structured add/remove rows), `MediaPicker` (attach library assets). Version snapshot + restore extended to the new fields + media (round-trip verified).
+- **Public Project detail rendering** — cover, duration, context/role/collaborators, overview, gallery, outcomes, "What I learned", live/video/PDF evidence, each self-hiding.
+- **`scripts/media-backup.ts`** (`npm run media:backup`) — one-command mirror of the entire R2 bucket to local disk (never vendor-hostage).
+- `next.config.ts` R2 host allow-list for `next/image`; `.env.example` + README "Media / R2 setup" (bucket, CORS, credentials, backup); OWNER_CONTENT_CHECKLIST optional-enrichment note.
+
+### Changed
+- `db-content.ts` reads the rich scalar columns on every project query and loads media on the detail path; `types/content.ts` gained the optional fields + `MediaAsset`/`ExternalLink`. `db-ingest.ts` maps the new fields (empty when absent — no invented values).
+- Removed a dead `getFormData` prop thread through `PublishBar`; cleared pre-existing unused-import warnings in `overview/page.tsx` (zero-warning build).
+
+### Budgets
+- `/` 152 kB (unchanged); `/projects` 106 kB (unchanged); `/projects/[slug]` 106 → 111 kB (+5 kB `next/image` on the detail route — the required optimization path). three.js, admin, and aws-sdk all absent from every public First Load JS (CI guards pass).
+
+### Decisions
+- **D-048** — Rich typed metadata field matrix (accepted; `skillsLearned` dedicated-field amendment).
+- **D-049** — Media storage: Cloudflare R2 + `media` schema (accepted; env-only creds + one-command backup + upload constraints).
+
+## [0.7.0-alpha] — DB Sprint (decade-horizon schema · Drizzle · Docker · ingest · ContentService)
+
+### Added
+- **`docs/09-DATABASE.md`** — decade-horizon schema document: CTI design rationale, cognitive spine tables, relations taxonomy, lifecycle state machine, FTS, pgvector embeddings, migration story, tooling decisions.
+- **Drizzle ORM schema** (`apps/web/src/db/schema.ts`) — 9 tables: `content_items` base spine + CTI child tables (`projects`, `publications`, `posts`, `timeline_entries`, `skills`), `abandoned_branches`, `relations`, `site_settings`.
+- **D-043 binding constraints** in migration SQL: lifecycle-aware LAW-003 CHECK (`question` required only for `published` state; drafts freely saveable), self-relation guard, unique `(from_id, to_id, kind)` triple, 10 performance indexes.
+- **Docker Compose dev database** (`docker-compose.dev.yml`) using `pgvector/pgvector:pg17` on port 5433 (avoids collision with local Postgres on 5432).
+- **Migration** (`apps/web/src/db/migrations/0000_fair_silver_surfer.sql`) — all tables, FKs, D-043 constraints, and indexes in one idempotent file.
+- **Lazy DB singleton** (`apps/web/src/db/index.ts`) — `getDb()` only instantiates the pool on first call; module import never attempts a connection.
+- **`db-content.ts`** — full `ContentService` implementation via Drizzle; 3-query-per-collection pattern (no N+1): base JOIN + batched branches + batched relations.
+- **`services/index.ts`** — `CONTENT_SOURCE` env-var selector: `file` (default) uses the existing file-backed service; `db` routes to Drizzle.
+- **`scripts/db-ingest.ts`** — idempotent upsert (ON CONFLICT DO UPDATE) of all 18 projects + site settings from `content/site.ts`.
+- Root `package.json` forwarding scripts: `db:generate`, `db:migrate`, `db:ingest`.
+- `dotenv` loaded at the top of `drizzle.config.ts` and `db-ingest.ts` — DB scripts work from WSL without manual env-var export.
+- `.env.example` updated with `CONTENT_SOURCE` and `DATABASE_URL` documentation.
+
+### Changed
+- `/projects` page and `[slug]` page now import from `@/services` (ContentService selector) instead of `@/services/local-content` directly.
+
+### Decisions
+- **D-043** — Convergence: Option B (CTI). Three binding conditions: CTI hidden behind ContentService interface; lifecycle-aware LAW-003 CHECK; schema-level relation constraints (no self-relations, unique triples).
+- **D-044** — Drizzle ORM (TypeScript-native, SQL-transparent, boring-technology approved).
+- **D-045** — Docker Compose for local dev DB (pgvector/pg17, port 5433).
+
 ## [0.6.0-alpha] — Launch readiness (release gates · deployment · /projects)
 
 ### Added

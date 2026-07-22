@@ -354,4 +354,196 @@ Each decision uses:
 
 ---
 
+## D-043 — Project↔Memory convergence: Option B — Shared spine + separate type tables (CTI)
+
+- **Date:** 2026-07-11
+- **Status:** Accepted (owner ruling; closes D-042 open question)
+- **Context:** D-042 deferred the convergence question (does everything become a `Memory`, or do content types stay separate with a shared spine?) to docs/09. Option A = Unified Memory table with `kind` discriminator. Option B = `content_items` base table + separate type tables (Class Table Inheritance pattern).
+- **Decision:** Option B ratified. A `content_items` base table carries the shared cognitive spine for all types (`question`, `status`, `search_vector`, `published_at`, etc.). Each content type has its own child table joined via the same `id`. The `content_stages` table is optional on all types — ASMOS fills all 10 stages; a course project fills only `question`. Three binding conditions: (1) The Living Memory ontology remains the **presentation contract** — CTI is an implementation detail that must not leak upward into page components; the `ContentService` interface and rendering layer may still speak in Memory terms where docs/26 demands it. (2) LAW-003 CHECK constraint is **lifecycle-aware**: `question` is required to ENTER published state but drafts are freely saveable with an empty question (the ≤10-minute update loop must remain frictionless). (3) The `relations` table must reject self-relations and duplicate `(source, target, kind)` triples at the schema level; the closed `kind` enum stays closed — **extending it in future requires a D-entry**.
+- **Consequences:** Direct mirror of the TypeScript type hierarchy with zero migration impedance. All content types gain the cognitive spine (question, abandoned_branches, stages) via the base table without requiring them to fill every stage. Type-specific column constraints enforced at the DB level. The Living Memory metaphor preserved through `content_stages` (optional, all types), `abandoned_branches` (LAW-004), and `relations` (LAW-005 — the graph IS the semantic memory). The two-spine overlap (additive Project fields + full Memory stages coexisting since D-042) resolves: the CTI model IS the canonical schema; `content_stages` is how any type gains the richer Memory reconstruction.
+
+## D-044 — Data-access tool: Drizzle ORM
+
+- **Date:** 2026-07-11
+- **Status:** Accepted
+- **Context:** Phase 2 of the docs/09 DB sprint requires a data-access layer. Options considered: Drizzle ORM, Prisma, TypeORM, raw SQL.
+- **Decision:** Drizzle ORM. TypeScript-native schema (schema defined in `.ts`, not a separate DSL), queries look like SQL ("just SQL with types"), migrations generate plain readable SQL files, edge-runtime compatible, pgvector support. One-maintainer decade-horizon: the queries are written once and read many times; Drizzle's SQL-like syntax keeps them self-documenting without a thick abstraction. Packages: `drizzle-orm` (production), `pg` (Postgres driver, production), `drizzle-kit` (migration CLI, dev), `@types/pg` (dev).
+- **Consequences:** Drizzle is the only ORM dependency in production; `drizzle-kit` is CLI-only and never in the application bundle. Queries are typed end-to-end. Adding a table = adding a `pgTable()` definition + running `drizzle-kit generate` + committing the SQL migration. Future maintainers can read the migration SQL directly without learning a proprietary format.
+
+## D-045 — Local dev database: Docker Compose + pgvector
+
+- **Date:** 2026-07-11
+- **Status:** Accepted
+- **Context:** Phase 2 requires a local Postgres instance for DB-mode development. Options: local Postgres install, Docker Compose, Neon dev branch, no local DB.
+- **Decision:** Docker Compose (`docker-compose.dev.yml` at repo root, `pgvector/pgvector:pg17` image). A single command starts a pgvector-enabled Postgres. **Optional** — frontend-only and content-fill work requires zero DB; `CONTENT_SOURCE=file` (the default) always works. CI never starts the DB; `npm run build` succeeds with no DB present.
+- **Consequences:** Zero global installation footprint; the DB version is pinned in the compose file and identical across machines. `CONTENT_SOURCE` env var is the toggle: `file` (default, always works) vs `db` (requires compose up). Render deployment adds the Postgres service to `render.yaml` (documented in docs/10 §7) — no host migration, no runtime model change.
+
+## D-046 — Admin CMS collocation: `apps/web/(admin)/` route group
+
+- **Date:** 2026-07-12
+- **Status:** Accepted (owner ratified 2026-07-12)
+- **Context:** `docs/SESSION_START.md` §12 anticipates `apps/admin` as a separate Next.js app. Phase 1 of the Admin CMS sprint re-evaluated this against the project's current scale and decade-horizon values.
+- **Decision:** Collocate the admin inside `apps/web` as a Next.js App Router route group: `apps/web/src/app/(admin)/admin/...`. Admin-specific components live in `src/features/admin/` and are never imported from `(site)/` code. All admin Server Actions live in `src/features/admin/actions/`.
+- **Consequences:** Shares Drizzle schema, type definitions, tokens, and DB client with zero extraction overhead. Route group isolation in Next.js 15 ensures `(admin)` code never appears in `(site)` chunk graphs. Import discipline (TypeScript module graph) enforces the boundary. If the admin later needs a separate deployment lifecycle or dedicated package, extraction to `apps/admin` along the existing monorepo boundary is a clean cut — nothing in the collocated structure prevents it.
+
+## D-047 — Admin auth strategy: iron-session sealed cookie + bcrypt passphrase
+
+- **Date:** 2026-07-12
+- **Status:** Accepted (owner ratified 2026-07-12; Option A chosen)
+- **Context:** The admin CMS requires authentication. Three options were evaluated: (A) iron-session with bcrypt passphrase, (B) Auth.js v5 with CredentialsProvider, (C) Cloudflare Access platform-level protection. Criteria: boring-technology value, dependency weight, zero-external-service-dependency, single-user fit.
+- **Decision (proposed):** Option A — `iron-session@8` sealed cookie (HMAC-SHA256 + AES256-CBC, 8-hour session) + `bcryptjs` passphrase comparison. Two env vars: `SESSION_SECRET` (32+ byte random string) and `ADMIN_PASSWORD_HASH` (bcrypt hash of the owner's chosen passphrase). In-memory rate-limiter in Next.js middleware: 5 failed attempts per IP per 15 minutes. All admin pages carry `export const dynamic = 'force-dynamic'` to prevent build-time execution.
+- **Consequences:** ~16 kB added to the server bundle (zero bytes to client bundles). No SMTP, no OAuth provider, no external service. Works identically in local dev and on Render. Secret rotation is a Render env-var change + redeploy (for `SESSION_SECRET`) or a bcrypt re-hash (for the passphrase). If this is rejected in favor of Option B (Auth.js) or Option C (Cloudflare Access), `docs/27` §5 (session handling) must be rewritten before Phase 2 begins.
+
+## D-048 — Rich typed metadata field matrix (extends the CTI model; no JSONB)
+
+- **Date:** 2026-07-12
+- **Status:** **Accepted** (owner ratified 2026-07-12, with the `skillsLearned` amendment below)
+- **Amendment (owner 2026-07-12):** `skillsLearned` is a dedicated typed field on Project (implemented as `text[]`), **distinct from `tags`**. Semantics: `tags` = technologies/topics the project used; `skillsLearned` = what building it taught the owner. Rendering home: a self-hiding "What I learned" block on the project detail page.
+- **Context:** The owner used the new admin and ruled the editors too sparse: every content type must offer a generous, LinkedIn-grade set of *optional* metadata where the owner fills what they want and everything empty self-hides (LAW-008). The risk is reintroducing D-043's rejected unified-JSONB model through a "flexibility" back door.
+- **Decision (proposed):** Add a **generous but closed, fully-typed** field set per content type (`docs/28` §3) — named columns, typed `text[]` arrays, or typed child tables, never a JSONB bag and never a user-defined custom-field builder. New Project fields (the one live public page): `overview` (markdown body), `startDate`/`endDate`, `context`, `role`, `collaborators[]`, `liveUrl`, `videoUrl` (URL only), `outcomes[]`, `coverImage`/`gallery`/`attachments` (via `content_media`), and — pending a dedup ruling — `skillsLearned[]`. Publications gain `pubDate`, `pubStatus`, `arxivUrl` + uploaded-PDF attachment; Posts gain cover/attachments/`relatedLinks`; Timeline gains `place`, `highlights[]`, logo, `proofUrl`; Skills gain `category`, `sinceYear`. Three cross-cutting typed tables — `media`, `content_media`, `content_links` — serve all types. Every field is optional (only `question`-to-publish stays required per LAW-003; image `alt_text` is the one required-at-upload exception), self-hides when empty, and has a defined rendering home in a docs/24 archetype. Anything expressible as a relation (skill↔project, project↔publication) stays a `relation` (LAW-005) and is **not** duplicated as a column. Fields with no honest rendering home were cut (`readingContext`→reuses `question`; `duration`→derived; separate `stack`→`tags` already is it).
+- **Open sub-ruling:** `skillsLearned[]` on Project overlaps the `evidences` relation — keep as lightweight prose takeaways (recommended) or drop in favor of relations only (`docs/28` §5.1).
+- **Consequences:** Migration is additive; existing content maps with new fields empty (no invented values, no data loss). The CTI contract and D-043's three binding conditions hold. Public pages for non-Project types remain future sprints — their new fields are built + editable now, rendering-designed-but-dormant until those pages ship. If rejected/amended, `docs/28` §3 is revised before Phase 2 begins.
+
+## D-049 — Media storage vendor + `media` schema: Cloudflare R2 (extends D-013)
+
+- **Date:** 2026-07-12
+- **Status:** **Accepted** (owner ratified 2026-07-12, Cloudflare R2, with three conditions below)
+- **Conditions (owner 2026-07-12):** (1) credentials via env only — `.env.example` placeholders + README setup steps incl. bucket creation and CORS; (2) a documented one-command backup/export path that pulls the entire bucket to local disk (media is never vendor-hostage); (3) upload constraints as designed — auth-gated, size/type limits, alt-text required for images.
+- **Context:** The rich-metadata sprint adds images + PDFs, which requires the deferred media pipeline. D-013 ratified the *category* (S3-compatible object storage, references in Postgres, no DB/app blobs, CDN variants) and deferred the vendor. Options weighed against one-maintainer/decade/Render: (a) Render persistent disk, (b) S3-compatible object storage, (c) repo-committed `/public` assets.
+- **Decision (proposed):** **Cloudflare R2** (S3-compatible) as the media store, with `@aws-sdk/client-s3` against the R2 endpoint. Rationale: zero egress fees (the decade-cost killer for media), 10 GB + 1M writes/10M reads free per month (≈ **$0/mo for years**), S3-compatible API (portable per D-012/D-013 — swap to Backblaze B2 or AWS S3 is an endpoint/credential change, no rewrite). Backblaze B2 is the documented fallback. **(c) is disqualified** — it cannot accept auth-gated *runtime* uploads (Render's fs is ephemeral; git-as-media-store bloats the repo permanently) and contradicts D-013. **(a) works but couples media to the compute instance**, with the weakest backup/CDN story, and re-paints the D-007 monolith as a stateful single instance. Schema: a typed `media` table (`kind`, `storage_key`, `mime_type`, `byte_size`, `alt_text` — REQUIRED for images via CHECK, `caption`, `width`, `height`); content references media via the typed `content_media` join (`role` cover/gallery/attachment, `sort_order`, `ON DELETE RESTRICT` = reference-checked delete) — **no JSONB media array on content rows**. Upload flow: Server Action behind the D-047 admin gate; magic-byte content-type verification; server-side size limits (img ≤8MB, PDF ≤20MB); sharp dimension read + EXIF strip; server-generated random keys (no path traversal); alt-text enforced; nothing uploaded is ever executed.
+- **Consequences:** D-013's deferred vendor closes *pending ratification*. **D-041's monthly cost is unchanged (+$0/mo)** at current + foreseeable scale; the only new secrets are R2 credentials (env only). next/image optimizes from the R2 base; three.js stays absent from public First Load JS; `/` holds ~152 kB. If B2 or another vendor is chosen, only the endpoint/credentials + `docs/28` §6 change; the schema and flow hold.
+
+## D-050 — Neural-face hero: two tracks (Canvas2D now, R3F later); public JS + data-asset budgets; zero-runtime-dep term
+
+- **Date:** 2026-07-20
+- **Status:** **Accepted** (implemented — Track 1 shipped this session)
+- **Context:** The landing wanted a distinctive, "alive-not-animated" hero portrait of the owner without dragging a WebGL/R3F payload onto the public critical path. The existing `features/hero-scene/` R3F scene is powerful but v1.5-deferred (D-040) and was still mounted on `/` in `ambient` mode.
+- **Decision — two tracks:**
+  - **Track 1 (now): "Neural Face Lite"** — a dependency-free **Canvas2D** hero. An offline `sharp` pipeline (`scripts/generate-hero-face.mjs`, `npm run hero:generate`) samples a personal source portrait into a quantized constellation (`public/hero-face.json`: ≤3,000 nodes, ≤6,000 KNN edges, pulse paths, pseudo-depth from luminance — no ML). A `"use client"` `<NeuralFaceHero />` (single canvas, single rAF loop, plain Canvas2D) renders dim nodes + sub-perceptual edges + a rare accent pulse + pointer parallax + ambient breathing. Data is **fetched, never imported**; missing data ⇒ the component renders nothing (graceful absence, LAW-008).
+  - **Track 2 (v1.5): R3F** — the richer three.js/React-Three-Fiber neural-face treatment stays a laboratory concern at **`/dev/hero`** (404 in prod). It does not ship on the public `/` in this track.
+- **Budgets (hard gates, CI-enforced):**
+  - **`/` First Load JS ceiling amended to 164 kB** (was ~152 kB) — a **≤ +12 kB** allowance for Track 1's client JS. All other routes unchanged.
+  - **Data asset ≤ 60 KB gzipped** for `hero-face.json` (the pipeline prints raw + gz sizes and fails over budget, after one auto-retry at a lower node cap).
+- **Zero-runtime-dependency term:** Track 1 adds **no** new runtime dependency of any kind — no three.js, GSAP, Lenis, MediaPipe, or TensorFlow on the public client. `sharp` is used **build-time only** (it is already a dependency for next/image + the D-049 media pipeline; it is *not* moved to devDependencies — see Conflict note — and must never enter a public client bundle). The CI guard additionally fails if `three`, `gsap`, `lenis`, or `sharp` appear in `/`'s First Load JS, or if `/` First Load JS exceeds 164 kB, or if the `hero-face` dataset is bundled rather than fetched.
+- **Amendment (owner, 2026-07-20) — R3F removed from `/`:** the ambient `HeroSceneRegion` mount was **removed from `app/(site)/page.tsx`**; `HeroSceneRegion` now lives **only at `/dev/hero`**. Consequently the Arrival sub-line, which previously read `act` from the scene's scroll rail via `useHeroStore`, was given a **self-contained, dependency-free driver** (`features/neural-face/use-scroll-act.ts` — native scroll → discrete act index, no GSAP/Lenis). **To reverse for v1.5:** swap `NeuralFaceHeroRegion` back for `HeroSceneRegion ambient` in `page.tsx` and repoint `arrival.tsx`'s import from `useScrollAct` to `useHeroStore((s) => s.act)` — a one-commit revert. `features/hero-scene/` itself was **not touched**.
+- **Conflict note (surfaced, not silently resolved — T1):** the sprint brief asked to add `sharp` as a *devDependency only*. In this repo `sharp` is already a **runtime dependency** required server-side by next/image and the D-049 R2 media pipeline; demoting it would break those. It is therefore left as-is and used build-time only for the hero pipeline. The intended guarantee (sharp never in a public client bundle) is upheld by the extended CI guard, which is stronger than the dependency-section placement.
+- **Governance term (owner ruling still pending):** the Arrival ambient **sub-line copy** was rewritten (the old lines narrated the removed 3D scene + Dex, which would be dishonest to keep — LAW-008). The new lines are authored dev copy, flagged for owner ratification; the ratified identity line + support line (`content/site.ts`) were **not** touched.
+- **Consequences:** `/` gains a distinctive hero with no WebGL on the critical path and a strict, enforced JS ceiling. The source photo is gitignored (`apps/web/scripts/assets/`, README kept tracked); the derived `hero-face.json` is the committed artifact — and until the owner supplies a real photo and runs `hero:generate`, **no `hero-face.json` ships** and the hero copy stands alone (verified: build passes with zero DB and zero asset). Track 2 remains fully available at `/dev/hero`.
+
+---
+
+## D-050 amendment note — G3 cleared, Arrival sub-lines ratified (2026-07-21)
+
+- **Date:** 2026-07-21
+- **Status:** Amendment note (no new ADR number — updates D-050 governance term)
+- **G3 cleared:** `content/asmos.ts` rewritten with owner-ratified ASMOS content. ASMOS is an ownership-based multi-agent orchestration system (not the memory-architecture scaffold). The ratified text is the owner's first-person narrative: insight (systems only compared answers, not routed by ownership), experiment (subtask routing by owning agent), result (confirmed; ~24% context token reduction). `draft: false` flipped. `gist.formed` left `""` (self-hiding per brief.tsx fix) pending owner fill.
+- **D-050 Arrival sub-lines ratified:** act 0 owner-replaced: "Me, rendered as a network of the work." Acts 1–3 ratified as authored: "Systems, memory, and the questions between them." / "Everything here is real, or it isn't shown." / "Keep scrolling — the work comes first."
+
+---
+
+## D-052 — The Instrument redesign + 3D neural-face hero (Track 2 pulled forward)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified; the D-052 sprint prompt is the ratification). **Supersedes D-050 Track 1** and folds in the D-051 draft.
+- **Context:** The Canvas2D "Neural Face Lite" (D-050 Track 1) shipped the hero as a dependency-free constellation, with the full 3D hero deferred to v1.5. The owner ratified pulling the 3D hero forward now and establishing one cohesive design language across the whole site.
+- **Decision:**
+  1. **The Instrument design system** (`docs/DESIGN_SYSTEM.md`): dark-first stage/ink, muted/faint as ink-opacity, hairline = ink @ 8%, a **Gemini accent gradient** (`#4F8CFF → #B69CFF → #FF9CB0`) used ONLY as directed energy (never a flat brand fill), a **six-size type scale** (hero/section/card-title/lead/body/micro) in Inter Tight (display) + Inter (body), two energy easings (`ease-instrument`, `ease-arc`), and chrome rules (glass nav, pill CTA, gradient focus/active). Implemented in `globals.css` + `layout.tsx`; every public page + admin chrome reskinned.
+  2. **The 3D neural-face hero** (`features/hero-scene/neural-face/`): a scroll-scrubbed particle-portrait → dive → inner-network sequence (custom GLSL points, CatmullRom camera rail, meshline pulses, selective bloom). Pipeline v2 (`generate-hero-face.mjs`) emits `hero-face-3d.json` + a static poster; `--depth-map` flag reserved for a real depth source. Five new deps ratified: `three`, `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`, `meshline`.
+  3. **Bundle-law amendment:** "three.js absent from public bundles" → **"three.js absent from the First Load JS of any route."** The 3D scene loads ONLY via `next/dynamic({ ssr:false })` after idle + intersection. `/` First Load ceiling amended once **164 → 170 kB**; the lazy 3D chunk ≤ **500 kB gz**. Enforced by `check-bundle-budget.mjs` (+ poster/3D-asset existence & budgets) in CI.
+  4. **Canvas2D hero retired from `/`** — its renderer stays in the repo for poster generation and as the emergency fallback (`features/neural-face/`).
+  5. **The hero is a dark stage regardless of site theme** (a "screen within the page") — ratified; the scene's stage colour is intentionally hardcoded, not a theme token.
+- **Deviation (recorded):** the scene is driven by **native window-scroll progress**, not drei `<ScrollControls>` — ScrollControls owns its own scroll container and fights the document flow of the sections below the hero. This honours "native scroll always wins" and keeps the page flowing.
+- **Consequences:** the public hero now pays a lazy WebGL cost (gated, budgeted, poster-first LCP, full fallback ladder); the design system is single-sourced and enforced. Verified statically (typecheck, build, bundle guard, pipeline budgets); live-browser QA (fps, context-loss, LCP timing, memory) is an owner sign-off item.
+
+---
+
 _Add new decisions below, incrementing the ID._
+
+---
+
+## D-052.1 — Hero fixes: theme mismatch, headline, accent glow (amendment to D-052)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** After D-052 landed, four issues were identified during owner visual review: (1) the hero DOM overlay (nav, headline, CTAs) rendered in light-mode styles over the dark WebGL canvas in light-mode setting; (2) the headline needed updating; (3) the 3D surface layer lacked facial feature density (FIX 3 blocked — source photo absent); (4) the hero stage read as pure monochrome.
+- **Decisions:**
+  1. **Theme mismatch root fix:** The hero `<section>` now carries `class="dark"` unconditionally, forcing all DOM overlay descendants to resolve dark-mode CSS variables regardless of global site theme. `NavShell` adds `class="dark"` to the `<header>` while `[data-hero-section]` intersects the viewport (IntersectionObserver). The always-dark hero rule is now documented in `docs/DESIGN_SYSTEM.md` §Accent.
+  2. **Headline:** `identitySentence` in `content/site.ts` is now **"Turning curiosity into working systems."** — supersedes "I build intelligent systems." Owner ruling: more honest to career stage and process-focused per LAW-002. DB note: the public `<h1>` reads `content/site.ts` directly (not `site_settings`); no DB migration needed.
+  3. **Facial density (FIX 3 — BLOCKED):** Source photo `apps/web/scripts/assets/portrait-source.jpg` absent. Per LAW-008/T3, no fake face data. Regeneration is deferred until owner drops the portrait source and runs `npm run hero:generate`.
+  4. **Accent glow:** Three restrained accent additions inside the hero stage only: (a) WebGL ambient bloom plane (8 % peak, 10s breath); (b) sub-line warm gradient tint via `.hero-subline-gradient` utility; (c) CTA secondary gradient underline on hover via `.gradient-underline-hover`. Documented in `docs/DESIGN_SYSTEM.md` §Accent.
+- **Consequences:** The hero always reads as a dark stage with legible light-coloured copy in both site-theme settings. The theme toggle remains functional and visible in both modes; the rest of the site respects the user's theme normally. FIX 3 is an open owner action.
+
+---
+
+## D-052.2 — Semantic node layers + Beat 2/3 cross-fade + scroll dead-zone (recovered)
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (recovered from reflog `fae4dab` after an intervening revert; re-verified)
+- **Context:** D-052.2 was committed then lost when the branch was reset to `18d07c5`/`efc0cbc`. The code survived only in the reflog. D-052.3 recovered it FROM that commit rather than rebuilding.
+- **Decisions:**
+  1. **Semantic node layers (LAW-005):** `npm run hero:enrich` (`scripts/enrich-hero-network.ts`) annotates the inner network with project / skill / ambient categories by degree-centrality over the kNN graph. Output is the optional `network` section in `hero-face-3d.json` (6 project + 7 skill + 267 ambient, 491 edges, 11 pulse paths, 48.3 KB gz). Face surface data is UNCHANGED by enrichment (LAW-008). Absent `network` → homogeneous single-layer fallback.
+  2. **Beat 2 cross-fade:** surface fades `0.32→0.60`; network fades `0.37→0.60` (+0.05 lag). Fog closes `20/30 → 1.5/5`. Constructed so the two layers are never both above ~0.70 opacity (surface >0.70 only for off<0.42; network >0.70 only for off>0.52 — disjoint).
+  3. **Scroll dead-zone:** `SCROLL_START=0.08` — the hero holds its Beat-1 state for the first 8 % of the region before the timeline runs.
+  4. **Budget:** `hero-face-3d.json` gz budget raised 140 → 160 KB for the network metadata.
+- **Consequences:** The semantic model is the foundation for D-053 (clickable graph). It ships as data + optional render; nothing downstream depends on it yet.
+
+---
+
+## D-052.3 — Restore glowing-nodes hero: bulb shader, background glow, camera depth field
+
+- **Date:** 2026-07-21
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** The "glowing bulb-nodes" hero aesthetic was lost in the revert. This sprint reconstructs it from specification on top of the recovered D-052.2 foundation. Recovery path: D-052.2 structure restored from reflog `fae4dab`; the bulb shader, glow boost, camera pull-back and portrait refinement are NEW (D-052.2 rendered flat `MeshBasicMaterial` spheres).
+- **Decisions:**
+  1. **Bulb-node shader (Pillar 3):** inner nodes render as `THREE.Points` with a custom `ShaderMaterial` — a bright emissive pinpoint CORE (intensity >1.2 → blooms) inside a soft fresnel-style HALO (dim body ~0.2). Additive blending, `depthWrite:false`, circular `smoothstep` mask, size clamped in-shader to 4–8 device px, per-node breathing ±15 %. Density guard: halo body kept dim so 4+ overlaps stay < 0.9 luminance. Project bulbs bloom (blue, core 1.6), skill bulbs mid (violet, core 1.25), ambient bulbs never bloom (cool grey, core 0.7).
+  2. **Ambient background glow (Pillar 2):** the "bulb behind the face" — a large heavily-blurred accent-gradient radial plane, peak ~12–15 % (was 8 %), breathing on a 10 s cycle, fading with the surface so it does not wash the Beat-3 network.
+  3. **Camera depth field:** `CAM_END_Z` pulled back `+0.05 → +0.12` (~40 % more standoff from the node centroid); rail tail re-splined monotonic. Bloom kept at intensity 0.35 / threshold 1.2.
+  4. **Portrait-prior refinement (Pillar 1):** the prior was already implemented; tightened `FACE_SY 0.34→0.32` and `FACE_FLOOR 0.45→0.40`, regenerated from the real `portrait-source.jpeg`. Feature concentration 26.5× → 30.9× (93 % of the 8 000 nodes in the face ellipse; silhouette preserved at 7 %). FIX 3 from D-052.1 (previously blocked on a missing `.jpg`) is resolved — the source is present as `.jpeg`.
+  5. **Sub-line legibility:** a subtle bottom stage-colour scrim keeps Beat-3 sub-lines 3 & 4 ≥ 4.5:1 over the network.
+- **Consequences:** The lost checkpoint is reconstructed and should be tagged `stable-glow-hero`. All fallbacks (poster LCP, WebGL-fail, reduced-motion, low-tier) preserved. Budgets green.
+
+---
+
+## D-052.4 — Node glow reads as a colour constellation; edge pulses fire on a cadence
+
+- **Date:** 2026-07-22
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** An owner screenshot showed the inner network reading as **flat grey dots with a static thin wireframe** — the "glowing bulbs + traveling pulses" aesthetic apparently gone. The sprint framed this as a prior session having *stripped* the bulb shader and pulses. **Investigation (git + data) found otherwise, and this is recorded honestly (LAW-008):**
+  - **Git shows no strip.** HEAD (`87a8f4a`, D-052.3) *added* the bulb `ShaderMaterial`; the working tree was clean; the bulb shader, meshline pulses, and a mathematically-correct Beat-2 cross-fade were all present in the committed code. Nothing was deleted.
+  - **The real cause was the data + tuning, not missing code.** `hero-face-3d.json` carries **267 ambient nodes out of 280 (95 %)**, and the ambient bulb layer was hard-coded to a single **cool grey** `(0.55, 0.62, 0.85)`. So the network was visually dominated by 267 dim grey dots; only the 13 project/skill bulbs were coloured → "flat grey dots." Separately, the pulses ran **continuously** (the `PULSE_INTERVAL_MIN/MAX` cadence constants existed but were never used) → they read as constant glow, not events. The cross-fade (FIX 3) was already correct — never both layers > 0.70 (the owner's "both visible" screenshot is correct mid-dive cross-fade, not a bug).
+- **Decision (aesthetic/tuning fix, not an un-deletion):**
+  1. **FIX 1 — per-node gradient colour (`aColor`).** Every inner node is now biased to a point along the accent gradient (`--grad-1` → `--grad-2` → `--grad-3`) **by its position** (projected onto the ~10° gradient axis, normalised across the cloud). Layer identity is carried by **brightness + bloom**, not a flat hue. The 267 ambient nodes span the full blue→violet→pink gradient instead of uniform grey. **Density guard is untouched** (halo/core intensities unchanged), so 4+ overlaps stay < 0.9 luminance. Bulb material gains `toneMapped:false` (emissive > 1 feeds bloom faithfully). *This supersedes the "Ambient = cool grey" row of the D-052.3 bulb table in `docs/DESIGN_SYSTEM.md` §7.*
+  2. **FIX 2 — pulse cadence.** Pulses are now **launched every 1.8–2.4 s on a fresh path** with a ~4.5 s lifetime → **2–3 concurrent**, each with a fast-in/hold/diffuse-out opacity envelope so it reads as a discrete event. Two bright slots run project-connection paths (bloom); one dim slot runs ambient paths. **Static structural edges dimmed 0.18 → 0.14** so pulses register as events.
+  3. **FIX 3 — no change.** The Beat-2 cross-fade was already correct; verified at off = 0.32/0.45/0.50/0.55/0.60 (max co-visible ≈ surface 0.55 / network 0.28 at 0.45). Reported PASS, not rebuilt.
+- **Scope:** no new deps, no navigation, no graph data-model change, no routing/admin/DB/copy/IA change (T2). No JSON regeneration — the data model is unchanged; only the render tunes it. `hero-face-3d.json` stays 49 KB gz (< 160 KB). Face portrait-prior + 15%-right composition, bloom (0.35 / 1.2), and all fallbacks (poster / reduced-motion / context-loss / mobile) preserved.
+- **Consequences:** The network now reads as a lit colour constellation with pulses that fire as events. Live in-browser visual confirmation (colour spread, pulse cadence, density under load) remains an **owner sign-off item** — there is no browser in the build env; the change is validated by typecheck, build, bundle budgets, and the cross-fade/density math. Owner tags `stable-glow-hero-v2` after review.
+
+---
+
+## D-052.5 — Bulb nodes made legible: per-layer size ranges, higher cores, layered saturation
+
+- **Date:** 2026-07-22
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** After D-052.4 the nodes were **effectively invisible** — the hero read as a bare wireframe (edges + pulses only). Four stacked constraints combined to erase them: (1) a blanket **4–8 px** size cap, (2) a conservative 0.90 density guard, (3) `toneMapped:false`, and (4) gradient colouring with no brightness headroom. The dominant factor was the size cap: at the pulled-back Beat-3 camera no node could exceed 8 CSS px, leaving the core/halo almost no area to read in.
+- **Decision (node-rendering retune only — "no other changes"):**
+  1. **Per-layer size clamp** replaces the blanket 4–8 px cap (`uMinPx/uMaxPx` uniforms). Base size factor `BULB_SIZE 1.05 → 3.8`; per-layer scale project 1.4 / skill 1.27 / ambient 0.72. Ranges (CSS px, at the resting Beat-3 camera): **project 14–20, skill 10–14, ambient 6–10** — non-overlapping, so the hierarchy is readable at a glance. Verified analytically against the real node geometry + the exact camera rail at t = 0.65 / 0.80 / 0.95 (project med 17.7 / skill 12 / ambient 8 at t=0.95; all pinned to their floors 14/10/6 at t=0.65 where the camera is farther).
+  2. **Higher cores + readable halos:** project core 1.6→**2.4** halo 0.24→**0.35**; skill 1.25→**1.7** / 0.20→**0.28**; ambient 0.7→**1.0** / 0.16→**0.20**. Core mask widened `smoothstep 0→0.28 → 0→0.34`. Project/skill cores clear the 1.2 bloom threshold → each reads as a lit bulb; ambient stays below threshold (atmosphere).
+  3. **Layered saturation:** project **full (1.0)**, skill **0.85**, ambient **0.62** (mixed toward luminance in `gradientColors`) — ambient recedes as background, not focus. Desaturation preserves luminance, so it does not change the density budget.
+  4. **Density guard relaxed 0.90 → 0.95:** typical 4+ overlaps stay well under 0.95; only fully-stacked clusters approach white. Edges unchanged (0.14, in the 0.12–0.18 band) so pulses remain the events.
+- **Legibility of copy:** unchanged composition protects it — the scene is shifted +0.15 right on desktop, the headline/CTA are fully faded by Beat 3 (`copyFadeOut 0.28`), and the bottom scrim keeps the sub-lines ≥ 4.5:1. The few (6) project bulbs bloom center/right, not over the left-third copy.
+- **Scope:** node rendering only; no new deps, no data-model/JSON/nav/routing/DB/copy change. Budgets unchanged (zero bundle-weight delta). Pulse cadence (D-052.4), cross-fade, camera, ambient glow, and all fallbacks preserved.
+- **Consequences:** Nodes read as glowing bulbs with a clear project > skill > ambient hierarchy. The screen-pixel sizes are computed, not eyeballed — a final in-browser look (glow density, no blow-out over copy) remains the owner sign-off item (no browser in the build env).
+
+---
+
+## D-052.6 — Nodes as instanced billboards; scroll-driven camera flight through the graph
+
+- **Date:** 2026-07-22
+- **Status:** Accepted (owner-ratified via sprint prompt)
+- **Context:** D-052.5's analytic sizing claimed project nodes at 14–20 CSS px, but the owner's browser showed **sub-3 px pinpoints** — the hero read as a bare wireframe. The analytic formula didn't match what executes on the GPU.
+- **Phase 1 — root cause (browser evidence, not inference):** `gl.POINTS` size is **capped by the driver**. A real-browser probe (Playwright) confirmed the mechanism: `ALIASED_POINT_SIZE_RANGE` is queried per driver; the D-052.5 shader had a **14 px floor**, so a value < 3 px is impossible *from the formula* — the shrink happens **downstream in the GPU** (ANGLE/D3D on the owner's Windows machine caps point size, commonly to 1). The headless probe here used SwiftShader (software), which reports `[1, 1023]` and would render points large — proving the fault is the owner's hardware point path, not the geometry. Contributing: the D-052.5 core mask (radius 0.34) was a smallish bright center → faint. Layer counts were fine (separate objects); dpr applied once. **Fix must remove the point-size dependency.**
+- **Phase 2 — instanced billboards:** all layers re-authored as **camera-facing world-sized quads** (`InstancedBufferGeometry` of unit planes, billboarded in the vertex shader — no `gl_PointSize`). No driver cap; real fly-through parallax. Apparent size normalised to a reference viewport height (`uViewScale = 900/height`). Core radius **0.5** (bright body, not a pinpoint); project core 2.8, skill 1.9, ambient 1.0. Base world Ø: project 0.0125, skill 0.0066, ambient 0.0038. Density guard 0.95. **Sizes are browser-MEASURED** (Playwright + real WebGL, 1440×900 dpr2, bright-region pixel diameter) — at the settled flight camera: **project ≈ 43 px, skill ≈ 24, ambient ≈ 10** (targets 34–48 / 20–28 / 9–14); close fly-through passes render 60–108 px (parallax); the approach (off 0.65, camera still outside per slow-in) is smaller (project ~23–32 px). Not analytic — measured.
+- **Phase 3 — camera flight through the graph:** for `off ∈ [0.60,1.0]` a second `CatmullRomCurve3` flies **into and through** the node field. Control points **derived from graph data** (LAW-005): xy-centroids of depth-band node slices, offset to alternating sides (weave), nudged off any node it would clip; settles in front of the deep cluster. `smootherstep` speed (slow-in/steady/slow-out); look-ahead + quaternion **slerp 0.08**; fog tracks camera (0.04/0.6). Passing within ~0.14 of a project/skill node brightens it +40 % and fades in a **DOM label** (name from data) projected from 3D — **max 3, nearest-first, stable slots**, positioned directly (no React churn). Approach beat (≤0.60) unchanged; world-X shift eased in at the boundary so there's no lurch.
+- **Measurement note (honesty, T5):** I *can* run a real browser here (Playwright/Chromium installed as a local devDependency, **reverted from the tracked package files** — not committed). Headless uses SwiftShader; **quads rasterise identically to hardware** (unlike points), so the measured pixel diameters are valid. The measurement harness replicates the shipped shader + the data-derived rail + the flight camera pose; it is a faithful node-rendering measurement, not the full Next page.
+- **Scope (T2):** no new committed deps, no data-model/JSON/nav/routing/DB/copy change. `hero-face-3d.json` unchanged (48.3 KB gz). Budgets unchanged (`/` 150.7 kB; lazy 3D 253.5 kB gz). Pulse cadence, cross-fade, ambient glow, portrait composition, and all fallbacks (poster / reduced-motion / context-loss / mobile) preserved.
+- **Consequences:** Nodes are unmistakable glowing orbs with a clear project > skill > ambient hierarchy and a real journey through the constellation with proximity labels. Click/nav/panels are explicitly the **next sprint** (not built here). Final in-browser aesthetic pass (flight feel, label timing, no blow-out over copy) is the owner sign-off item.
