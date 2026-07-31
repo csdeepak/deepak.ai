@@ -26,8 +26,8 @@
 
 | Feature | Spec | Status | Notes |
 | --- | --- | --- | --- |
-| AI Assistant | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | Planned | Sequenced after corpus exists (D-004). |
-| Admin: AI Knowledge Base | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | Planned | Ships with the assistant. |
+| AI Assistant | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-053 v1 built)** | Dex v1 is cached grounded recall with public zero-cost answers; owner interview round 1 is integrated; live RAG deferred. |
+| Admin: AI Knowledge Base | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-053 v1 file-backed)** | Owner-triggered Knowledge Space files exist; interview round 1 is stored as approved content; admin approval UI comes after owner review. |
 | Gallery | [`../specs/gallery.md`](../specs/gallery.md) | Planned | Template only. |
 | GitHub Integration (deep) | — | Planned | Repo↔project linking. |
 | Analytics (full) | [`../specs/admin-dashboard.md`](../specs/admin-dashboard.md) | Planned | |
@@ -40,4 +40,4 @@
 | Save / bookmarks | [`../specs/news.md`](../specs/news.md) | Planned | Anonymous/local; no visitor accounts. |
 | Weekly digest | [`../specs/news.md`](../specs/news.md) | Planned | Requires Radar sustainability ≥2 months. |
 
-_No features are in development. All specs are templates awaiting the design/IA phases._
+Dex is now in development on `codex/ai-development-process`. Several older specs/status notes remain stale relative to the implemented site and should be treated as historical unless confirmed by `CURRENT_STATE.md`.

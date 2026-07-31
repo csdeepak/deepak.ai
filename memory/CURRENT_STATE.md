@@ -2,9 +2,31 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-31 (D-053.2)
 
 ## Current Phase
+
+**D-053 V1 IMPLEMENTED on `codex/ai-development-process`** - Dex Knowledge Space + cached public AI assistant.
+- **Branch:** created from `feat/instrument-redesign` while preserving the existing uncommitted D-052.7 hero/design-memory work. This branch now carries both the pending hero changes and the new Dex planning edits.
+- **Implemented:** file-backed `apps/web/content/dex/` seed from owner-provided LinkedIn/GitHub audits + resume; `src/lib/dex` matcher; `/api/dex/suggested`; `/api/dex/answer`; styled `DexPanel`; landing CTA "Know about Deepak using AI".
+- **Direction:** v1 is **not live RAG**. It is a file-backed, cached recall layer: suggested questions + approved FAQ answers + knowledge cards. Public visitors cost zero model/API calls.
+- **Private AI use:** AI/Codex is reserved for owner-triggered refreshes only: Codex interview, new project, LinkedIn post paste/import, CV/resume update, manual memory note. Trigger outputs remain drafts until owner approval.
+- **Public guard:** Dex answers only about Deepak, his projects, skills, experience, tools, posts, and research direction. Off-topic questions decline without a model call. No uncited claims.
+- **Spec updated:** `specs/ai-assistant.md` now defines Dex v1, data files, trigger flow, refusal policy, and future RAG upgrade path.
+- **Verification:** `npm.cmd run typecheck` passed; `CONTENT_SOURCE=file npm.cmd run build` passed; `npm.cmd run check:bundle --workspace=web` passed. Default build without `CONTENT_SOURCE=file` still fails if `.env.local` points at DB mode with no local Postgres running (pre-existing).
+- **Owner intake:** interview rounds 1-3 are ingested: target Agentic AI Engineer direction, ASMOS as flagship, Deepak.ai as second strongest current project, debugging/learning narrative, Humanizer AI's work-in-progress boundary, AI employee vision, agent skill definition, Deepak.ai's recruiter proof goal, planned LinkedIn/Instagram AI employee workflows, and review boundary: AI can schedule posts but Deepak approves before publishing. ASMOS is stored as a research-grade working prototype with routing/scoring/memory code, 400+ passing tests, Docker support, Stack Overflow Q&A experiments, and a corrected final token-reduction figure of about 22% (roughly 18-26% by question). A three-agent helpdesk example is approved for explaining checkpointing, ownership, and prompt narrowing.
+- **Round 3 (2026-07-31) added:** target companies/teams (open across AI startups, agent infrastructure teams, AI research labs, and developer tools/product AI teams — not narrowed to one type); AI employee data-access boundaries (owner-provided exports only today, full automation is a future goal; Gmail, saved passwords/payment info, and DMs are permanently off-limits; no auto-publish without approval); the LinkedIn skill Excel schema (hook, topic, structure, tone, CTA, length, audience, why it worked); Instagram Deepak AI's audience (all four groups at once: beginners/students, recruiters, builders, general tech-curious). All five interview questions originally listed in `memory/DEX_SESSION_HANDOFF_2026-07-31.md` are now answered; no outstanding interview gaps remain from that list.
+- **D-053.2 (2026-07-31) — Dex visitor intake form built and verified live:** a skippable "who are you" step (role*, name*, company, contact, reason) now gates the Dex panel, stored to a new `dex_visitor_intake` Postgres table (not file-backed — this is visitor analytics, not owner-approved content). See `memory/DECISIONS.md` D-053.2 for the full design and a client/server DB-isolation bug caught and fixed during the build. Migration `0003_tranquil_blazing_skull.sql` applied locally via `npm run db:migrate`; a real submit was confirmed landing in the table via `psql`, then removed as test data. Local dev Postgres runs via `docker compose -f docker-compose.dev.yml up -d` (container `deepakai-db-1`, port 5433). **Production still needs `db:migrate` run against the Render `DATABASE_URL`** before this is live publicly. No admin viewer exists yet for the captured data (direct DB query only).
+
+---
+
+**D-052.7 COMPLETE (no commit) on `feat/instrument-redesign`** — smooth camera flow + bigger nodes + force-directed graph + all-projects report + real skills.
+- **FIX 1 (jerky camera):** rebuilt the flight rail as a **short, local, nearest-neighbour** path (biased to the project/skill cluster), **centripetal** Catmull-Rom, arc-length sampled, settle vantage frames the cluster; lerp 0.06 pos / slerp 0.08 orient. **Measured** frame-to-frame delta (200 samples): median 0.005 / max 0.007; max control-point gap 0.053 ≤ 0.055 (12% ceiling). No more teleporting.
+- **FIX 2 (too small):** world Ø project→0.023, skill→0.014, ambient→0.0085. **Browser-measured** at settle: **project ~67px, skill ~37, ambient ~13** (targets 60-90/36-52/12-18 all met); close passes 90-170px.
+- **FIX 3 (not all projects):** 18 total / **6 published** / 12 draft — graph = published (LAW-003, correct). Added dev override `HERO_GRAPH_INCLUDE_DRAFTS=true` (local preview only, warns). Graceful 1→18.
+- **FIX 4 (real skills):** source = project **tags** (`skillsLearned` empty everywhere). Enrich now **force-directed clusters** projects around shared skills (verified 0.052 vs 0.121). Project labels = real title; skill labels = real name; labels font-scale with node size.
+- **Scope:** no committed deps (Playwright local-only, reverted), no click/nav/panels (next sprint), no status changes. JSON regenerated published-only (44.9 KB gz). Budgets green (`/` 150.7 kB). Final in-browser aesthetic pass = owner sign-off.
+- **Owner action:** review in-browser, commit, then move tag `stable-glow-hero-v2` (git block in report).
 
 **D-052.6 COMPLETE (no commit) on `feat/instrument-redesign`** — real node size + camera flight through the graph.
 - **Phase 1 (root cause, browser evidence):** the sub-3px pinpoints were `gl.POINTS` **driver size-cap** (ANGLE/D3D on Windows), not the geometry — the D-052.5 shader had a 14px floor so the shrink is downstream in the GPU. Confirmed via a real Playwright WebGL probe (headless SwiftShader reports `[1,1023]`, would render large → the fault is the owner's hardware point path).
@@ -83,7 +105,7 @@ The pre-D-052 release work (below) remains valid on its branch. D-052 builds on 
 All engineering gates are GREEN. The working tree is clean to commit and merge to `main`. Owner triggers the first Render deploy per `docs/DEPLOY_RUNBOOK.md`.
 
 **What cleared in this final session (2026-07-21):**
-- G3 (deploy-blocking gate) cleared: `content/asmos.ts` rewritten with owner-ratified ASMOS content (ownership-based multi-agent routing; 24% context token reduction); `draft: false` flipped.
+- G3 (deploy-blocking gate) cleared: `content/asmos.ts` rewritten with owner-ratified ASMOS content (ownership-based multi-agent routing; corrected later to about 22% prompt-token reduction); `draft: false` flipped.
 - D-050 Arrival act-0 sub-line owner-ratified: "Me, rendered as a network of the work." All four sub-lines now owner-ratified.
 - `apps/web/src/instrumentation.ts` added: loud startup check for `SESSION_SECRET` / `ADMIN_PASSWORD_HASH` at `next start` in production.
 - `docs/10-DEPLOYMENT.md §8a`: deploy-day env var sheet with raw-vs-escaped note.

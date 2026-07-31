@@ -15,14 +15,14 @@ export const asmosMemory: Memory = {
   title: "ASMOS",
   kind: "Memory · Research",
   oneLine:
-    "A multi-agent orchestration system that routes subtasks by topic ownership — confirmed to cut context tokens by roughly 24% per query.",
+    "A research-grade multi-agent memory prototype that routes questions by verified topic ownership, cutting prompt tokens by about 22% in evaluation.",
   gist: {
     problem:
       "Multi-agent systems compared answers across multiple APIs but none actually orchestrated the work or routed it by ownership.",
     approach:
-      "Break the target task into subtasks and route each one to the agent that owned that topic, then combine the results.",
+      "Create verified checkpoints, score topic ownership, route each question to the agent that owns that topic, and load only that agent's relevant memory.",
     status:
-      "Evaluation done — ownership-based routing confirmed; context tokens cut by roughly 24% per query.",
+      "Working prototype with routing, scoring, memory, 400+ passing tests, Docker support, and experiments showing about 22% token reduction across Stack Overflow Q&A tasks.",
     role: "Researcher and engineer",
     formed: "", // owner to fill — not in ratified text
     links: [],
@@ -41,12 +41,13 @@ export const asmosMemory: Memory = {
       label: "The experiment",
       state: "settled",
       body: [
-        "I tried breaking the target task into subtasks and routing each one to the agent that owned that topic, then combining the results.",
+        "I tried creating verified checkpoints from answered questions, using those checkpoints to score topic ownership, and routing each new question to the agent with the strongest proven track record.",
+        "The owner score combines 60% trust, based on verified correctness, and 40% contribution share, based on how much of the correct work on that topic came from that agent.",
       ],
       items: [
         {
           title: "Ownership-based routing",
-          note: "Each subtask routed to the agent that owned that topic; results combined at the end.",
+          note: "Each question routed to the owner agent for that topic; if no clear owner exists, the system falls back to broader memory search.",
           outcome: "worked",
         },
       ],
@@ -56,7 +57,8 @@ export const asmosMemory: Memory = {
       label: "What it showed",
       state: "settled",
       body: [
-        "Ownership-based routing genuinely works — and it cut context tokens by about 24% per query in our evaluation runs.",
+        "Ownership-based routing genuinely works. The final careful re-test showed about 22% token reduction, with question-level results roughly ranging from 18-26%.",
+        "The comparison used the actual text sent to the AI under the old load-everything approach and under ASMOS's load-only-the-owner-memory approach, counted with a real tokenizer across 50 questions and 10 random-seed reruns.",
       ],
     },
   ],
@@ -64,7 +66,7 @@ export const asmosMemory: Memory = {
     {
       cue: "What is ASMOS?",
       answer:
-        "A multi-agent orchestration system that routes subtasks by ownership — each subtask goes to the agent that owns that topic, then the results are combined. In evaluation it cut context tokens by about 24% per query.",
+        "A research-grade multi-agent memory prototype that learns which agent owns each topic from verified checkpoints, routes new questions to that owner, and loads only the relevant memory. In evaluation it cut prompt tokens by about 22%.",
       source: "results",
     },
     {
@@ -76,7 +78,7 @@ export const asmosMemory: Memory = {
     {
       cue: "What did the evaluation show?",
       answer:
-        "Ownership-based routing genuinely works — confirmed in evaluation runs, cutting context tokens by about 24% per query.",
+        "Ownership-based routing genuinely works. A larger careful re-test showed about 22% token reduction, with question-level results roughly ranging from 18-26%.",
       source: "results",
     },
   ],

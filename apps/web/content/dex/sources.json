@@ -1,0 +1,72 @@
+[
+  {
+    "id": "portfolio-home",
+    "label": "Deepak Labs public site",
+    "kind": "site",
+    "href": "/"
+  },
+  {
+    "id": "project-asmos",
+    "label": "ASMOS project page",
+    "kind": "project",
+    "href": "/projects/asmos"
+  },
+  {
+    "id": "project-turb-detr",
+    "label": "Turb-DETR project page",
+    "kind": "project",
+    "href": "/projects/turb-detr"
+  },
+  {
+    "id": "project-shortcutscore",
+    "label": "ShortcutScore project page",
+    "kind": "project",
+    "href": "/projects/shortcutscore"
+  },
+  {
+    "id": "project-dental-ai",
+    "label": "Dental AI Pipeline project page",
+    "kind": "project",
+    "href": "/projects/dental-ai-pipeline"
+  },
+  {
+    "id": "project-docksmith",
+    "label": "Docksmith Engine project page",
+    "kind": "project",
+    "href": "/projects/docksmith-engine"
+  },
+  {
+    "id": "project-pesu-vault",
+    "label": "PESU Vault project page",
+    "kind": "project",
+    "href": "/projects/pesu-vault"
+  },
+  {
+    "id": "resume-2026-04",
+    "label": "Owner-provided resume, April 2026",
+    "kind": "resume",
+    "note": "Resume is not fully current, but the owner confirmed it covers useful factual information."
+  },
+  {
+    "id": "linkedin-audit-2026-07",
+    "label": "Owner-provided LinkedIn recruiter audit, scraped 2026-07-26",
+    "kind": "intake"
+  },
+  {
+    "id": "github-audit-2026-07",
+    "label": "Owner-provided GitHub portfolio audit, scraped 2026-07-27",
+    "kind": "intake"
+  },
+  {
+    "id": "owner-interview-2026-07-27",
+    "label": "Owner interview answers, 2026-07-27",
+    "kind": "interview",
+    "note": "First-person owner answers about target role, flagship projects, ASMOS, learning failures, debugging style, underrepresented work, Dex tone, the ASMOS helpdesk example, corrected ASMOS experiment details, AI employee vision, agent skill definition, Deepak.ai recruiter goal, and planned LinkedIn/Instagram AI employee workflows."
+  },
+  {
+    "id": "owner-interview-2026-07-31",
+    "label": "Owner interview answers, 2026-07-31",
+    "kind": "interview",
+    "note": "First-person owner answers about target companies/teams, AI employee data-access and privacy boundaries, the LinkedIn skill Excel schema, Instagram Deepak AI audience, and a proposed Dex visitor intake form."
+  }
+]

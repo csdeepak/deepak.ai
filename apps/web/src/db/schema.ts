@@ -298,3 +298,21 @@ export const contentLinks = pgTable("content_links", {
   url: text("url").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
 });
+
+// ── Dex visitor intake (D-053.2) — visitor analytics, not CTI content ─────────
+//
+// Standalone table (no content_items link): who is visiting Deepak.ai through
+// Dex, self-reported. Skippable at the UI layer — rows only exist for visitors
+// who chose to answer. Owner-only read access (no public read path).
+
+export const dexVisitorIntake = pgTable("dex_visitor_intake", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  role: text("role").notNull(),
+  name: text("name").notNull(),
+  company: text("company").notNull().default(""),
+  contact: text("contact").notNull().default(""),
+  reason: text("reason").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

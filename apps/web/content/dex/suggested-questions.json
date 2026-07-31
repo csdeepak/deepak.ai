@@ -1,0 +1,140 @@
+[
+  {
+    "id": "suggest-who",
+    "audience": "general",
+    "question": "Who is Deepak?",
+    "faqId": "who-is-deepak"
+  },
+  {
+    "id": "suggest-ai-work",
+    "audience": "recruiter",
+    "question": "What AI work has Deepak done?",
+    "faqId": "ai-work"
+  },
+  {
+    "id": "suggest-target-role",
+    "audience": "recruiter",
+    "question": "What role is Deepak targeting?",
+    "faqId": "target-role"
+  },
+  {
+    "id": "suggest-ai-employee",
+    "audience": "technical",
+    "question": "What does Deepak mean by an AI employee?",
+    "faqId": "ai-employee-meaning"
+  },
+  {
+    "id": "suggest-linkedin-employee",
+    "audience": "technical",
+    "question": "What LinkedIn AI employee does Deepak want to build?",
+    "faqId": "linkedin-ai-employee"
+  },
+  {
+    "id": "suggest-instagram-employee",
+    "audience": "technical",
+    "question": "What Instagram AI employee does Deepak want to build?",
+    "faqId": "instagram-ai-employee"
+  },
+  {
+    "id": "suggest-ai-employee-boundary",
+    "audience": "technical",
+    "question": "What is Deepak's review boundary for AI employees?",
+    "faqId": "ai-employee-review-boundary"
+  },
+  {
+    "id": "suggest-deepak-ai-proof",
+    "audience": "recruiter",
+    "question": "What should Deepak.ai prove to a recruiter?",
+    "faqId": "deepak-ai-recruiter-proof"
+  },
+  {
+    "id": "suggest-hire",
+    "audience": "recruiter",
+    "question": "Why should a recruiter consider Deepak for an AI role?",
+    "faqId": "hire-for-ai"
+  },
+  {
+    "id": "suggest-projects",
+    "audience": "recruiter",
+    "question": "What are Deepak's strongest projects?",
+    "faqId": "strongest-projects"
+  },
+  {
+    "id": "suggest-asmos",
+    "audience": "technical",
+    "question": "What is ASMOS?",
+    "faqId": "what-is-asmos"
+  },
+  {
+    "id": "suggest-asmos-token",
+    "audience": "technical",
+    "question": "How did ASMOS reduce tokens?",
+    "faqId": "asmos-token-reduction"
+  },
+  {
+    "id": "suggest-asmos-owner",
+    "audience": "technical",
+    "question": "How does ASMOS choose the owner agent?",
+    "faqId": "asmos-owner-score"
+  },
+  {
+    "id": "suggest-asmos-prototype",
+    "audience": "technical",
+    "question": "Is ASMOS a working prototype?",
+    "faqId": "asmos-prototype-status"
+  },
+  {
+    "id": "suggest-asmos-example",
+    "audience": "technical",
+    "question": "Can you explain ASMOS with an example?",
+    "faqId": "asmos-helpdesk-example"
+  },
+  {
+    "id": "suggest-cv",
+    "audience": "technical",
+    "question": "What computer vision experience does Deepak have?",
+    "faqId": "computer-vision"
+  },
+  {
+    "id": "suggest-systems",
+    "audience": "technical",
+    "question": "Has Deepak built systems beyond ML notebooks?",
+    "faqId": "systems-side"
+  },
+  {
+    "id": "suggest-style",
+    "audience": "collaborator",
+    "question": "How does Deepak work?",
+    "faqId": "work-style"
+  },
+  {
+    "id": "suggest-debugging",
+    "audience": "collaborator",
+    "question": "How does Deepak debug and learn new tools?",
+    "faqId": "debugging-learning-style"
+  },
+  {
+    "id": "suggest-agent-skill",
+    "audience": "technical",
+    "question": "What does Deepak mean by an agent skill?",
+    "faqId": "agent-skill-meaning"
+  },
+  {
+    "id": "suggest-target-companies",
+    "audience": "recruiter",
+    "question": "What kind of company or team is Deepak targeting?",
+    "faqId": "target-companies"
+  },
+  {
+    "id": "suggest-ai-employee-data-boundaries",
+    "audience": "technical",
+    "question": "What can Deepak's AI employees access?",
+    "faqId": "ai-employee-data-boundaries-faq"
+  },
+  {
+    "id": "suggest-instagram-audience",
+    "audience": "technical",
+    "question": "Who is the audience for Deepak AI on Instagram?",
+    "faqId": "instagram-audience-faq"
+  }
+]

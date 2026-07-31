@@ -1,0 +1,302 @@
+[
+  {
+    "id": "who-is-deepak",
+    "audience": "general",
+    "question": "Who is Deepak?",
+    "aliases": ["Tell me about Deepak", "Introduce Deepak", "Who are you", "Give me Deepak's background"],
+    "answer": "Deepak is a Computer Science Engineering student at PES University in Bengaluru, targeting Agentic AI Engineer roles. His work sits around agents, memory systems, automation, computer vision, explainable AI, and practical software systems. The useful short version: he researches new AI tools, experiments with them, and tries to turn repeated manual work into working AI products.",
+    "sourceIds": ["portfolio-home", "resume-2026-04", "github-audit-2026-07", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["identity-core", "education-pes", "engineering-style"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "ai-work",
+    "audience": "recruiter",
+    "question": "What AI work has Deepak done?",
+    "aliases": ["What AI projects has Deepak built?", "Tell me about Deepak's machine learning work", "Does Deepak have AI experience", "What is Deepak's AI background"],
+    "answer": "Deepak's AI work has three strong lanes: agentic AI and memory through ASMOS, computer vision through Turb-DETR and the Dental AI Pipeline, and explainable AI through ShortcutScore. Deepak.ai is also a current agentic workflow project: it combines his portfolio, documented memory, and Dex's constrained recall layer. Together, these show LLM systems thinking, applied CV research, medical AI, and model-interpretability work rather than a single narrow notebook portfolio.",
+    "sourceIds": ["project-asmos", "project-turb-detr", "project-shortcutscore", "project-dental-ai", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "project-turb-detr", "project-shortcutscore", "project-dental-ai"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "hire-for-ai",
+    "audience": "recruiter",
+    "question": "Why should a recruiter consider Deepak for an AI role?",
+    "aliases": ["Should I hire Deepak for AI", "Is Deepak internship ready", "Is Deepak good for an AI internship", "What makes Deepak useful to a recruiter"],
+    "answer": "A recruiter should look at Deepak for an Agentic AI Engineer path if they want a student who combines AI curiosity with engineering discipline. His strongest signal is ASMOS: a research-grade working prototype of a multi-agent memory system with routing, scoring, memory, 400+ passing tests, Docker support, and model experiments showing about 22% token reduction. Deepak.ai, Turb-DETR, ShortcutScore, Dental AI, Docksmith, and PESU Vault add agentic workflow, computer vision, XAI, systems, and automation depth.",
+    "sourceIds": ["project-asmos", "project-turb-detr", "project-shortcutscore", "project-dental-ai", "project-docksmith", "project-pesu-vault", "github-audit-2026-07"],
+    "relatedCardIds": ["focus-agentic-memory", "skills-core", "engineering-style"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "strongest-projects",
+    "audience": "recruiter",
+    "question": "What are Deepak's strongest projects?",
+    "aliases": ["What is Deepak's best project", "Which projects should I inspect first", "What are the flagship projects", "Show Deepak's top work"],
+    "answer": "Start with ASMOS and Deepak.ai. ASMOS is Deepak's flagship for agentic AI and memory design; Deepak.ai is his second strongest current project because it turns his portfolio into an agentic workflow with a constrained personal knowledge assistant. Then inspect Turb-DETR, ShortcutScore, Dental AI Pipeline, Docksmith Engine, and PESU Vault for computer vision, XAI, systems, and automation depth.",
+    "sourceIds": ["project-asmos", "portfolio-home", "project-turb-detr", "project-shortcutscore", "project-dental-ai", "project-docksmith", "project-pesu-vault", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "project-deepak-ai", "project-turb-detr", "project-shortcutscore", "project-dental-ai", "project-docksmith", "project-pesu-vault"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "what-is-asmos",
+    "audience": "technical",
+    "question": "What is ASMOS?",
+    "aliases": ["Explain ASMOS", "Tell me about the multi-agent memory project", "What did Deepak build in ASMOS", "What is Deepak's agentic AI project"],
+    "answer": "ASMOS is Deepak's Adaptive Semantic Memory Operating System and flagship multi-agent memory project. It is a research-grade working prototype with code for routing, scoring, and memory, 400+ passing tests, Docker support, and experiments against real AI models on Stack Overflow Q&A data. It creates verified checkpoints, uses them to determine topic ownership, routes to the owner agent, and loads only the relevant memory slice. The corrected final result is about 22% token reduction, with question-level results roughly ranging from 18-26%. It is not yet a deployed commercial product.",
+    "sourceIds": ["project-asmos", "linkedin-audit-2026-07", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "focus-agentic-memory"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-token-reduction",
+    "audience": "technical",
+    "question": "How did ASMOS reduce tokens?",
+    "aliases": ["How did Deepak measure ASMOS token reduction", "What is the 22 percent token reduction in ASMOS", "What is the 24 percent token reduction in ASMOS", "How does ASMOS compare with normal AI use", "What changed with ASMOS checkpointing and routing"],
+    "answer": "The corrected final ASMOS result is about 22% token reduction. An early smaller test showed about 24%, but the larger re-test settled around 22%, with question-level results roughly ranging from 18-26%. Deepak measured this by counting the actual prompt text sent to the AI with a real tokenizer under two modes: the old load-everything approach and ASMOS's load-only-the-owner-memory approach. The experiment used 50 questions, 10 random-seed reruns, and a statistical significance check.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "focus-agentic-memory"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-prototype-status",
+    "audience": "technical",
+    "question": "Is ASMOS a working prototype?",
+    "aliases": ["Is ASMOS actually built", "Is ASMOS only a research idea", "Has Deepak implemented ASMOS", "Is ASMOS deployed"],
+    "answer": "ASMOS is a real working prototype, not just a paper design. Deepak reports actual code for routing, ownership scoring, and memory; a 400+ passing test suite; Docker support; and end-to-end experiments against real AI models and Stack Overflow Q&A data. The honest boundary is that it is research-grade and built to prove the idea works, not a deployed commercial product with live customers.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "asmos-evaluation"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-owner-score",
+    "audience": "technical",
+    "question": "How does ASMOS choose the owner agent?",
+    "aliases": ["What decides an owner agent in ASMOS", "How does ASMOS ownership scoring work", "What is the ASMOS owner score", "What happens if two agents are equally good"],
+    "answer": "ASMOS chooses the owner agent with a weighted score: 60% trust and 40% contribution share. Trust means how often the agent's past answers were later confirmed correct. Contribution share means what fraction of the correct answers on that topic came from that agent compared with other agents. New agents start with a modest default trust score so they still get a fair chance. If two agents are too close and no clear owner stands out, the live-system behavior should fall back to searching everyone's memory instead of forcing a risky coin-flip.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["asmos-ownership-scoring", "project-asmos"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-recruiter-pitch",
+    "audience": "recruiter",
+    "question": "What is the recruiter pitch for ASMOS?",
+    "aliases": ["Pitch ASMOS in one line", "How should Deepak explain ASMOS to recruiters", "What is ASMOS in one sentence"],
+    "answer": "Built a multi-agent AI memory system that learns which agent actually knows each topic and routes questions to them, cutting AI token costs by about 22% in repeated experiments. Publication details are intentionally left out until Deepak confirms the current ACM status.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "asmos-evaluation", "asmos-ownership-scoring"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-helpdesk-example",
+    "audience": "technical",
+    "question": "Can you explain ASMOS with an example?",
+    "aliases": ["Give me a simple ASMOS example", "Explain ASMOS like a helpdesk", "How does ASMOS routing work in practice", "What is an example of ASMOS checkpointing"],
+    "answer": "A simple ASMOS example is a three-agent online-store helpdesk: Priya owns billing, Rahul owns shipping, and Meera owns product or technical questions. Without ASMOS, every customer question gets a huge prompt containing old billing, shipping, and product history just in case. With ASMOS, each verified answer becomes a small checkpoint: who answered, what topic it was, and whether it was correct. Over time, those checkpoints create topic ownership. When a new shipping question arrives, ASMOS routes to Rahul and loads only Rahul's relevant shipping memory instead of every agent's history. If ownership is unclear, ASMOS falls back to broader search. The loop is answer, verify, checkpoint, update ownership, then route the next question smarter.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-asmos", "focus-agentic-memory"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "computer-vision",
+    "audience": "technical",
+    "question": "What computer vision experience does Deepak have?",
+    "aliases": ["Does Deepak know computer vision", "Tell me about Deepak's CV projects", "What vision models has Deepak worked on", "Has Deepak worked on medical AI"],
+    "answer": "Deepak's computer vision work includes Turb-DETR for underwater plastic detection under turbidity and the Dental AI Pipeline for panoramic OPG X-ray analysis. His resume also records work with YOLOv12, U-Net, RT-DETR, PyTorch, Grad-CAM, and attribution-based analysis.",
+    "sourceIds": ["project-turb-detr", "project-dental-ai", "resume-2026-04"],
+    "relatedCardIds": ["project-turb-detr", "project-dental-ai", "skills-core"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "xai-research",
+    "audience": "technical",
+    "question": "Does Deepak have explainable AI or research experience?",
+    "aliases": ["What XAI work has Deepak done", "Tell me about ShortcutScore", "Does Deepak understand interpretability", "What research-style work has Deepak done"],
+    "answer": "Yes. ShortcutScore is Deepak's clearest XAI signal: it tries to make shortcut learning measurable instead of only visually inspected. The resume and GitHub audit connect it to PyTorch, Captum, Grad-CAM, attribution analysis, controlled shifts, and research-style validation.",
+    "sourceIds": ["project-shortcutscore", "resume-2026-04", "github-audit-2026-07"],
+    "relatedCardIds": ["project-shortcutscore", "skills-core", "engineering-style"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "systems-side",
+    "audience": "technical",
+    "question": "Has Deepak built systems beyond ML notebooks?",
+    "aliases": ["Can Deepak build software systems", "Does Deepak know backend or systems", "Tell me about Docksmith", "What non AI projects has Deepak built"],
+    "answer": "Yes. Docksmith Engine shows Go systems work around container-runtime concepts, and PESU Vault shows backend automation with FastAPI, Playwright, persistent browser sessions, and deployment-constraint reasoning. Deepak Labs itself is also a TypeScript/Next.js product with documented architecture, memory files, and build-budget governance.",
+    "sourceIds": ["project-docksmith", "project-pesu-vault", "portfolio-home", "github-audit-2026-07"],
+    "relatedCardIds": ["project-docksmith", "project-pesu-vault", "engineering-style"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "skills-tools",
+    "audience": "technical",
+    "question": "What tools and technologies does Deepak use?",
+    "aliases": ["What is Deepak's tech stack", "What skills does Deepak have", "List Deepak's tools", "What languages does Deepak know"],
+    "answer": "The strongest evidenced tools are Python, PyTorch, computer vision tooling, Grad-CAM and attribution methods, FastAPI, Playwright, Go, TypeScript, Next.js, GitHub, Jupyter, W&B, and research/documentation workflows. His current direction also includes agentic workflows, agent skills, memory/context routing, and automation. The older resume lists Java, JavaScript, SQL, scikit-learn, Google Colab, TensorBoard, and SLURM-based training workflows.",
+    "sourceIds": ["resume-2026-04", "github-audit-2026-07"],
+    "relatedCardIds": ["skills-core"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "work-style",
+    "audience": "collaborator",
+    "question": "How does Deepak work?",
+    "aliases": ["What is Deepak's working style", "What makes Deepak different", "How does Deepak think", "What is Deepak's engineering style"],
+    "answer": "Deepak works best when he can turn a question into a system. He accepts constraints, adapts to new technology, and works persistently through assigned processes. When debugging, he backtracks through the tool, understands what it does and its impact, then uses AI assistants as reasoning partners. An early lesson from outdated YouTube tutorials and newly paid tools pushed him toward building his own tools instead of only copying workflows.",
+    "sourceIds": ["github-audit-2026-07", "portfolio-home", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["engineering-style"],
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "target-role",
+    "audience": "recruiter",
+    "question": "What role is Deepak targeting?",
+    "aliases": ["What job does Deepak want", "What AI role is Deepak looking for", "Is Deepak focused on agentic AI", "What career direction does Deepak have"],
+    "answer": "Deepak is targeting Agentic AI Engineer roles, but he is open across the AI-building spectrum: agent infrastructure, applied AI automation, AI research engineering, developer tools, and product AI. He is especially drawn to agents, agent skills, AI employees, Gmail-style workflow automation, new-tool research, model experimentation, and AI products that remove repeated manual work.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["target-role-agentic-ai-engineer", "focus-agentic-memory", "ai-employee-vision"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "ai-employee-meaning",
+    "audience": "technical",
+    "question": "What does Deepak mean by an AI employee?",
+    "aliases": ["What is an AI employee to Deepak", "Give an example of Deepak's AI employee idea", "How would Deepak use an AI employee", "What AI employee workflow does Deepak want"],
+    "answer": "For Deepak, an AI employee is an AI system trained to work for him on a repeated workflow: collect information, use his context, draft useful output, and update him with review in the loop. His first planned examples are a LinkedIn posting assistant and an Instagram content assistant for his Deepak AI page. Both are meant to research AI topics, use reusable skills or style memory, prepare schedule-ready content, and keep Deepak's approval before publishing.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["ai-employee-vision", "ai-employee-linkedin-workflow", "ai-employee-instagram-workflow"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "linkedin-ai-employee",
+    "audience": "technical",
+    "question": "What LinkedIn AI employee does Deepak want to build?",
+    "aliases": ["Explain Deepak's LinkedIn assistant idea", "What is Deepak's LinkedIn automation workflow", "How would Deepak use skill.md for LinkedIn", "What content assistant does Deepak want for LinkedIn"],
+    "answer": "Deepak wants a LinkedIn AI employee because he is a LinkedIn enthusiast and wants to post consistently about AI. The workflow would study strong LinkedIn posts, organize useful patterns in an Excel sheet, turn that into a reusable skill.md, then use the skill with fresh AI news or internet research to draft and schedule posts in Deepak's style. Deepak approves before publishing.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["ai-employee-linkedin-workflow", "agent-skill-definition"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "instagram-ai-employee",
+    "audience": "technical",
+    "question": "What Instagram AI employee does Deepak want to build?",
+    "aliases": ["Explain Deepak's Instagram AI page idea", "What is Deepak AI on Instagram", "How would Deepak automate Instagram content", "What visual content AI employee does Deepak want"],
+    "answer": "Deepak has started an Instagram page called Deepak AI. He wants an AI employee that researches AI topics and helps convert them into visual content: post ideas, images, short videos, voice or audio assets, and drafts. The workflow may coordinate tools such as HeyGen, Suno, ElevenLabs, image-generation tools, and writing assistants, and it can prepare content for scheduling, but Deepak approves before publishing.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["ai-employee-instagram-workflow", "ai-employee-vision"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "ai-employee-review-boundary",
+    "audience": "technical",
+    "question": "What is Deepak's review boundary for AI employees?",
+    "aliases": ["Will Deepak's AI employees publish automatically", "Does Deepak approve AI employee posts", "Can Deepak's AI employee schedule posts", "What approval flow does Deepak want for AI automation"],
+    "answer": "Deepak's preferred boundary is: AI employees can prepare and schedule content, but Deepak approves before anything is published. That keeps the workflow useful and fast without handing public posting fully to automation.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["ai-employee-vision", "ai-employee-linkedin-workflow", "ai-employee-instagram-workflow"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "agent-skill-meaning",
+    "audience": "technical",
+    "question": "What does Deepak mean by an agent skill?",
+    "aliases": ["What is an agent skill", "How does Deepak define AI skills", "How would Deepak train an agent skill", "What does skill mean in agentic AI"],
+    "answer": "Deepak thinks of an agent skill as a reusable capability an AI agent learns for a repeated task. One example: give an agent an Excel sheet of strong LinkedIn examples, ask it to build a skill.md from that data, then reuse that skill whenever fresh AI research needs to become a post draft. In his framing, a skill is closer to a reusable workflow capability than a one-off prompt.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["agent-skill-definition", "target-role-agentic-ai-engineer"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "deepak-ai-recruiter-proof",
+    "audience": "recruiter",
+    "question": "What should Deepak.ai prove to a recruiter?",
+    "aliases": ["Why is Deepak.ai useful for recruiters", "What does Deepak.ai show about Deepak", "What should recruiters learn from Deepak.ai"],
+    "answer": "Deepak.ai should prove that Deepak is worth considering for AI roles because he does not only talk about agents and automation; he builds with them. The site should show that he loves building agents, experimenting with AI models, automating repeated work, and turning research plus experimentation into useful AI products.",
+    "sourceIds": ["portfolio-home", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-deepak-ai", "engineering-style", "target-role-agentic-ai-engineer"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "adaptive-work-style",
+    "audience": "collaborator",
+    "question": "How is Deepak adaptive?",
+    "aliases": ["Is Deepak adaptive", "How does Deepak approach new technology", "How does Deepak research and experiment", "How does Deepak learn AI tools"],
+    "answer": "Deepak wants to be understood as adaptive to new technologies. His loop is research first, then experimentation, then building: he finds new tools or models, studies what they can do, tests the context and setup they need, and turns the useful parts into working systems or automations.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["engineering-style"],
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "debugging-learning-style",
+    "audience": "collaborator",
+    "question": "How does Deepak debug and learn new tools?",
+    "aliases": ["What is Deepak's debugging strategy", "How does Deepak learn", "How does Deepak handle tool problems", "How does Deepak deal with outdated tutorials"],
+    "answer": "Deepak's debugging approach is to backtrack through the tool, understand what it does, assess its impact, and use AI assistants as reasoning partners. A difficult lesson from old YouTube tutorials was that tools can become outdated or paid, so he increasingly wants to understand and build the underlying tools rather than only repeat a tutorial workflow.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["engineering-style"],
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "target-companies",
+    "audience": "recruiter",
+    "question": "What kind of company or team is Deepak targeting?",
+    "aliases": ["What companies is Deepak interested in", "What team should hire Deepak", "Is Deepak open to startups or research labs", "What kind of AI team fits Deepak"],
+    "answer": "Deepak is open across four kinds of teams: AI startups, agent infrastructure teams, AI research labs, and developer tools or product AI teams. He isn't narrowing to one company type -- he's looking for wherever agents, automation, and AI products are actually being built.",
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "relatedCardIds": ["target-companies-teams", "target-role-agentic-ai-engineer"],
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "ai-employee-data-boundaries-faq",
+    "audience": "technical",
+    "question": "What can Deepak's AI employees access?",
+    "aliases": ["What data boundaries does Deepak set for AI employees", "Can Deepak's AI employees read his Gmail", "What is off limits for Deepak's AI automation", "Does Deepak's AI employee have live account access"],
+    "answer": "Right now Deepak's AI employees work only from data he provides directly, like pasted LinkedIn post text or exported Excel sheets, not live account access, though full automation is a future goal. Regardless of that, some things stay permanently off-limits: Gmail or email content, saved passwords or payment info, and direct messages. AI employees can prepare and schedule content, but they can never publish without Deepak's approval.",
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "relatedCardIds": ["ai-employee-data-boundaries", "ai-employee-review-boundary", "ai-employee-vision"],
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "linkedin-excel-schema-faq",
+    "audience": "technical",
+    "question": "What will Deepak's LinkedIn skill Excel sheet contain?",
+    "aliases": ["What columns are in the LinkedIn training sheet", "How does Deepak structure LinkedIn post examples", "What data feeds the LinkedIn skill.md"],
+    "answer": "The Excel sheet Deepak uses to train the LinkedIn AI employee has eight columns: hook, topic, structure, tone, CTA, length, audience, and why it worked. The agent studies that sheet to build a reusable skill.md it can apply to fresh AI research when drafting future posts.",
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "relatedCardIds": ["linkedin-skill-excel-schema", "ai-employee-linkedin-workflow", "agent-skill-definition"],
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "instagram-audience-faq",
+    "audience": "technical",
+    "question": "Who is the audience for Deepak AI on Instagram?",
+    "aliases": ["Who does Deepak AI on Instagram target", "What audience does Deepak's Instagram page serve", "Is Deepak AI for beginners or experts"],
+    "answer": "Deepak AI on Instagram is meant for all four groups at once: AI beginners and students, recruiters and hiring managers, builders and fellow engineers, and general tech-curious followers. It's not narrowed to a single audience.",
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "relatedCardIds": ["instagram-ai-audience", "ai-employee-instagram-workflow"],
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "dex-intake-form-faq",
+    "audience": "general",
+    "question": "Does Dex ask who you are before answering?",
+    "aliases": ["Is there a form before chatting with Dex", "Does Dex know if I am a recruiter or student", "Will Dex ask my role first"],
+    "answer": "Not yet. Deepak has proposed a small intake step before a Dex session starts, asking whether you're a recruiter, student, colleague, builder, or something else. The main goal is analytics -- understanding who actually visits Deepak.ai -- and it may also help Dex match its answers to your role. It's a planned idea and hasn't been built yet.",
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "relatedCardIds": ["dex-visitor-intake-idea"],
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "humanizer-status",
+    "audience": "technical",
+    "question": "What is the status of Deepak's Humanizer AI skill?",
+    "aliases": ["Tell me about Humanizer AI", "Is Humanizer AI a flagship project", "What is Deepak improving for research writing"],
+    "answer": "Deepak has built a Humanizer AI skill, but it is currently underperforming and is not presented as a flagship project. He plans to improve it for research writing and paper-publishing workflows.",
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "relatedCardIds": ["project-humanizer-ai"],
+    "updatedAt": "2026-07-28"
+  }
+]

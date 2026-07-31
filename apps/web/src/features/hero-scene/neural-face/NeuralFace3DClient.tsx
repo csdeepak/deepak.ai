@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { DexTrigger } from "@/features/dex/dex-trigger";
 import { decideTier } from "../gate";
 import { REGION_VH, BEAT, SCROLL_START } from "./constants";
 import { isHeroFace3D, type HeroFace3D } from "./types";
@@ -206,7 +207,7 @@ export default function NeuralFace3DClient() {
         {/* (3) Copy overlay — DOM, always present, fades out during the dive. */}
         <Container
           width="content"
-          className="pointer-events-none relative z-10 flex h-svh flex-col justify-end pb-[12svh] [&_a]:pointer-events-auto md:pb-[14svh]"
+          className="pointer-events-none relative z-10 flex h-svh flex-col justify-end pb-[12svh] [&_a]:pointer-events-auto [&_button]:pointer-events-auto md:pb-[14svh]"
         >
           <div ref={copyRef} className="animate-entrance">
             <p className="font-mono text-micro text-faint">{siteContent.name}</p>
@@ -224,6 +225,9 @@ export default function NeuralFace3DClient() {
               <Link href="/projects" className="cta-pill cta-pill--energy">
                 See the work
               </Link>
+              <DexTrigger className="cta-pill">
+                Know about Deepak using AI
+              </DexTrigger>
               <Link
                 href="/projects/asmos"
                 className="gradient-underline-hover text-body text-muted underline-offset-4"

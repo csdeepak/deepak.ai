@@ -28,7 +28,7 @@ Every specification follows this structure:
 | [`publications.md`](publications.md) | Research publications. |
 | [`timeline.md`](timeline.md) | Experience timeline. |
 | [`skills.md`](skills.md) | Skills and capabilities. |
-| [`ai-assistant.md`](ai-assistant.md) | Personal AI assistant. |
+| [`ai-assistant.md`](ai-assistant.md) | Personal AI assistant / Dex - Specified for D-053. |
 | [`news.md`](news.md) | News and updates. |
 | [`admin-dashboard.md`](admin-dashboard.md) | Content administration. |
 

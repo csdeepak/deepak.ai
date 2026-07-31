@@ -1,0 +1,236 @@
+[
+  {
+    "id": "identity-core",
+    "title": "Who Deepak is",
+    "summary": "C S Deepak is a Computer Science Engineering student at PES University in Bengaluru, targeting Agentic AI Engineer roles. His strongest current positioning is building and working with agents, agent skills, AI employee workflows, automation, memory systems, computer vision, explainable AI, and practical software systems.",
+    "tags": ["deepak", "identity", "bio", "student", "pes", "agentic ai engineer", "ai engineer", "agents", "automation"],
+    "sourceIds": ["portfolio-home", "resume-2026-04", "linkedin-audit-2026-07", "github-audit-2026-07", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "education-pes",
+    "title": "Education",
+    "summary": "Deepak is pursuing a B.Tech in Computer Science Engineering at PES University, RR Campus, Bengaluru, with an expected 2027 graduation window.",
+    "tags": ["education", "pes university", "btech", "computer science", "bangalore", "bengaluru"],
+    "sourceIds": ["resume-2026-04"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "focus-agentic-memory",
+    "title": "Current AI direction",
+    "summary": "Deepak's strongest current direction is Agentic AI Engineering: building agents, designing skills for them, exploring how AI employees can be trained to work for a person, automating agent workflows, and reducing waste through better memory and context routing.",
+    "tags": ["agentic ai", "agentic ai engineer", "multi agent", "llm", "memory", "routing", "skills", "ai employee", "automation", "asmos", "semantic memory"],
+    "sourceIds": ["project-asmos", "portfolio-home", "linkedin-audit-2026-07", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "target-role-agentic-ai-engineer",
+    "title": "Target role",
+    "summary": "Deepak is targeting Agentic AI Engineer roles across agent infrastructure, applied AI automation, AI research engineering, developer tools, and product AI. He is especially interested in building agents, working with agent skills, training AI employees, automating workflows like Gmail or information updates, researching new AI tools, experimenting with models, and turning that research into useful AI products.",
+    "tags": ["target role", "agentic ai engineer", "agents", "agent infrastructure", "applied ai automation", "developer tools", "product ai", "agent skills", "ai employee", "automation", "workflow", "gmail automation"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "ai-employee-vision",
+    "title": "AI employee vision",
+    "summary": "Deepak defines an AI employee as an AI system trained to work for him by finding information, adapting to his style, preparing useful outputs, and updating him on a schedule with review in the loop. His first planned workflows are a LinkedIn skill-based posting assistant and an Instagram content assistant for Deepak AI. Both start from research, turn examples into reusable skills, prepare schedule-ready content, and require Deepak's approval before publishing.",
+    "tags": ["ai employee", "automation", "linkedin", "instagram", "deepak ai", "content assistant", "internet research", "daily workflow", "review loop", "approval", "schedule", "writing style", "personal ai"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "ai-employee-linkedin-workflow",
+    "title": "LinkedIn AI employee workflow",
+    "summary": "Deepak wants a LinkedIn AI employee because he is a LinkedIn enthusiast and wants to post more consistently about AI. The workflow studies strong LinkedIn posts, organizes patterns in an Excel sheet, turns those examples into a reusable skill.md, and uses that skill with fresh AI news or internet research to draft and schedule posts in Deepak's style, with Deepak approving before anything is published.",
+    "tags": ["linkedin", "ai employee", "skill.md", "excel", "content workflow", "posting assistant", "writing style", "ai news", "internet research", "approval", "schedule"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "ai-employee-instagram-workflow",
+    "title": "Instagram AI employee workflow",
+    "summary": "Deepak has started an Instagram page called Deepak AI and wants an AI employee that turns researched AI topics into visual content ideas, images, short videos, voice or audio assets, and post drafts. The workflow may use tools such as HeyGen, Suno, ElevenLabs, image generation, and writing assistants, with the AI employee coordinating production and scheduling while Deepak approves before publishing.",
+    "tags": ["instagram", "deepak ai", "ai employee", "visual content", "video", "images", "heygen", "suno", "elevenlabs", "content ideas", "automation"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "agent-skill-definition",
+    "title": "Agent skill definition",
+    "summary": "Deepak thinks of an agent skill as a reusable capability an AI agent can learn from structured input and call again for a repeated task. For example, he might give an agent an Excel sheet of strong LinkedIn examples, ask it to build a skill.md, and then use that skill to draft future posts from fresh research.",
+    "tags": ["agent skill", "skills", "skill.md", "reusable capability", "excel", "workflow", "training agents", "linkedin skill", "automation"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "project-asmos",
+    "title": "ASMOS",
+    "summary": "ASMOS, also described by Deepak as an Adaptive Semantic Memory Operating System, is his flagship multi-agent memory project. It is a research-grade working prototype, not just a paper idea: Deepak reports code for routing, scoring, and memory; 400+ passing tests; Docker support; and experiments on Stack Overflow Q&A data with real AI models. ASMOS uses verified checkpoints to identify topic owners and load only the relevant memory slice. The final re-test showed about 22% token reduction, with results roughly in the 18-26% range depending on the question.",
+    "tags": ["asmos", "osmos", "oshmosh", "adaptive semantic memory operating system", "multi agent", "agentic ai", "memory", "semantic checkpoint", "context checkpointing", "routing", "owner agent", "ownership score", "helpdesk", "billing", "shipping", "token reduction", "docker", "test suite", "stack overflow", "statistical significance", "acm journal", "research prototype", "mcp", "rag", "llm", "research"],
+    "sourceIds": ["project-asmos", "linkedin-audit-2026-07", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-evaluation",
+    "title": "ASMOS evaluation",
+    "summary": "Deepak evaluated ASMOS by comparing the actual prompt text sent to AI models in two modes: a baseline that loads broad memory and an ASMOS mode that loads only the owner agent's relevant memory. Tokens were counted with a real tokenizer across 50 questions and 10 random-seed reruns, then checked for statistical significance. The final result is about 22% token reduction, with an observed range around 18-26%.",
+    "tags": ["asmos", "evaluation", "token counter", "tokenizer", "baseline", "experiment table", "random seed", "statistical significance", "22 percent", "18 26 percent", "stack overflow"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "asmos-ownership-scoring",
+    "title": "ASMOS ownership scoring",
+    "summary": "ASMOS chooses a topic owner with a weighted score: 60% trust, based on how often an agent's past answers were verified correct, and 40% contribution share, based on what fraction of correct answers on that topic came from that agent. New agents begin with a modest default trust score so they are not locked out. If nobody stands out clearly enough, ASMOS falls back to broader memory search instead of forcing a close guess.",
+    "tags": ["asmos", "ownership", "owner score", "trust score", "contribution share", "verified accuracy", "fallback search", "multi agent routing"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-28"
+  },
+  {
+    "id": "project-deepak-ai",
+    "title": "Deepak.ai",
+    "summary": "Deepak.ai is Deepak's portfolio and personal AI surface. He sees it as his second strongest current project because it turns the portfolio into an agentic workflow: a public site, documented memory, and Dex as a constrained AI recall layer. To recruiters, it should prove that Deepak loves automation, building agents, experimenting with available AI models, and building AI products that remove repeated manual work.",
+    "tags": ["deepak.ai", "portfolio", "dex", "agentic workflow", "knowledge base", "next.js", "typescript", "personal ai", "automation", "recruiter proof", "ai products"],
+    "sourceIds": ["portfolio-home", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "project-turb-detr",
+    "title": "Turb-DETR",
+    "summary": "Turb-DETR is Deepak's turbidity-aware underwater plastic detection project. It adapts an RT-DETR-style transformer detector for murky underwater conditions, with turbidity-aware augmentation, reproducible evaluation, and a focus on real-time deployment realism.",
+    "tags": ["turb-detr", "computer vision", "rt-detr", "transformer", "underwater", "plastic debris", "pytorch"],
+    "sourceIds": ["project-turb-detr", "github-audit-2026-07", "resume-2026-04"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "project-shortcutscore",
+    "title": "ShortcutScore",
+    "summary": "ShortcutScore is Deepak's explainable AI project for measuring shortcut learning severity in deep models. It focuses on making spurious correlations measurable instead of relying only on qualitative inspection.",
+    "tags": ["shortcutscore", "xai", "explainable ai", "grad-cam", "captum", "pytorch", "shortcut learning"],
+    "sourceIds": ["project-shortcutscore", "github-audit-2026-07", "resume-2026-04"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "project-dental-ai",
+    "title": "Dental AI Pipeline",
+    "summary": "The Dental AI Pipeline is Deepak's medical computer vision project for panoramic OPG X-rays. It decomposes the problem into tooth detection, cropping, disease-specific analysis for caries and periodontal bone loss, severity estimation, and structured reporting.",
+    "tags": ["dental ai", "medical ai", "opg", "x-ray", "yolo", "u-net", "pytorch", "computer vision"],
+    "sourceIds": ["project-dental-ai", "github-audit-2026-07", "resume-2026-04"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "project-docksmith",
+    "title": "Docksmith Engine",
+    "summary": "Docksmith Engine is Deepak's Go systems project for understanding container internals. It rebuilds core container-runtime ideas such as file layering, deterministic caching, Docksmithfile parsing, filesystem setup, and process isolation.",
+    "tags": ["docksmith", "go", "containers", "docker", "systems", "runtime", "linux"],
+    "sourceIds": ["project-docksmith", "github-audit-2026-07"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "project-pesu-vault",
+    "title": "PESU Vault",
+    "summary": "PESU Vault is Deepak's automation tool for downloading university course materials from PESU Academy. It uses FastAPI, Playwright, persistent browser-session handling, and organized downloads to solve a real student workflow.",
+    "tags": ["pesu vault", "automation", "fastapi", "playwright", "python", "scraping", "student tool"],
+    "sourceIds": ["project-pesu-vault", "github-audit-2026-07"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "experience-sahayai",
+    "title": "SahayAI leadership",
+    "summary": "Deepak served as Head of Events and Management at SahayAI Club, coordinating technical and non-technical activities and helping execute an ideathon with 100+ participants.",
+    "tags": ["sahayai", "leadership", "events", "management", "ideathon", "club"],
+    "sourceIds": ["resume-2026-04", "linkedin-audit-2026-07"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "skills-core",
+    "title": "Core skills",
+    "summary": "Deepak's evidenced skills include agentic AI workflows, agent/memory system design, Python, PyTorch, deep learning, computer vision, Grad-CAM and attribution methods, FastAPI, Playwright automation, Go systems work, TypeScript/Next.js, documentation, reproducibility, and experiment design.",
+    "tags": ["skills", "agentic ai", "agents", "memory systems", "python", "pytorch", "computer vision", "xai", "fastapi", "playwright", "go", "typescript", "next.js"],
+    "sourceIds": ["resume-2026-04", "github-audit-2026-07", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  },
+  {
+    "id": "engineering-style",
+    "title": "How Deepak works",
+    "summary": "Deepak works by researching new tools and models, experimenting with them, learning what context and setup they need, then building from what he learns. He wants Dex to present him as adaptive: someone who accepts real constraints, adapts to new technology, backtracks through tools when debugging, understands impact, and uses AI assistants as reasoning partners.",
+    "tags": ["work style", "debugging", "backtracking", "tools", "adaptiveness", "research", "experimentation", "acceptance", "reproducibility", "documentation", "failure", "honesty", "experiment design"],
+    "sourceIds": ["github-audit-2026-07", "portfolio-home", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-30"
+  },
+  {
+    "id": "target-companies-teams",
+    "title": "Target companies and teams",
+    "summary": "Deepak is open across AI startups, agent infrastructure teams, AI research labs, and developer tools or product AI teams for his target Agentic AI Engineer roles. He is not narrowing to one company type; he wants to work wherever agents, automation, and AI products are being built.",
+    "tags": ["target companies", "target teams", "ai startups", "agent infrastructure", "research labs", "developer tools", "product ai", "career direction", "agentic ai engineer"],
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "visibility": "public",
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "ai-employee-data-boundaries",
+    "title": "AI employee data access boundaries",
+    "summary": "Deepak's AI employees currently work from owner-provided exports only, such as pasted LinkedIn post text or exported Excel sheets, rather than live account access, though full automation is a future goal. Regardless of automation level, AI employees are never allowed to touch Gmail or email content, saved passwords or payment info, or direct messages, and they can never auto-publish without Deepak's approval.",
+    "tags": ["ai employee", "privacy", "data access", "boundaries", "gmail", "passwords", "direct messages", "auto-publish", "approval", "automation", "security"],
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "visibility": "public",
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "linkedin-skill-excel-schema",
+    "title": "LinkedIn skill Excel schema",
+    "summary": "For the LinkedIn AI employee's training data, Deepak's Excel sheet of strong LinkedIn examples uses eight columns: hook, topic, structure, tone, CTA, length, audience, and why it worked. That sheet becomes the input the agent studies to build its reusable skill.md.",
+    "tags": ["linkedin", "excel", "skill.md", "training data", "hook", "topic", "structure", "tone", "cta", "audience", "agent skill"],
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "visibility": "public",
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "instagram-ai-audience",
+    "title": "Instagram Deepak AI audience",
+    "summary": "Deepak's Instagram page, Deepak AI, is meant for all four audiences at once: AI beginners and students, recruiters and hiring managers, builders and fellow engineers, and general tech-curious followers. Content should not be narrowed to a single segment.",
+    "tags": ["instagram", "deepak ai", "audience", "beginners", "recruiters", "builders", "tech curious", "content strategy"],
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "visibility": "public",
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "dex-visitor-intake-idea",
+    "title": "Planned Dex visitor intake step",
+    "summary": "Deepak has proposed adding a small form before a visitor starts chatting with Dex, asking who they are (for example recruiter, student, colleague, or builder). The primary goal is analytics: building a record of who is visiting Deepak.ai and in what role, so Deepak can see his actual audience breakdown. It may also let Dex tailor tone and depth to the visitor's role. This is a planned idea, not yet built.",
+    "tags": ["dex", "visitor intake", "onboarding form", "role", "recruiter", "student", "builder", "analytics", "visitor tracking", "planned", "future"],
+    "sourceIds": ["owner-interview-2026-07-31"],
+    "visibility": "public",
+    "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "project-humanizer-ai",
+    "title": "Humanizer AI skill",
+    "summary": "Deepak has built a Humanizer AI skill, but he does not want it presented as a flagship project yet. It is currently underperforming and less representative of his strongest work, though he plans to improve it for research writing and paper-publishing workflows.",
+    "tags": ["humanizer", "ai skill", "research writing", "underperforming", "work in progress", "paper writing"],
+    "sourceIds": ["owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-07-27"
+  }
+]

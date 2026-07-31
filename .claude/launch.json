@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "deepak-web-dev-file",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["cross-env", "CONTENT_SOURCE=file", "npm", "run", "dev", "--workspace=web"],
+      "port": 3000
+    }
+  ]
+}
