@@ -59,3 +59,10 @@ temp/
 # so the drop location stays discoverable.
 apps/web/scripts/assets/*
 !apps/web/scripts/assets/README.md
+
+# D-056 gallery pipeline — personal source photos (read by
+# apps/web/scripts/process-gallery.mjs) are never committed; the derived,
+# EXIF-stripped output in apps/web/public/gallery/ IS. Keep the README
+# tracked so the drop location stays discoverable.
+photos/*
+!photos/README.md
