@@ -24,12 +24,29 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
     default: "Deepak Labs",
     template: "%s · Deepak Labs",
   },
   description:
     "The personal operating system of a researcher-engineer — research, systems, writing, and experience as one canonical record.",
+  openGraph: {
+    type: "website",
+    title: "Deepak Labs",
+    description:
+      "The personal operating system of a researcher-engineer — research, systems, writing, and experience as one canonical record.",
+    url: "/",
+    siteName: "Deepak Labs",
+    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Deepak Labs",
+    description:
+      "The personal operating system of a researcher-engineer — research, systems, writing, and experience as one canonical record.",
+    images: ["/og-default.png"],
+  },
 };
 
 export default function RootLayout({
