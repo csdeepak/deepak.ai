@@ -2,38 +2,32 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-08-10 (D-057 pre-deployment pass complete)
+**Last updated:** 2026-08-10 (PR #2 merged to main — ready to deploy)
 
 ## Current Phase
 
-**D-057 COMPLETE — pre-deployment pass, ready to commit and push.**
+**READY TO DEPLOY — PR #2 merged to `main`, CI green, secrets set.**
 
-All engineering verified clean on `codex/ai-development-process`:
-- `typecheck` clean; `CONTENT_SOURCE=file` build 155 kB (under 170 kB ceiling), zero warnings.
-- `check:bundle` 151.3 kB, all guards pass. `check:dex` 34/34.
-
-**Engineering done (uncommitted):**
-- Gallery deferred from v1 (landing strip removed, footer link removed, `/gallery` 404s in production, `BUILT_ROUTES` reverted) — owner decision.
-- Admin error boundary (`admin/error.tsx`) production-honest — no Docker/local-dev language in production.
-- Dex hardening: 500-char question cap, 20-req/5-min-per-IP rate limiters on both Dex endpoints, shared `src/lib/rate-limit.ts`, `dex-panel.tsx` now throws on non-2xx.
-- Photo sources untracked: `photos/*` gitignored, two previously-tracked files removed via `git rm --cached`.
-- SEO: `metadataBase`, `openGraph`, `twitter` in `layout.tsx`; `og-default.png` generated; `sitemap.ts` enumerates `BUILT_ROUTES`; `robots.ts` references sitemap.
-- `render.yaml`: Postgres live, `DATABASE_URL` wired, `NEXT_PUBLIC_SITE_URL` set, `SESSION_SECRET`/`ADMIN_PASSWORD_HASH` as `sync: false`.
-- `ci.yml`: `check:dex` step added, `codex/ai-development-process` in push triggers.
-- Docs: `DEPLOY_RUNBOOK.md` and `RELEASE_CHECKLIST.md` fully current.
+- PR `codex/ai-development-process → main` merged at commit `1895646`.
+- CI #6 green (typecheck, build, three.js guard, admin bundle guard, hero budgets, `check:dex`).
+- `SESSION_SECRET` and `ADMIN_PASSWORD_HASH` already set in the Render dashboard.
 
 **Owner's next actions (ordered):**
-1. Commit in the six groups listed in `AI_HANDOFF.md` → push → open PR into `main` → confirm CI green.
-2. Generate `SESSION_SECRET` + `ADMIN_PASSWORD_HASH` (`npm run admin:password --workspace=web`) before the Render Blueprint creation.
-3. Merge to `main` → Render Blueprint deploy → smoke test per `DEPLOY_RUNBOOK.md`.
-4. After first boot: `db:migrate` → `db:ingest` → flip `CONTENT_SOURCE=db` → redeploy.
-5. Add R2 env vars when Cloudflare setup is done (does not block the first deploy).
-6. Complete Gate 2 (R4 copy tests) and Gate 4 (visual sign-off) in `RELEASE_CHECKLIST.md`.
+1. **Render Blueprint deploy** — go to Render dashboard → New → Blueprint → select `deepak.ai` repo → confirm it plans `deepak-labs-web` service + `deepak-labs-db` Postgres + `CONTENT_SOURCE=file` + `autoDeploy: false` → Apply. First boot reads files (no DB needed yet).
+2. **Smoke test** the Render subdomain per `docs/DEPLOY_RUNBOOK.md` §7 — check `/`, `/projects/asmos`, `/sitemap.xml`, `/robots.txt`, `/admin/login`, Dex panel.
+3. **DB setup** (after service is live): from your machine, get the Render connection string from the dashboard, then:
+   ```bash
+   DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web
+   DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web
+   ```
+4. **Flip to DB mode** — change `CONTENT_SOURCE=db` in Render env vars → manual redeploy.
+5. **R2 env vars** when Cloudflare setup is done — add `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `MEDIA_PUBLIC_BASE_URL` to Render → redeploy. Does not block step 1.
+6. **Complete release gates** in `RELEASE_CHECKLIST.md` (Gate 2 R4 copy tests, Gate 4 visual sign-off).
 
 ---
 
-**D-056 IMPLEMENTED (uncommitted) on `codex/ai-development-process`** — Photo Gallery.
-- **Deferred from v1:** all public surfaces hidden in production pending an owner alt-text/caption/copy pass and live browser review.
+**D-056 IMPLEMENTED on `main`** — Photo Gallery.
+- **Deferred from v1:** `/gallery` 404s in production. Landing has no GalleryStrip, footer has no Gallery link. Re-enabling after owner alt-text/caption pass.
 - Landing gains a fifth beat, **Gallery**, between Evidence and Collaborate (`GalleryStrip` — zero client JS, CSS scroll-linked Ken Burns); `/gallery` is a full cluster browser (`GalleryBrowser`) with a View Transitions shared-element zoom, keyboard nav, and deep links (`/gallery#g03`). Added to `BUILT_ROUTES`, not a nav lane.
 - File-backed, two-part content: `content/gallery/manifest.generated.json` (machine-written by `npm run gallery:process`, dimensions/blur) merges with hand-authored `PHOTO_META` in `content/gallery.ts` (captions/dates/places/layout knobs). EXIF/GPS stripped at the pipeline; `place` is hand-typed at city granularity only.
 - **Spec:** `specs/gallery.md` was backfilled 2026-08-10 to document the shipped design (it had still read "Template — do not implement"). Its §9 is the live gap list for this feature.
