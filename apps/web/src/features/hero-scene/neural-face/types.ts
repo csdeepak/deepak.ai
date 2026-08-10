@@ -14,6 +14,9 @@
 export interface NetworkProjectNode {
   id: string;
   projectSlug: string;
+  /** Real project title (D-052.7) — used for the proximity label. Optional so
+   *  older datasets without it still validate. */
+  title?: string;
   /** Index into inner.x/y/z arrays for position lookup. */
   posIndex: number;
   /** Visual scale relative to the base bulb size (1.4 for project nodes). */

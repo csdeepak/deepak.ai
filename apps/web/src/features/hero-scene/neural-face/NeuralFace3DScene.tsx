@@ -64,6 +64,11 @@ function smootherstep(x: number) {
   const t = clamp01(x);
   return t * t * t * (t * (t * 6 - 15) + 10);
 }
+/** Trim a project title for a node label: the part before an em/en-dash, capped. */
+function shortLabel(s: string): string {
+  const head = s.split(/\s[—–-]\s/)[0]!.trim();
+  return head.length > 26 ? head.slice(0, 25).trimEnd() + "…" : head;
+}
 
 interface SceneProps {
   data: HeroFace3D;
@@ -465,10 +470,10 @@ function makeBulbLayer(
 // Per-layer base world diameters (@ REF_VIEW_H = 900). Tuned so that at the
 // resting flight camera a project node reads ~34–48 CSS px, skill ~20–28,
 // ambient ~9–14; near fly-through passes render much larger (real parallax).
-const WORLD_PROJECT = 0.0125;
-const WORLD_SKILL = 0.0066;
-const WORLD_AMBIENT = 0.0038;
-const WORLD_HOMOGENEOUS = 0.0072;
+const WORLD_PROJECT = 0.023;
+const WORLD_SKILL = 0.014;
+const WORLD_AMBIENT = 0.0085;
+const WORLD_HOMOGENEOUS = 0.014;
 const CORE_R = 0.5; // core body radius (≥0.45 → bright bulb, not a pinpoint)
 
 /** Proximity brightness boost (+40%) applied to the nearest labelled nodes. */
@@ -548,7 +553,7 @@ function buildSemanticInner(data: HeroFace3D, pos: Float32Array): InnerScene {
   const labelNodes: LabelNode[] = [];
   network.projectNodes.forEach((p, i) => {
     labelNodes.push({
-      name: p.projectSlug ?? p.id,
+      name: shortLabel(p.title ?? p.projectSlug ?? p.id),
       kind: "project",
       pos: new THREE.Vector3(pos[p.posIndex * 3]!, pos[p.posIndex * 3 + 1]!, pos[p.posIndex * 3 + 2]!),
       bright: project.iBright,
@@ -727,107 +732,115 @@ function buildHomogeneousInner(data: HeroFace3D, pos: Float32Array): InnerScene 
 // centroid the camera settles looking at.
 const FLIGHT_START = 0.6; // = BEAT.diveEnd
 
-function buildFlightRail(pos: Float32Array): {
-  rail: THREE.CatmullRomCurve3;
-  deepFocus: THREE.Vector3;
-} {
+// D-052.7 FIX 1: a SHORT, LOCAL, CONTINUOUS rail. Control points come from a
+// nearest-neighbour walk through the graph (biased to the project/skill cluster,
+// `focusIdx`), so consecutive points are always spatially adjacent — no more
+// scattering across the whole cloud. Hard constraint: each consecutive step
+// ≤ 9 % of the bbox diagonal (well inside the 12 % ceiling). The curve is
+// CENTRIPETAL Catmull-Rom (no overshoot/cusps) and sampled by arc length
+// (getPointAt) so scroll maps to constant travel speed.
+function buildFlightRail(
+  pos: Float32Array,
+  focusIdx: number[],
+): { rail: THREE.CatmullRomCurve3; deepFocus: THREE.Vector3; maxStep: number } {
   const N = pos.length / 3;
-  let zmin = Infinity;
-  let zmax = -Infinity;
-  let cx = 0;
-  let cy = 0;
-  for (let i = 0; i < N; i++) {
-    cx += pos[i * 3]! / N;
-    cy += pos[i * 3 + 1]! / N;
-    const z = pos[i * 3 + 2]!;
-    if (z < zmin) zmin = z;
-    if (z > zmax) zmax = z;
-  }
-  const zspan = Math.max(1e-3, zmax - zmin);
+  const V = (i: number) => new THREE.Vector3(pos[i * 3]!, pos[i * 3 + 1]!, pos[i * 3 + 2]!);
 
-  // xy-centroid of nodes near a depth slice (Gaussian-ish weight on |z−zt|).
-  const bandCentroid = (zt: number): [number, number] => {
-    let sx = 0;
-    let sy = 0;
-    let w = 0;
-    for (let i = 0; i < N; i++) {
-      const dz = pos[i * 3 + 2]! - zt;
-      const ww = 1 / (1 + 900 * dz * dz);
-      sx += pos[i * 3]! * ww;
-      sy += pos[i * 3 + 1]! * ww;
-      w += ww;
+  const mn = [Infinity, Infinity, Infinity];
+  const mx = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < N; i++) {
+    for (let k = 0; k < 3; k++) {
+      const v = pos[i * 3 + k]!;
+      if (v < mn[k]!) mn[k] = v;
+      if (v > mx[k]!) mx[k] = v;
     }
-    return [sx / w, sy / w];
-  };
-  // Push a waypoint away from its nearest node so the flight never clips inside one.
-  const avoidNodes = (p: THREE.Vector3, minD: number) => {
-    let nd = Infinity;
-    let nx = 0;
-    let ny = 0;
-    let nz = 0;
+  }
+  const diag = Math.hypot(mx[0]! - mn[0]!, mx[1]! - mn[1]!, mx[2]! - mn[2]!) || 1;
+  const walkStep = 0.09 * diag; // stays under the 12 % ceiling with the weave offset
+  const localR = 0.5 * diag;
+
+  const focus = focusIdx.length ? focusIdx : Array.from({ length: N }, (_, i) => i);
+  const focusSet = new Set(focus);
+
+  // Start: front-most (max z) focus node.
+  let start = focus[0]!;
+  for (const i of focus) if (V(i).z > V(start).z) start = i;
+  const startPos = V(start);
+
+  // Nearest-neighbour walk, preferring focus (project/skill) nodes, staying local.
+  const visited = new Set<number>([start]);
+  const order: number[] = [start];
+  let cur = start;
+  for (let step = 0; step < 8; step++) {
+    let best = -1;
+    let bestD = Infinity;
+    let bestFocus = false;
+    const cp = V(cur);
     for (let i = 0; i < N; i++) {
-      const dx = p.x - pos[i * 3]!;
-      const dy = p.y - pos[i * 3 + 1]!;
-      const dz = p.z - pos[i * 3 + 2]!;
-      const d = Math.hypot(dx, dy, dz);
-      if (d < nd) {
-        nd = d;
-        nx = dx;
-        ny = dy;
-        nz = dz;
+      if (visited.has(i)) continue;
+      const p = V(i);
+      const dc = p.distanceTo(cp);
+      if (dc > walkStep || p.distanceTo(startPos) > localR) continue;
+      const isFocus = focusSet.has(i);
+      if ((isFocus && !bestFocus) || (isFocus === bestFocus && dc < bestD)) {
+        best = i;
+        bestD = dc;
+        bestFocus = isFocus;
       }
     }
-    if (nd < minD && nd > 1e-5) {
-      const k = (minD - nd) / nd;
-      p.x += nx * k;
-      p.y += ny * k;
-      p.z += nz * k;
+    if (best < 0) break;
+    visited.add(best);
+    order.push(best);
+    cur = best;
+  }
+
+  // Nudge a point off its nearest node so the camera passes BESIDE, not through.
+  const avoid = (p: THREE.Vector3, minD: number) => {
+    let nd = Infinity;
+    let nx = 0, ny = 0, nz = 0;
+    for (let i = 0; i < N; i++) {
+      const dx = p.x - pos[i * 3]!, dy = p.y - pos[i * 3 + 1]!, dz = p.z - pos[i * 3 + 2]!;
+      const d = Math.hypot(dx, dy, dz);
+      if (d < nd) { nd = d; nx = dx; ny = dy; nz = dz; }
     }
+    if (nd < minD && nd > 1e-5) { const k = (minD - nd) / nd; p.x += nx * k; p.y += ny * k; p.z += nz * k; }
   };
 
+  // Semantic (project+skill) centroid — the settle look target.
+  const semCentroid = new THREE.Vector3();
+  for (const i of focus) semCentroid.add(V(i));
+  semCentroid.multiplyScalar(1 / Math.max(1, focus.length));
+
   const pts: THREE.Vector3[] = [];
-  // Start: outside the front face, framing the field (continuous with approach end).
-  pts.push(new THREE.Vector3(cx * 0.3, cy * 0.5, zmax + 0.18));
-  // Weave through interior depth bands, alternating sides.
-  const bands = [0.28, 0.58, 0.86];
-  bands.forEach((f, k) => {
-    const zt = zmax - f * zspan;
-    const [ccx, ccy] = bandCentroid(zt);
+  // Entry bridge: from just in front of the cluster down to the first waypoint,
+  // in ≤walkStep increments (continuous with the approach; small seam).
+  const first = V(order[0]!);
+  const entry = new THREE.Vector3(startPos.x, startPos.y, mx[2]! + 0.12);
+  const bridge = Math.max(1, Math.ceil(entry.distanceTo(first) / walkStep));
+  for (let b = 0; b < bridge; b++) pts.push(entry.clone().lerp(first, b / bridge));
+  // Waypoints: node positions with a tiny alternating weave, nudged off nodes.
+  const lastWp = new THREE.Vector3();
+  order.forEach((idx, k) => {
+    const p = V(idx);
     const side = k % 2 === 0 ? -1 : 1;
-    const wp = new THREE.Vector3(ccx + side * 0.075, ccy + side * 0.03, zt);
-    avoidNodes(wp, 0.045);
-    pts.push(wp);
+    p.x += side * 0.006;
+    p.y += side * 0.004;
+    avoid(p, 0.02);
+    pts.push(p);
+    lastWp.copy(p);
   });
-  // Settle: inside the field, just in front of the deep cluster, looking in.
-  const settleZ = zmin + 0.06;
-  const [scx, scy] = bandCentroid(settleZ + 0.02);
-  const settle = new THREE.Vector3(scx * 0.5, scy, settleZ);
-  avoidNodes(settle, 0.05);
-  pts.push(settle);
+  // Settle bridge: pull back to a vantage that FRAMES the cluster (so the
+  // resting view shows the project orbs ahead, not behind the camera).
+  const settleVantage = semCentroid.clone().add(new THREE.Vector3(0, 0.03, 0.19));
+  const sBridge = Math.max(1, Math.ceil(lastWp.distanceTo(settleVantage) / walkStep));
+  for (let b = 1; b <= sBridge; b++) pts.push(lastWp.clone().lerp(settleVantage, b / sBridge));
 
-  const rail = new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0.5);
+  const rail = new THREE.CatmullRomCurve3(pts, false, "centripetal");
 
-  // Deep focus = centroid of the deepest ~40% of nodes.
-  const zThresh = zmin + 0.4 * zspan;
-  let dfx = 0;
-  let dfy = 0;
-  let dfz = 0;
-  let dw = 0;
-  for (let i = 0; i < N; i++) {
-    const z = pos[i * 3 + 2]!;
-    if (z <= zThresh) {
-      dfx += pos[i * 3]!;
-      dfy += pos[i * 3 + 1]!;
-      dfz += z;
-      dw++;
-    }
-  }
-  const deepFocus =
-    dw > 0
-      ? new THREE.Vector3(dfx / dw, dfy / dw, dfz / dw)
-      : new THREE.Vector3(cx, cy, zmin);
+  // Settle look target: the semantic cluster centre.
+  const deepFocus = semCentroid.clone();
 
-  return { rail, deepFocus };
+  return { rail, deepFocus, maxStep: walkStep };
 }
 
 // ── SceneContent ──────────────────────────────────────────────────────────────
@@ -953,11 +966,17 @@ function SceneContent({
       ]),
     [],
   );
-  // ── Flight rail (D-052.6 Phase 3): the through-the-network journey ─────
-  const flight = useMemo(
-    () => buildFlightRail(decodeInnerPositions(data)),
-    [data],
-  );
+  // ── Flight rail (D-052.6/.7): the short, local through-the-graph journey ──
+  const flight = useMemo(() => {
+    const p = decodeInnerPositions(data);
+    const focus = data.network
+      ? [
+          ...data.network.projectNodes.map((n) => n.posIndex),
+          ...data.network.skillNodes.map((n) => n.posIndex),
+        ]
+      : [];
+    return buildFlightRail(p, focus);
+  }, [data]);
 
   const camPos = useMemo(() => new THREE.Vector3(), []);
   const lookTarget = useMemo(() => new THREE.Vector3(), []);
@@ -1091,13 +1110,14 @@ function SceneContent({
         flight.rail.getTangentAt(1, tmp.v);
         lookTarget.copy(camPos).addScaledVector(tmp.v, 0.12);
       }
-      // Settle framing: bias toward the deep-cluster focus near the end.
-      const settle = smoothstep(0.82, 1, raw);
+      // Settle framing: over the pull-back, turn from the travel tangent to
+      // look straight AT the semantic cluster so the orbs frame ahead (D-052.7).
+      const settle = smoothstep(0.72, 1, raw);
       tmp.world.copy(flight.deepFocus);
       tmp.world.x += xShift;
-      lookTarget.lerp(tmp.world, 0.35 * settle);
+      lookTarget.lerp(tmp.world, settle);
 
-      camera.position.lerp(camPos, 0.14);
+      camera.position.lerp(camPos, 0.06); // D-052.7: gentler position damping
       // Damped orientation (slerp ~0.08) → smooth, never jerky.
       tmp.mat.lookAt(camera.position, lookTarget, tmp.up);
       tmp.quat.setFromRotationMatrix(tmp.mat);
@@ -1179,12 +1199,19 @@ function SceneContent({
       if (tmp.v.z < 1) {
         const sx = (tmp.v.x * 0.5 + 0.5) * size.width;
         const sy = (-tmp.v.y * 0.5 + 0.5) * size.height;
-        el.style.transform = `translate(${(sx + 14).toFixed(1)}px, ${(sy - 8).toFixed(1)}px)`;
+        // Label scales with the node's on-screen size and sits BESIDE the orb.
+        const worldDia = n.kind === "project" ? WORLD_PROJECT : WORLD_SKILL;
+        const viewScale = REF_VIEW_H / Math.max(1, size.height);
+        const pxDia = ((worldDia * viewScale) / Math.max(1e-4, dist)) * (size.height / 1.041);
+        const fontPx = Math.max(12, Math.min(30, pxDia * 0.3));
+        const offX = pxDia * 0.5 + 10;
+        el.style.fontSize = `${fontPx.toFixed(1)}px`;
+        el.style.transform = `translate(${(sx + offX).toFixed(1)}px, ${(sy - fontPx * 0.5).toFixed(1)}px)`;
         el.style.opacity = prox.toFixed(3);
         if (el.dataset.name !== n.name) {
           el.textContent = n.name;
           el.dataset.name = n.name;
-          el.style.color = n.kind === "project" ? "#8fb4ff" : "#c3b0ff";
+          el.style.color = n.kind === "project" ? "#9fc0ff" : "#cbb6ff";
         }
       } else {
         el.style.opacity = "0";
