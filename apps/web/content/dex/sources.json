@@ -68,5 +68,17 @@
     "label": "Owner interview answers, 2026-07-31",
     "kind": "interview",
     "note": "First-person owner answers about target companies/teams, AI employee data-access and privacy boundaries, the LinkedIn skill Excel schema, Instagram Deepak AI audience, and a proposed Dex visitor intake form."
+  },
+  {
+    "id": "github-code-audit-2026-08-04",
+    "label": "Direct code audit of github.com/csdeepak, 2026-08-04",
+    "kind": "intake",
+    "note": "Repos cloned and inspected directly — git history, line counts via cloc, and the actual test files read, not just READMEs. Covers Turb-DETR, ShortcutScore (repo 'tdl-project'), smart_door_lock, and the SahayAI website. ASMOS could not be audited: the repo is private."
+  },
+  {
+    "id": "owner-profile-2026-08-04",
+    "label": "Owner background and values, 2026-08-04",
+    "kind": "interview",
+    "note": "First-person owner notes on education, the full project list, personal motivation, learning philosophy, and the people who shaped his direction. Family details, date of birth, and home address in the source notes are deliberately excluded from public memory."
   }
 ]

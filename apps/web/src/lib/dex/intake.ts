@@ -1,21 +1,10 @@
 import "server-only";
 import { getDb } from "@/db/index";
 import { dexVisitorIntake } from "@/db/schema";
-import {
-  DEX_VISITOR_ROLES,
-  type DexIntakePayload,
-  type DexVisitorRole,
-} from "./intake-shared";
+import { isDexVisitorRole, type DexIntakePayload } from "./intake-shared";
 
 const MAX_FIELD_LENGTH = 200;
 const MAX_REASON_LENGTH = 500;
-
-function isDexVisitorRole(value: unknown): value is DexVisitorRole {
-  return (
-    typeof value === "string" &&
-    (DEX_VISITOR_ROLES as readonly string[]).includes(value)
-  );
-}
 
 export function parseDexIntakePayload(body: unknown): DexIntakePayload | null {
   if (!body || typeof body !== "object") return null;

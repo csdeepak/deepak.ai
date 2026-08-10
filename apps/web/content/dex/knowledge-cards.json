@@ -225,6 +225,159 @@
     "updatedAt": "2026-07-31"
   },
   {
+    "id": "contact-deepak",
+    "title": "How to reach Deepak",
+    "summary": "Deepak can be reached by email at csdeepak2005@gmail.com, on LinkedIn at linkedin.com/in/c-s-deepak-b1b41228b, on Instagram at instagram.com/deep_in.ai, on GitHub at github.com/csdeepak, and on X at x.com/CSDeepak08. Email and LinkedIn are the best routes for recruiters and collaborators.",
+    "tags": ["contact", "email", "linkedin", "instagram", "github", "reach", "hire", "connect", "get in touch"],
+    "sourceIds": ["portfolio-home", "owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "projects-full-list",
+    "title": "Full project list",
+    "summary": "Deepak has built roughly 18 projects since 2023. The most substantial are ASMOS (multi-agent memory, 2026), Deepak.ai (this portfolio, 2026), Turb-DETR (underwater detection, 2026), ShortcutScore (shortcut-learning metric, 2026), the Dental AI Pipeline (2025-2026), Docksmith Engine (Go container runtime, 2026), PESU Vault (2026), and the Smart Door Lock (IoT, 2025). Earlier work includes Amplify (a Spotify-style music web app, 2024), a Gym Management System (2025), Sediment Particle Size Prediction (ML coursework, 2025), a Recipe Ingredient Optimizer (SDLC coursework, 2025), an ML Hangman solver (2025), the SahayAI club website (2025), the Humanizer Claude skill (2025), and four Android apps from a 2023 PESU I/O app-development course: an incrementor, a BMI calculator, a weather app, and a flight-booking app.",
+    "tags": ["projects", "all projects", "project list", "portfolio", "how many projects", "everything he built", "work", "repositories", "github"],
+    "sourceIds": ["owner-profile-2026-08-04", "github-audit-2026-07", "portfolio-home"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "recent-work-2026",
+    "title": "What Deepak is working on now",
+    "summary": "Deepak's most recent work is ASMOS, the multi-agent memory system he has been building through 2026, and Deepak.ai, this portfolio and its Dex assistant. Turb-DETR (February 2026) and ShortcutScore (April 2026) are his most recent research-style projects, and the Dental AI Pipeline ran from October 2025 to May 2026.",
+    "tags": ["recent", "current", "now", "latest project", "working on", "2026", "newest", "asmos", "deepak.ai"],
+    "sourceIds": ["owner-profile-2026-08-04", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "personal-background",
+    "title": "Background",
+    "summary": "Deepak was born in 2005 and grew up in a village in the Chittoor district of Andhra Pradesh, in a lower-middle-class family. He moved to Bengaluru to study Computer Science Engineering at PES University, arriving knowing very little about how the city or the industry worked, and learned it by doing. He describes that move as formative: much of what he knows came from experiencing situations directly and learning from the people around him.",
+    "tags": ["background", "age", "born", "hometown", "village", "andhra pradesh", "chittoor", "bangalore", "bengaluru", "personal", "story", "family background"],
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "education-detail",
+    "title": "Education record",
+    "summary": "Deepak is an undergraduate Computer Science Engineering student at PES University, RR Campus, Banashankari 3rd Stage, Bengaluru. He studied at PES Public School in Chittoor, Andhra Pradesh, scoring 95% in his 10th standard exams, where he ranked 2nd in his school, and 85% in his 12th standard exams, where he ranked 1st in his school.",
+    "tags": ["education", "school", "marks", "grades", "10th", "12th", "percentage", "rank", "pes university", "pes public school", "chittoor", "academics", "cgpa"],
+    "sourceIds": ["owner-profile-2026-08-04", "resume-2026-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "coursework-and-courses",
+    "title": "Coursework and courses",
+    "summary": "Several of Deepak's projects came out of university coursework, which gives a rough map of what he has formally studied: a PESU I/O app-development course in 2023 produced four Android apps, and later coursework produced projects in machine learning (Sediment Particle Size Prediction), deep learning (ShortcutScore), software engineering and SDLC practice (Recipe Ingredient Optimizer), databases and operating systems (Gym Management System), and container systems (Docksmith Engine). Alongside these he has done self-directed work in agentic AI, computer vision, and automation.",
+    "tags": ["courses", "coursework", "how many courses", "studied", "curriculum", "subjects", "classes", "learning", "pesu io", "university"],
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "values-and-motivation",
+    "title": "What defines Deepak",
+    "summary": "Asked what defines him, Deepak leads with ethics: he follows his parents' guidance and the counsel of people he respects, and credits that grounding for what he has been able to achieve. He respects all religions and says he trusts his own work more than anything else. He believes hard work matters more than luck, and that the real measure of a life is being satisfied with what you have actually done.\n\nHis motto is to help people — to take genuine satisfaction from helping others reach their goals — and to keep learning from experienced people so he can teach what he learns onward. He values adaptability and moral grounding over greed.\n\nHe is direct about ambition and just as quick to correct it. He comes from a lower-middle-class family and says he has a big dream of getting rich, then clarifies that it is not really about being rich: it is about a good life, being healthy, being satisfied, and taking real joy in his own success.\n\nComing from a village background to Bengaluru, he arrived knowing almost nothing about how the city or the industry worked and learned it by living it. The lesson he names as most important is that teachers are there to guide you, but friends are how you find genuinely new things.\n\nOn failure he is unusually clear: being strong matters equally in failure and in success, and he says he loves getting into failures more than successes, because failure is the path that gets him to success.",
+    "tags": ["personality", "values", "motivation", "ethics", "drive", "philosophy", "what motivates", "character", "principles", "who he is", "ambition", "goals", "defines", "tell me about yourself", "what is he like", "describe", "mindset", "attitude", "failure", "resilience", "self description"],
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "growth-and-learning",
+    "title": "How Deepak keeps improving",
+    "summary": "Deepak's growth comes from deliberately seeking out failure and new situations rather than avoiding them. He has said he values failures more than successes because they are the path to getting things right, and that while teachers guide you, it is friends and peers who expose you to genuinely new things. His loop is to research, experiment, understand the setup a tool needs, then build — and when something breaks, to backtrack through the tool until he understands what it does and what its impact is. The project list shows the trajectory directly: Android coursework apps in 2023, a full-stack web app in 2024, IoT and systems work in 2025, and agentic AI and research-style projects in 2026.",
+    "tags": ["improving", "growth", "getting better", "day by day", "learning", "progress", "development", "trajectory", "failure", "self improvement", "how does he learn"],
+    "sourceIds": ["owner-profile-2026-08-04", "owner-interview-2026-07-27"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "inspirations",
+    "title": "Who inspires Deepak",
+    "summary": "On values and direction, Deepak credits Dr M R Doreswamy, founder of PES University, who he says guided him at PESU and helped set his path. On the technical and career side, particularly around AI, he credits Vaibhav Sisinty, founder of Growth School, for shaping how he thinks about AI as an 'AI employee' — something that can take complex work and make it automated and easier to understand.",
+    "tags": ["inspiration", "mentor", "role model", "influences", "doreswamy", "vaibhav sisinty", "growth school", "who inspires", "guidance"],
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "turb-detr-verified-detail",
+    "title": "Turb-DETR — verified detail",
+    "summary": "Turb-DETR is a five-person PES University team project. A direct code audit found 32 commits, of which Deepak authored 15 and a teammate 16, and 14 real pytest tests covering data-split integrity, the turbidity augmentation's output shape and reproducibility, and the SimAM module's gradient flow and zero parameter count. The technical core is SimAM, a parameter-free attention module from a cited ICML 2021 paper, injected between the CNN and Transformer stages of RT-DETR so backscatter noise is suppressed before self-attention can spread it, paired with a physically-grounded Jaffe-McGlamery turbidity simulation rather than a generic blur. Honest status: the experimental plan is thorough but no benchmark results are committed yet — the results and paper directories contain only placeholders.",
+    "tags": ["turb-detr", "underwater", "simam", "rt-detr", "attention", "computer vision", "pytorch", "team project", "tests", "pytest", "turbidity", "jaffe-mcglamery", "plastic debris"],
+    "sourceIds": ["github-code-audit-2026-08-04", "project-turb-detr"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "shortcutscore-verified-detail",
+    "title": "ShortcutScore — verified detail",
+    "summary": "ShortcutScore is a three-person project where Deepak holds the largest commit share, 14 of 23. It builds a single scalar metric from three interpretability signals — attribution-outside-object ratio, attribution bias index, and counterfactual sensitivity — to quantify when an image classifier is relying on spurious background cues rather than the object itself. It was validated on the Waterbirds benchmark and a synthetic CIFAR-10 bias-injection test. A real ablation file in the repo records Cohen's d of 0.383, AUROC of 0.602 and p of 0.040 over 50 images: a genuine but modest effect, reported as such. Note the repo is named 'tdl-project' on GitHub even though the project is called ShortcutScore.",
+    "tags": ["shortcutscore", "tdl-project", "shortcut learning", "interpretability", "xai", "grad-cam", "waterbirds", "cifar-10", "cohen's d", "auroc", "ablation", "statistics", "spurious correlation"],
+    "sourceIds": ["github-code-audit-2026-08-04", "project-shortcutscore"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "shortcutscore-failed-experiment",
+    "title": "The experiment that failed first",
+    "summary": "In ShortcutScore, the synthetic monotonicity experiment injected a visible watermark into CIFAR-10 images to check that the score rose as bias strength increased. The first version used a 4x4 patch and failed outright, because Grad-CAM's spatial resolution could not reliably localise attribution to a region that small. The corrected setup used an 8x8 patch. Deepak documented the failure and the fix in the project README rather than quietly removing it, and the lesson generalises: attribution-based metrics need a shortcut region large enough for the attribution method's resolution.",
+    "tags": ["failure", "failed experiment", "what went wrong", "grad-cam", "resolution", "honesty", "debugging", "learned", "abandoned", "mistake", "shortcutscore"],
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "project-smart-door-lock",
+    "title": "Smart Door Lock",
+    "summary": "A multi-factor IoT access-control system requiring RFID, fingerprint and ESP32-CAM face recognition to all pass before a relay releases a solenoid lock. Deepak wrote every one of the 16 commits, including a custom Express server that bridges serial data from an Arduino Mega to the ESP32-CAM over WebSocket and REST, plus a React and Tailwind frontend; two teammates are credited in the README for hardware work that does not appear in git. Built March to May 2025. Honest scope: it is a hardware demo, and the only test file is the untouched Create React App default, so the authentication logic has no automated coverage.",
+    "tags": ["smart door lock", "iot", "embedded", "arduino", "esp32", "rfid", "fingerprint", "face recognition", "express", "websocket", "react", "hardware", "full stack"],
+    "sourceIds": ["github-code-audit-2026-08-04", "owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "project-sahayai-website",
+    "title": "SahayAI club website",
+    "summary": "The official website for the SahayAI club at PES University, built with Next.js. The repository belongs to the SahayAI-PESU organisation rather than to Deepak, and a teammate authored five of the six commits. Deepak's contribution was one substantial commit covering the site's visual-effects layer — ambient background, custom cursor, hero background, smooth scrolling and animated count-up numbers — along with logo integration and image assets, changing 41 files and adding roughly 1,300 lines.",
+    "tags": ["sahayai", "club website", "next.js", "react", "frontend", "animation", "team", "contribution", "visual effects"],
+    "sourceIds": ["github-code-audit-2026-08-04", "owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "early-projects",
+    "title": "Earlier projects",
+    "summary": "Deepak's earlier work shows the progression into engineering. In 2023 a PESU I/O app-development course produced four Android Studio apps: an incrementor, a BMI calculator, a weather app and a flight-booking app. In October 2024 he built Amplify, a Spotify-style music web app using HTML, Tailwind CSS, JavaScript, React and Node. 2025 brought the Gym Management System (Java, design patterns, for database and operating-systems coursework), Sediment Particle Size Prediction (scikit-learn, ML coursework), the Recipe Ingredient Optimizer (a Python SDLC-focused project), and an ML Hangman solver.",
+    "tags": ["early projects", "android", "app development", "pesu io", "amplify", "music app", "spotify clone", "gym management", "hangman", "sediment", "recipe optimizer", "java", "scikit-learn", "beginner"],
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "skills-evidenced-by-code",
+    "title": "Skills the code actually proves",
+    "summary": "A direct audit of Deepak's repositories evidences: implementing a published attention mechanism as a custom PyTorch nn.Module from its paper, with correct citation and stated reasoning; physically-grounded simulation design for data augmentation rather than naive noise; pytest testing of ML components covering shape, dtype, value range, gradient flow and parameter count; attribution-based interpretability tooling including Grad-CAM, Integrated Gradients and GradSHAP; ablation design reporting effect size, AUROC and p-values; SLURM job scripting for cluster training; an Express REST and WebSocket server bridging serial hardware to a networked camera; embedded integration across ESP32-CAM, Arduino Mega, RFID and fingerprint sensors; React and Next.js frontend work including custom animation components; and git collaboration across multi-contributor student teams.",
+    "tags": ["skills", "verified skills", "evidence", "pytorch", "pytest", "grad-cam", "integrated gradients", "gradshap", "slurm", "express", "websocket", "esp32", "arduino", "react", "next.js", "git", "what can he do"],
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "teamwork-and-attribution",
+    "title": "How Deepak works in teams",
+    "summary": "Most of Deepak's larger projects are small student team efforts, and his contribution share varies honestly by project: he holds 14 of 23 commits on ShortcutScore, 15 of 32 on Turb-DETR, all 16 on the Smart Door Lock, and 1 of 6 on the SahayAI website — though that single commit was a self-contained 41-file, roughly 1,300-line piece of frontend work. He is explicit about which parts are his rather than presenting team projects as solo work.",
+    "tags": ["teamwork", "collaboration", "team", "solo", "contribution", "commits", "who did what", "attribution", "honesty", "group project"],
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "visibility": "public",
+    "updatedAt": "2026-08-04"
+  },
+  {
     "id": "project-humanizer-ai",
     "title": "Humanizer AI skill",
     "summary": "Deepak has built a Humanizer AI skill, but he does not want it presented as a flagship project yet. It is currently underperforming and less representative of his strongest work, though he plans to improve it for research writing and paper-publishing workflows.",

@@ -57,19 +57,27 @@ const STOPWORDS = new Set([
 const DEEPAK_TOPIC_TERMS = new Set([
   "agent",
   "agents",
+  "age",
   "agentic",
   "ai",
+  "android",
   "asmos",
   "audience",
   "automation",
   "automate",
   "beginners",
   "bengaluru",
+  "born",
+  "background",
   "billing",
   "boundaries",
   "companies",
   "company",
+  "contact",
   "content",
+  "course",
+  "courses",
+  "coursework",
   "checkpoint",
   "checkpoints",
   "computer",
@@ -89,14 +97,22 @@ const DEEPAK_TOPIC_TERMS = new Set([
   "employee",
   "engineer",
   "engineering",
+  "email",
   "excel",
   "experience",
+  "failure",
+  "failures",
   "form",
   "github",
   "gmail",
+  "growth",
   "heygen",
   "hire",
+  "hiring",
   "helpdesk",
+  "improving",
+  "inspiration",
+  "inspires",
   "infrastructure",
   "internship",
   "instagram",
@@ -118,9 +134,14 @@ const DEEPAK_TOPIC_TERMS = new Set([
   "project",
   "projects",
   "pytorch",
+  "recruit",
   "recruiter",
   "research",
   "resume",
+  "school",
+  "marks",
+  "motivates",
+  "motivation",
   "startup",
   "startups",
   "team",
@@ -157,8 +178,21 @@ const DEEPAK_TOPIC_TERMS = new Set([
 const REFUSAL =
   "I can't help with that. I only answer questions about Deepak's projects, skills, experience, research direction, and work.";
 
-const UNKNOWN =
-  "I do not have that memory yet. I can answer from the approved knowledge I have about Deepak's projects, skills, experience, research direction, and work.";
+/**
+ * Shown when a question is clearly about Deepak but no approved memory covers it.
+ *
+ * Owner decision (2026-08-04): never dead-end a visitor with "I don't know".
+ * A recruiter who hits a gap should leave with a way to reach Deepak, not with
+ * nothing. The wording deliberately avoids drawing attention to the missing
+ * memory and hands over to him instead.
+ */
+const UNKNOWN = [
+  "Reach out to Deepak for this answer — he'll be glad to take it directly.",
+  "",
+  "Email — csdeepak2005@gmail.com",
+  "LinkedIn — linkedin.com/in/c-s-deepak-b1b41228b",
+  "Instagram — instagram.com/deep_in.ai",
+].join("\n");
 
 const OFF_TOPIC_TASK_TERMS = new Set([
   "assignment",
@@ -200,6 +234,26 @@ function tokenize(value: string): string[] {
     .filter((token) => token.length > 1 && !STOPWORDS.has(token));
 }
 
+/**
+ * Terms carrying no discriminating signal because the whole corpus is about
+ * them. Excluded from relevance scoring only.
+ *
+ * Found 2026-07-31 via the D-054 question log: "What is Deepak's expected
+ * salary?" scored exactly the 8-point threshold against "Who is Deepak?" on
+ * the shared name alone, and returned a confident answer about his background
+ * instead of an honest "I don't have that memory yet". Any question naming
+ * Deepak plus words Dex has never seen could match an unrelated FAQ.
+ *
+ * These stay in DEEPAK_TOPIC_TERMS — that gate still needs them to recognise
+ * a question as being about Deepak at all. Short queries like "Deepak" also
+ * still match, via the substring rule in scoreFaq, before tokens are scored.
+ */
+const SCORING_NOISE = new Set(["deepak", "deepaks"]);
+
+function scoringTokens(value: string): string[] {
+  return tokenize(value).filter((token) => !SCORING_NOISE.has(token));
+}
+
 function overlapScore(queryTokens: string[], haystack: string): number {
   const normalizedHaystack = normalize(haystack);
   const hayTokens = new Set(tokenize(haystack));
@@ -217,7 +271,7 @@ function scoreFaq(query: string, faq: DexFaq): number {
   if (options.some((option) => normalize(option).includes(q) || q.includes(normalize(option)))) {
     return 40;
   }
-  const queryTokens = tokenize(query);
+  const queryTokens = scoringTokens(query);
   return (
     overlapScore(queryTokens, faq.question) * 2 +
     overlapScore(queryTokens, faq.aliases.join(" ")) +
@@ -226,7 +280,7 @@ function scoreFaq(query: string, faq: DexFaq): number {
 }
 
 function scoreCard(query: string, card: DexKnowledgeCard): number {
-  const queryTokens = tokenize(query);
+  const queryTokens = scoringTokens(query);
   return (
     overlapScore(queryTokens, card.title) * 3 +
     overlapScore(queryTokens, card.tags.join(" ")) * 2 +

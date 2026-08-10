@@ -15,7 +15,7 @@ const FIELD_INPUT =
 export function DexIntakeForm({
   onDone,
 }: {
-  onDone: (status: "submitted" | "skipped") => void;
+  onDone: (status: "submitted" | "skipped", role?: DexVisitorRole) => void;
 }) {
   const [role, setRole] = useState<DexVisitorRole | "">("");
   const [name, setName] = useState("");
@@ -38,7 +38,7 @@ export function DexIntakeForm({
         body: JSON.stringify({ role, name, company, contact, reason }),
       });
       if (!response.ok) throw new Error("intake save failed");
-      onDone("submitted");
+      onDone("submitted", role);
     } catch {
       setError(true);
       setSubmitting(false);

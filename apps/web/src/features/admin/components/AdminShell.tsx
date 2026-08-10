@@ -18,7 +18,7 @@ const NAV = [
 const SECONDARY = [
   { href: "/admin/media", label: "Media" },
   { href: "/admin/settings", label: "Settings" },
-  { href: "/admin/ai-kb", label: "AI KB" },
+  { href: "/admin/dex", label: "Dex" },
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

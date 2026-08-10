@@ -256,7 +256,7 @@
     "aliases": ["What data boundaries does Deepak set for AI employees", "Can Deepak's AI employees read his Gmail", "What is off limits for Deepak's AI automation", "Does Deepak's AI employee have live account access"],
     "answer": "Right now Deepak's AI employees work only from data he provides directly, like pasted LinkedIn post text or exported Excel sheets, not live account access, though full automation is a future goal. Regardless of that, some things stay permanently off-limits: Gmail or email content, saved passwords or payment info, and direct messages. AI employees can prepare and schedule content, but they can never publish without Deepak's approval.",
     "sourceIds": ["owner-interview-2026-07-31"],
-    "relatedCardIds": ["ai-employee-data-boundaries", "ai-employee-review-boundary", "ai-employee-vision"],
+    "relatedCardIds": ["ai-employee-data-boundaries", "ai-employee-vision"],
     "updatedAt": "2026-07-31"
   },
   {
@@ -288,6 +288,196 @@
     "sourceIds": ["owner-interview-2026-07-31"],
     "relatedCardIds": ["dex-visitor-intake-idea"],
     "updatedAt": "2026-07-31"
+  },
+  {
+    "id": "how-to-contact",
+    "audience": "general",
+    "question": "How can I contact Deepak?",
+    "aliases": ["How do I reach Deepak", "What is Deepak's email", "How to get in touch with Deepak", "Contact details", "Can I connect with Deepak", "What is his LinkedIn", "How do I message him"],
+    "answer": "You can reach Deepak directly:\n\nEmail — csdeepak2005@gmail.com\nLinkedIn — linkedin.com/in/c-s-deepak-b1b41228b\nInstagram — instagram.com/deep_in.ai\nGitHub — github.com/csdeepak\nX — x.com/CSDeepak08\n\nEmail and LinkedIn are the best routes if you're a recruiter or want to collaborate.",
+    "sourceIds": ["portfolio-home", "owner-profile-2026-08-04"],
+    "relatedCardIds": ["contact-deepak"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "all-projects",
+    "audience": "general",
+    "question": "What are all of Deepak's projects?",
+    "aliases": ["What are all deepak projects", "List every project", "How many projects has Deepak built", "Show me all his work", "What has he built", "Full project list", "What projects does he have"],
+    "answer": "Deepak has built around 18 projects since 2023. The strongest are ASMOS (multi-agent memory, 2026), Deepak.ai (this site and Dex), Turb-DETR (underwater detection under turbidity), ShortcutScore (a metric for shortcut learning), the Dental AI Pipeline (dental X-ray analysis), Docksmith Engine (a Go container runtime), PESU Vault (course-material automation) and the Smart Door Lock (multi-factor IoT access control).\n\nEarlier work includes Amplify (a Spotify-style music web app), a Gym Management System, Sediment Particle Size Prediction, a Recipe Ingredient Optimizer, an ML Hangman solver, the SahayAI club website, the Humanizer Claude skill, and four Android apps from a 2023 app-development course.",
+    "sourceIds": ["owner-profile-2026-08-04", "github-audit-2026-07"],
+    "relatedCardIds": ["projects-full-list", "early-projects"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "recent-project",
+    "audience": "general",
+    "question": "What is Deepak's most recent project?",
+    "aliases": ["What is deepak recent project", "What is he working on now", "Latest project", "What is he building currently", "Newest work", "What is he doing these days"],
+    "answer": "ASMOS, his multi-agent memory system, is the main thing he's been building through 2026, alongside Deepak.ai — this portfolio and the Dex assistant you're using right now. His most recent research-style projects are ShortcutScore (April 2026) and Turb-DETR (February 2026), and the Dental AI Pipeline ran from October 2025 to May 2026.",
+    "sourceIds": ["owner-profile-2026-08-04", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["recent-work-2026", "project-asmos", "project-deepak-ai"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "deepak-age",
+    "audience": "general",
+    "question": "How old is Deepak?",
+    "aliases": ["What is deepak age", "What age is he", "When was he born", "How young is he", "What year was he born"],
+    "answer": "Deepak was born in 2005, so he is 20 as of 2026. He is currently an undergraduate Computer Science Engineering student at PES University in Bengaluru.",
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "relatedCardIds": ["personal-background", "education-pes"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "courses-studied",
+    "audience": "student",
+    "question": "What courses has Deepak done?",
+    "aliases": ["How many courses did deepak done with", "What has he studied", "What subjects has he taken", "What is his coursework", "What classes has he done"],
+    "answer": "Deepak is doing a Computer Science Engineering degree at PES University, and a lot of his projects came directly out of coursework, which maps what he has formally studied: a PESU I/O app-development course in 2023 (four Android apps), then machine learning (Sediment Particle Size Prediction), deep learning (ShortcutScore), software engineering and SDLC practice (Recipe Ingredient Optimizer), databases and operating systems (Gym Management System), and container systems (Docksmith Engine).\n\nAlongside the formal curriculum he has done self-directed work in agentic AI, computer vision and automation.",
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "relatedCardIds": ["coursework-and-courses", "education-detail"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "why-recruit-deepak",
+    "audience": "recruiter",
+    "question": "Why should I recruit Deepak?",
+    "aliases": ["Why should i recruit deepak", "Why hire Deepak", "Should we recruit him", "What makes him worth hiring", "Why pick Deepak", "Make the case for Deepak", "Is he worth interviewing"],
+    "answer": "Three reasons that hold up to checking.\n\nHe builds real systems, not tutorials. A direct audit of his repositories found genuine test suites, cited technique adaptations and real statistical evaluation — 14 pytest tests in Turb-DETR covering gradient flow and parameter counts, and a real ablation in ShortcutScore reporting Cohen's d, AUROC and p-values.\n\nHe is honest about his own work. When a ShortcutScore experiment failed because a 4x4 patch was too small for Grad-CAM to localise, he documented the failure and the corrected setup rather than hiding it. He is also explicit about which parts of team projects are his.\n\nHe is aimed squarely at agentic AI. ASMOS, his multi-agent memory work, and this portfolio's Dex assistant are both attempts to build the kind of systems he wants to be hired to build.",
+    "sourceIds": ["github-code-audit-2026-08-04", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["skills-evidenced-by-code", "shortcutscore-failed-experiment", "project-asmos", "target-role-agentic-ai-engineer"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "how-improving",
+    "audience": "collaborator",
+    "question": "How is Deepak improving over time?",
+    "aliases": ["How is deepak improving day by day", "How does he grow", "Is he getting better", "How does he develop his skills", "What is his growth trajectory", "How does he keep learning"],
+    "answer": "His project history shows the trajectory directly: Android coursework apps in 2023, a full-stack music web app in 2024, IoT and systems work in 2025, and agentic AI plus research-style projects in 2026.\n\nThe method behind it is deliberate. He seeks out failure rather than avoiding it — he has said he values failures more than successes because they are the path to getting things right. His loop is research, experiment, understand what setup a tool needs, then build; when something breaks he backtracks through the tool until he understands what it does and what it affects. He also credits peers heavily, saying teachers guide you but friends are how you find genuinely new things.",
+    "sourceIds": ["owner-profile-2026-08-04", "owner-interview-2026-07-27"],
+    "relatedCardIds": ["growth-and-learning", "engineering-style", "early-projects"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "education-record",
+    "audience": "recruiter",
+    "question": "What is Deepak's educational background?",
+    "aliases": ["Where did he study", "What are his marks", "What school did he go to", "What is his academic record", "Which university", "What are his grades", "10th and 12th marks"],
+    "answer": "Deepak is an undergraduate Computer Science Engineering student at PES University, RR Campus, Banashankari 3rd Stage, Bengaluru.\n\nBefore that he studied at PES Public School in Chittoor, Andhra Pradesh, scoring 95% in his 10th standard exams and ranking 2nd in his school, and 85% in his 12th standard, ranking 1st in his school.",
+    "sourceIds": ["owner-profile-2026-08-04", "resume-2026-04"],
+    "relatedCardIds": ["education-detail", "education-pes"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "where-from",
+    "audience": "general",
+    "question": "Where is Deepak from?",
+    "aliases": ["Where does he live", "What is his hometown", "Where is he based", "Is he from Bangalore", "What is his background"],
+    "answer": "Deepak grew up in a village in the Chittoor district of Andhra Pradesh and is now based in Bengaluru, where he studies at PES University.\n\nHe describes that move as formative — he arrived knowing very little about how the city or the industry worked, and learned it by doing. He comes from a lower-middle-class family and is open about that being part of what drives him.",
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "relatedCardIds": ["personal-background", "values-and-motivation"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "personality",
+    "audience": "general",
+    "question": "What is Deepak like as a person?",
+    "aliases": ["Tell me about yourself", "Tell me about Deepak as a person", "What defines Deepak", "Describe Deepak's personality", "What kind of person is Deepak", "What is his personality", "Who is Deepak as a person", "How would you describe him", "What is he like"],
+    "answer": "He leads with ethics. He follows his parents' guidance and the counsel of people he respects, and credits that grounding for what he has been able to achieve. He respects all religions and says he trusts his own work more than anything else. He believes hard work beats luck, and that the real measure of a life is being satisfied with what you have actually done.\n\nHis motto is to help people — to take real satisfaction from helping others reach their goals — and to keep learning from experienced people so he can teach it onward.\n\nHe is direct about ambition and just as quick to correct it. He comes from a lower-middle-class family and says he has a big dream of getting rich, then clarifies it is not really about being rich: it is about a good life, being healthy, being satisfied, and taking genuine joy in his own success.\n\nComing from a village to Bengaluru, he arrived knowing almost nothing about how the city or the industry worked and learned it by living it. The lesson he names as most important: teachers guide you, but friends are how you find genuinely new things.\n\nAnd on failure he is unusually clear — he says he loves getting into failures more than successes, because failure is the path that gets him to success. That one is not just talk: when a ShortcutScore experiment failed because a 4x4 patch was too small for Grad-CAM to localise, he wrote the failure and the fix into the project README instead of quietly dropping it.",
+    "sourceIds": ["owner-profile-2026-08-04", "github-code-audit-2026-08-04"],
+    "relatedCardIds": ["values-and-motivation", "growth-and-learning", "shortcutscore-failed-experiment"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "what-motivates",
+    "audience": "collaborator",
+    "question": "What motivates Deepak?",
+    "aliases": ["What drives him", "What are his values", "What is his philosophy", "What does he care about", "What is his motto", "What is he ambitious about"],
+    "answer": "His motto is to help people and take genuine satisfaction from that — helping others reach their goals, learning from experienced people, and teaching onward what he learns. He values adaptability and staying morally grounded over chasing money.\n\nHe believes hard work matters more than luck, and that the real measure is being satisfied with what you have actually done.\n\nOn ambition he is honest and self-correcting: he comes from a lower-middle-class family and says he dreams big about getting rich, then clarifies it is not really about wealth — it is about a good life, health, satisfaction, and real joy taken from his own success.",
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "relatedCardIds": ["values-and-motivation", "growth-and-learning"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "who-inspires",
+    "audience": "general",
+    "question": "Who inspires Deepak?",
+    "aliases": ["Who are his role models", "Who influenced him", "Who is his mentor", "Who does he look up to"],
+    "answer": "On values and direction, he credits Dr M R Doreswamy, founder of PES University, who he says guided him at PESU and helped set his path.\n\nOn the technical and career side, particularly around AI, he credits Vaibhav Sisinty, founder of Growth School, for shaping how he thinks about AI as an 'AI employee' — something that takes complex work and makes it automated and easier to understand.",
+    "sourceIds": ["owner-profile-2026-08-04"],
+    "relatedCardIds": ["inspirations", "ai-employee-vision"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "turb-detr-detail",
+    "audience": "technical",
+    "question": "How does Turb-DETR actually work?",
+    "aliases": ["Explain Turb-DETR", "What is the technical approach in Turb-DETR", "What is SimAM", "How does the underwater detector work", "Tell me about the turbidity project"],
+    "answer": "It adapts RT-DETR for murky water. The core move is injecting SimAM — a parameter-free attention module from a cited ICML 2021 paper — between the CNN and Transformer encoder stages, so that high-variance backscatter noise gets suppressed by SimAM's energy-based gating before global self-attention can spread it across the image.\n\nAugmentation uses a physically-grounded Jaffe-McGlamery turbidity simulation rather than a generic blur, so the training distortion actually resembles real water.\n\nIt's a five-person team project; Deepak authored 15 of 32 commits. There are 14 real pytest tests covering data-split integrity, the augmentation's shape, dtype, range and reproducibility, and SimAM's gradient flow and zero parameter count.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["turb-detr-verified-detail", "project-turb-detr"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "turb-detr-results",
+    "audience": "technical",
+    "question": "Does Turb-DETR have benchmark results yet?",
+    "aliases": ["What accuracy does Turb-DETR get", "Are there results for the underwater project", "Is Turb-DETR finished", "What are the numbers"],
+    "answer": "Not yet, and it's better to say so plainly. The experimental plan is thorough — three evaluation tracks, a full ablation matrix, three datasets — but no benchmark numbers are committed: the results and paper directories currently hold placeholder files only.\n\nSo it is strong research infrastructure with the study still ahead of it, not a finished paper.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["turb-detr-verified-detail"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "shortcutscore-detail",
+    "audience": "technical",
+    "question": "How does ShortcutScore work and what did it find?",
+    "aliases": ["Explain ShortcutScore", "What are the ShortcutScore results", "How do you measure shortcut learning", "What is the tdl-project repo"],
+    "answer": "It combines three interpretability signals into one scalar: an attribution-outside-object ratio, an attribution bias index, and a counterfactual sensitivity score. Together they quantify when an image classifier is keying off spurious background cues instead of the object.\n\nValidation used the Waterbirds benchmark plus a synthetic CIFAR-10 bias-injection test. A real ablation file in the repo records Cohen's d of 0.383, AUROC of 0.602 and p of 0.040 across 50 images — a genuine but modest effect, and reported as modest rather than dressed up.\n\nDeepak holds the largest commit share, 14 of 23. One naming quirk: the GitHub repo is called 'tdl-project' even though the project is ShortcutScore.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["shortcutscore-verified-detail", "project-shortcutscore"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "failed-experiments",
+    "audience": "technical",
+    "question": "Has Deepak had experiments fail?",
+    "aliases": ["What went wrong in his projects", "Tell me about a failure", "What did not work", "Has he made mistakes", "What has he learned from failure"],
+    "answer": "Yes, and he documents them rather than burying them.\n\nThe clearest example is in ShortcutScore. The synthetic monotonicity experiment injected a watermark into CIFAR-10 images to check the score rose with bias strength. The first version used a 4x4 patch and failed outright — Grad-CAM's spatial resolution simply could not localise attribution to a region that small. He re-ran it with an 8x8 patch and wrote both the failure and the fix into the project README.\n\nThe generalisable lesson: attribution-based metrics need a shortcut region large enough for the attribution method's resolution.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["shortcutscore-failed-experiment", "engineering-style"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "door-lock-detail",
+    "audience": "technical",
+    "question": "What is the Smart Door Lock project?",
+    "aliases": ["Tell me about the IoT project", "What hardware has Deepak worked with", "Explain the door lock", "Has he done embedded systems"],
+    "answer": "A multi-factor access-control system: RFID, fingerprint and ESP32-CAM face recognition must all pass before a relay releases a solenoid lock.\n\nDeepak wrote all 16 commits, including a custom Express server bridging serial data from an Arduino Mega to the ESP32-CAM over WebSocket and REST, plus a React and Tailwind frontend. Two teammates are credited in the README for hardware assembly that doesn't appear in git history.\n\nHonest scope: it's a hardware demo built March to May 2025, and the only test file is the untouched Create React App default — the authentication logic has no automated coverage.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["project-smart-door-lock", "skills-evidenced-by-code"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "team-contribution",
+    "audience": "recruiter",
+    "question": "How much of his team projects did Deepak actually build?",
+    "aliases": ["Did he build these alone", "Are these solo projects", "What was his role in the team", "Who else worked on these", "How do I know what he did"],
+    "answer": "His share varies by project, and he states it rather than blurring it: 14 of 23 commits on ShortcutScore (the largest share), 15 of 32 on Turb-DETR, all 16 on the Smart Door Lock, and 1 of 6 on the SahayAI website — though that single commit was a self-contained 41-file, roughly 1,300-line piece of frontend work building the site's entire visual-effects layer.\n\nMost of his larger projects are small student team efforts, and he's explicit about which parts are his.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["teamwork-and-attribution", "project-sahayai-website"],
+    "updatedAt": "2026-08-04"
+  },
+  {
+    "id": "verified-skills",
+    "audience": "technical",
+    "question": "What can Deepak actually do, backed by code?",
+    "aliases": ["What are his verified skills", "What does his code prove", "What is he technically capable of", "What has he actually implemented"],
+    "answer": "From a direct audit of his repositories: implementing a published attention mechanism as a custom PyTorch nn.Module from its paper, correctly cited; physically-grounded simulation design for augmentation rather than naive noise; pytest testing of ML components covering shape, dtype, value range, gradient flow and parameter count; attribution tooling including Grad-CAM, Integrated Gradients and GradSHAP; ablation design reporting effect size, AUROC and p-values; SLURM job scripting for cluster training; an Express REST and WebSocket server bridging serial hardware to a networked camera; embedded integration across ESP32-CAM, Arduino Mega, RFID and fingerprint sensors; React and Next.js frontend work including custom animation components; and git collaboration across multi-contributor teams.",
+    "sourceIds": ["github-code-audit-2026-08-04"],
+    "relatedCardIds": ["skills-evidenced-by-code", "skills-core"],
+    "updatedAt": "2026-08-04"
   },
   {
     "id": "humanizer-status",

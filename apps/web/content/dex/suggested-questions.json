@@ -136,5 +136,47 @@
     "audience": "technical",
     "question": "Who is the audience for Deepak AI on Instagram?",
     "faqId": "instagram-audience-faq"
+  },
+  {
+    "id": "suggest-personality",
+    "audience": "general",
+    "question": "What is Deepak like as a person?",
+    "faqId": "personality"
+  },
+  {
+    "id": "suggest-why-recruit",
+    "audience": "recruiter",
+    "question": "Why should I recruit Deepak?",
+    "faqId": "why-recruit-deepak"
+  },
+  {
+    "id": "suggest-all-projects",
+    "audience": "general",
+    "question": "What are all of Deepak's projects?",
+    "faqId": "all-projects"
+  },
+  {
+    "id": "suggest-contact",
+    "audience": "general",
+    "question": "How can I contact Deepak?",
+    "faqId": "how-to-contact"
+  },
+  {
+    "id": "suggest-team-contribution",
+    "audience": "recruiter",
+    "question": "How much of his team projects did Deepak actually build?",
+    "faqId": "team-contribution"
+  },
+  {
+    "id": "suggest-verified-skills",
+    "audience": "technical",
+    "question": "What can Deepak actually do, backed by code?",
+    "faqId": "verified-skills"
+  },
+  {
+    "id": "suggest-failures",
+    "audience": "technical",
+    "question": "Has Deepak had experiments fail?",
+    "faqId": "failed-experiments"
   }
 ]

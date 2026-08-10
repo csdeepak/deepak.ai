@@ -316,3 +316,25 @@ export const dexVisitorIntake = pgTable("dex_visitor_intake", {
     .notNull()
     .defaultNow(),
 });
+
+// ── Dex question log (D-054) — what visitors ask, and whether Dex could answer ─
+//
+// Deliberately NOT linked to dex_visitor_intake: no foreign key, no name, no
+// contact. Owner decision 2026-07-31 — capture the question, the outcome, and
+// the audience segment, but never build a per-person dossier of what an
+// identifiable visitor asked.
+//
+// answer_kind mirrors DexAnswerKind: cached | knowledge | unknown | refusal.
+// 'unknown' rows are the actionable signal: questions about Deepak that the
+// approved knowledge base cannot yet answer.
+
+export const dexQuestionLog = pgTable("dex_question_log", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  question: text("question").notNull(),
+  answerKind: text("answer_kind").notNull(),
+  matchedQuestion: text("matched_question").notNull().default(""),
+  visitorRole: text("visitor_role").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

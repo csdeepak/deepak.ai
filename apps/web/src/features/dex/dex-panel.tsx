@@ -6,6 +6,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
 import { DexIntakeForm } from "./dex-intake-form";
+import {
+  DEX_ROLE_TO_AUDIENCE,
+  isDexVisitorRole,
+  type DexVisitorRole,
+} from "@/lib/dex/intake-shared";
 import type {
   DexAnswer,
   DexAudience,
@@ -14,6 +19,7 @@ import type {
 } from "@/lib/dex/types";
 
 const DEX_INTAKE_STORAGE_KEY = "dex-intake-status";
+const DEX_ROLE_STORAGE_KEY = "dex-intake-role";
 
 type Message =
   | { role: "visitor"; text: string }
@@ -48,10 +54,19 @@ export function DexPanel() {
     return stored === "submitted" || stored === "skipped" ? stored : null;
   });
   const intakePending = intakeStatus === null;
+  const [visitorRole, setVisitorRole] = useState<DexVisitorRole | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = window.localStorage.getItem(DEX_ROLE_STORAGE_KEY);
+    return isDexVisitorRole(stored) ? stored : null;
+  });
 
-  const resolveIntake = (status: "submitted" | "skipped") => {
+  const resolveIntake = (status: "submitted" | "skipped", role?: DexVisitorRole) => {
     window.localStorage.setItem(DEX_INTAKE_STORAGE_KEY, status);
     setIntakeStatus(status);
+    if (role) {
+      window.localStorage.setItem(DEX_ROLE_STORAGE_KEY, role);
+      setVisitorRole(role);
+    }
   };
 
   useEffect(() => {
@@ -73,13 +88,28 @@ export function DexPanel() {
     };
   }, [open]);
 
-  const suggestedByAudience = useMemo(() => {
-    return suggested.reduce<Record<string, DexSuggestedQuestion[]>>((groups, item) => {
-      const label = AUDIENCE_LABEL[item.audience] ?? "General";
-      groups[label] = [...(groups[label] ?? []), item];
-      return groups;
-    }, {});
-  }, [suggested]);
+  // Ordered [label, questions] pairs. When the visitor told us who they are,
+  // their own audience leads — presentation order only, nothing is hidden.
+  const suggestedGroups = useMemo(() => {
+    const groups = suggested.reduce<Record<string, DexSuggestedQuestion[]>>(
+      (acc, item) => {
+        const label = AUDIENCE_LABEL[item.audience] ?? "General";
+        acc[label] = [...(acc[label] ?? []), item];
+        return acc;
+      },
+      {},
+    );
+
+    const preferred = visitorRole
+      ? AUDIENCE_LABEL[DEX_ROLE_TO_AUDIENCE[visitorRole]]
+      : null;
+
+    return Object.entries(groups).sort(([a], [b]) => {
+      if (a === preferred) return -1;
+      if (b === preferred) return 1;
+      return 0;
+    });
+  }, [suggested, visitorRole]);
 
   const ask = async (question: string) => {
     const text = question.trim();
@@ -92,8 +122,9 @@ export function DexPanel() {
       const response = await fetch("/api/dex/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text }),
+        body: JSON.stringify({ question: text, role: visitorRole ?? undefined }),
       });
+      if (!response.ok) throw new Error("Dex answer request failed");
       const answer = (await response.json()) as DexAnswer;
       setMessages((current) => [
         ...current,
@@ -168,9 +199,9 @@ export function DexPanel() {
                   </div>
                 </div>
 
-                {messages.length === 0 && Object.keys(suggestedByAudience).length > 0 && (
+                {messages.length === 0 && suggestedGroups.length > 0 && (
                   <div className="mt-6 space-y-5">
-                    {Object.entries(suggestedByAudience).map(([audience, questions]) => (
+                    {suggestedGroups.map(([audience, questions]) => (
                       <section key={audience} aria-labelledby={`dex-${audience}`}>
                         <h3
                           id={`dex-${audience}`}
@@ -206,7 +237,9 @@ export function DexPanel() {
                         </div>
                       ) : (
                         <div key={index} className="rounded-md border border-border bg-surface p-4">
-                          <p className="text-small text-ink">{message.text}</p>
+                          <p className="whitespace-pre-line text-small text-ink">
+                            {message.text}
+                          </p>
                           {message.sources.length > 0 && (
                             <div className="mt-4 flex flex-wrap gap-2">
                               {message.sources.map((source) =>
