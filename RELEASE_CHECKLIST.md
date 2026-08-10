@@ -1,110 +1,106 @@
-# Release Checklist — Landing V2 (Tier 0 to production)
+# Release Checklist - First Production Deploy
 
-> The exact remaining **human gates** and the **deploy sequence** for
-> shipping the Tier 0 landing to production. Engineering readiness is
-> done; what remains is content, sign-off, and pulling the trigger.
->
-> Tier 0 is the static, no-3D path — it can (and should) deploy before
-> the full 3D hero exists. The 3D hero, the Twin, and Dex are deferred to
-> v1.5 (see `memory/DECISIONS.md` D-040) and are **not** gating this
-> release. `/dev/hero` stays dev-only (404s in production).
+> Human gates and engineering checks before Deepak Labs goes live on Render.
+> The first deploy provisions Postgres, starts public reads in file mode, then
+> flips to DB mode after production migrations and ingest.
 
----
+## Gate 1 - Content Fill (Owner)
 
-## Gate 1 — Content fill ⟨owner-only⟩
+- [ ] Identity, mission, evidence, collaborate, contact, outbound, and current
+      focus copy are acceptable to ship.
+- [ ] Known recruiter-facing absence accepted: `cvUrl` is currently `null`, so
+      the CV CTA self-hides.
+- [ ] No public copy relies on fabricated content; empty sections self-hide.
 
-Replace every field in **`OWNER_CONTENT_CHECKLIST.md` Part 1** with real
-copy in your voice. Until then the affected sections either self-hide
-(honest) or show draft copy that has not passed R4.
+## Gate 2 - R4 Copy Tests (Owner)
 
-- [ ] All Part 1 items written (identity headline, mission, domains,
-      evidence, collaborate, contact, outbound, CV/currentFocus as
-      desired).
-- [ ] No `TODO(copy)` / `TODO(asset)` markers remain in
-      `apps/web/content/site.ts`.
-      Verify: `grep -rn "TODO(copy)\|TODO(asset)" apps/web/content apps/web/src`
-      returns nothing.
+Source: `specs/landing.md` section 6.5 and D-027.
 
-## Gate 2 — R4 copy tests ⟨owner-only⟩
+- [ ] 10-second test passed on the identity headline and mission statement.
+- [ ] Read-aloud test passed on all launch copy.
+- [ ] Banned-vocabulary sweep passed:
+      `passionate`, `journey`, `seamless`, `blazing`, `revolutionary`,
+      `cutting-edge`, `leverage` as a verb, `ninja`, `rockstar`, `guru`,
+      and "let's build something amazing" do not appear in public launch copy.
 
-Source: `specs/landing.md` §6.5, D-027. Applies to every headline /
-identity line flagged ⟨R4⟩ in the content checklist.
+## Gate 3 - ASMOS Memory
 
-- [ ] **10-second test** passed on the identity headline (Arrival `<h1>`)
-      and the mission statement — an unfamiliar reader can say what you do.
-- [ ] **Read-aloud test** passed on all ⟨R4⟩ lines — nothing makes you
-      cringe or stumble.
-- [ ] Banned-vocabulary sweep: none of *passionate / journey / seamless /
-      blazing / revolutionary / cutting-edge / leverage(v) / ninja /
-      rockstar / guru / "let's build something amazing"* appears.
-      (Re-check the Collaborate heading specifically.)
+- [x] `apps/web/content/asmos.ts` contains real ASMOS content.
+- [x] `draft: false` is set.
+- [x] `/memory` is allowed into the production smoke test.
 
-## Gate 3 — The ASMOS memory is real ⚠ DEPLOY-BLOCKING
+## Gate 4 - Gallery Deferred
 
-The `/memory` slice ships a **draft scaffold** that must be replaced
-before any deploy (`OWNER_CONTENT_CHECKLIST.md` items 12–13).
+- [x] Gallery is deferred from v1 until owner alt text/captions/place copy and
+      live review are complete.
+- [x] Landing does not include `GalleryStrip`.
+- [x] Footer has no Gallery link.
+- [x] `/gallery` 404s in production and remains available in dev for review.
 
-- [ ] `apps/web/content/asmos.ts` holds your **real** ASMOS content
-      (gist, stages, Dex Q&A) — no fabricated metrics, venues, or dates;
-      abandoned branches are real (LAW-004).
-- [ ] `draft: true` flipped to `draft: false` (`asmos.ts` line 180).
-- [ ] Every `memoryNodes` entry is real work; no node is
-      `reconstructable: true` without real content behind it.
+## Gate 5 - Production Environment
 
-## Gate 4 — Visual / spacing look-dev sign-off ⟨owner-only⟩
+- [ ] Owner generated and entered `SESSION_SECRET` in Render.
+- [ ] Owner generated and entered `ADMIN_PASSWORD_HASH` in Render using
+      `npm run admin:password --workspace=web`.
+- [ ] Render Blueprint provisions `deepak-labs-web` and `deepak-labs-db`.
+- [ ] First Render deploy starts with `CONTENT_SOURCE=file`.
+- [ ] `NEXT_PUBLIC_SITE_URL` is set to `https://deepak-labs-web.onrender.com`
+      until a custom domain is live.
+- [ ] Cloudflare R2 variables are deferred until the owner finishes object
+      storage setup and smoke-tests upload/read-back.
 
-- [ ] `/` reviewed at mobile + desktop widths: rhythm, negative space
-      (≥55% at rest, docs/24), and the scene's calm-at-rest behavior read
-      as intended.
-- [ ] Light ("Paper") and dark (default) both sign off — dark is the
-      identity, light is a first-class equal (D-039).
-- [ ] Reduced-motion pass: with `prefers-reduced-motion` on, the scene
-      falls to its still/station state and the page loses no meaning.
+## Gate 6 - Production Database
 
----
+- [ ] Run migrations against Render Postgres:
+      `DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web`.
+- [ ] Run ingest:
+      `DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web`.
+- [ ] Verify tables include `dex_visitor_intake` and `dex_question_log`.
+- [ ] Flip `CONTENT_SOURCE=db` in Render and redeploy.
 
-## Engineering readiness — already GREEN (re-verify before deploy)
+## Gate 7 - Visual / Spacing Sign-Off (Owner)
 
-These were verified this sprint; re-run them on the release commit.
+- [ ] `/` reviewed at mobile and desktop widths.
+- [ ] Light and dark themes both acceptable.
+- [ ] Reduced-motion path keeps all meaning and readability.
+- [ ] The six published projects read correctly; twelve draft projects remain
+      unpublished.
 
-- [ ] `npm run typecheck` — clean.
-- [ ] `npm run build` — clean, **zero warnings**, all routes static.
-- [ ] **three.js absent from First Load JS** (release criterion):
-      ```bash
-      cd apps/web && npm run build
-      node -e 'const fs=require("fs"),cp=require("child_process");
-        const m=JSON.parse(fs.readFileSync(".next/app-build-manifest.json","utf8"));
-        const home=m.pages["/(site)/page"]||[];
-        const three=cp.execSync("grep -rl WebGLRenderer .next/static/chunks || true").toString().trim().split(/\s+/).filter(Boolean).map(p=>p.replace(/^\.next\//,""));
-        const leak=home.filter(c=>three.includes(c));
-        console.log(leak.length===0?"three.js absent from / First Load JS ✓":"LEAK: "+leak);'
-      ```
-- [ ] `/` First Load JS within budget (~152 kB baseline; treat a jump as a
-      regression to investigate before shipping).
-- [ ] Global nav / footer show only built routes — nothing 404s from
-      chrome (driven by `BUILT_ROUTES` in `apps/web/src/constants/routes.ts`).
+## Engineering Readiness
 
----
+Run before PR/merge:
 
-## Deploy sequence
+```bash
+npm run typecheck
+cd apps/web
+npx cross-env CONTENT_SOURCE=file npm run build
+npm run check:bundle
+npm run check:dex
+```
 
-> The concrete vendor commands are defined in **`docs/10-DEPLOYMENT.md`**
-> and the `apps/web` README (authored in the deployment phase — D-041).
-> Once Gates 1–4 pass and engineering is green, follow that document's
-> "first deploy" steps. High-level order:
+- [ ] Typecheck clean.
+- [ ] Build clean, zero warnings.
+- [ ] `/` First Load JS under 170 kB.
+- [ ] three.js absent from `/` First Load JS.
+- [ ] Admin bundle absent from public First Load JS.
+- [ ] Dex matcher guard passes.
 
-1. Merge the release branch to `main` (CI runs typecheck + build + the
-   three.js check on `main`).
-2. Confirm the CI pipeline is green.
-3. Trigger the first production deploy per `docs/10-DEPLOYMENT.md`
-   (**owner triggers the first deploy** — it is not automated on your
-   behalf).
-4. Smoke-test production: `/` renders, LCP is the headline text, nav/footer
-   have no dead links, `/memory` reconstructs, theme toggle works, and
-   `/dev/hero` returns 404.
-5. Point external profiles (GitHub / Scholar / LinkedIn) at the live site.
+## Production Smoke Test
 
----
+After DB mode is enabled:
 
-*Nothing on this page is automated for you. The gates are yours; the first
-deploy is yours to trigger.*
+- [ ] `/` renders; no gallery strip; no console errors.
+- [ ] `/projects` renders published projects from DB.
+- [ ] `/projects/asmos` renders.
+- [ ] `/memory` renders ASMOS memory.
+- [ ] `/gallery` returns 404.
+- [ ] `/dev/hero` returns 404.
+- [ ] `/sitemap.xml` lists only built public routes.
+- [ ] `/robots.txt` references the production sitemap and blocks `/admin`.
+- [ ] `/admin/login` works with the owner passphrase.
+- [ ] `/admin/dex` renders Dex analytics.
+- [ ] Dex panel answers a suggested question and handles rejected/rate-limited
+      requests gracefully.
+
+The owner triggers merge, Render deploy, production migrations, the DB-mode
+flip, and DNS/custom-domain work.

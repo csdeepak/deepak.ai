@@ -15,6 +15,10 @@
     "media:backup": "tsx scripts/media-backup.ts",
     "hero:generate": "node scripts/generate-hero-face.mjs",
     "hero:enrich": "tsx scripts/enrich-hero-network.ts",
+    "og:generate": "node scripts/generate-og-image.mjs",
+    "check:dex": "tsx scripts/check-dex-matcher.ts",
+    "gallery:process": "node scripts/process-gallery.mjs",
+    "admin:password": "tsx scripts/set-admin-password.ts",
     "check:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {

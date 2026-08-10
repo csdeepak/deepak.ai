@@ -26,9 +26,9 @@
 
 | Feature | Spec | Status | Notes |
 | --- | --- | --- | --- |
-| AI Assistant | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-053 v1 built)** | Dex v1 is cached grounded recall with public zero-cost answers; owner interview round 1 is integrated; live RAG deferred. |
-| Admin: AI Knowledge Base | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-053 v1 file-backed)** | Owner-triggered Knowledge Space files exist; interview round 1 is stored as approved content; admin approval UI comes after owner review. |
-| Gallery | [`../specs/gallery.md`](../specs/gallery.md) | Planned | Template only. |
+| AI Assistant | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-054)** | Dex v1 is cached grounded recall with public zero-cost answers; interview rounds 1-3 integrated; visitor intake + question logging live; suggestions ordered by visitor role; `npm run check:dex` guards matching/refusal behaviour; live RAG still deferred. |
+| Admin: Dex analytics | [`../specs/ai-assistant.md`](../specs/ai-assistant.md) | **In Progress (D-054)** | `/admin/dex` shows answer rate, the unanswered-question gap list, role breakdown, and visitors, with CSV export. `/admin/ai-kb` redirects here. Owner-triggered knowledge *editing* UI still not built — knowledge cards/FAQs are still hand-edited JSON. |
+| Gallery | [`../specs/gallery.md`](../specs/gallery.md) | **Deferred from v1 (D-056 code in repo, dev-only in production)** | File-backed cluster gallery implemented (D-056); deferred from the first production deploy (D-057) pending an owner alt-text/caption/copy pass on all 11 photos and a live browser review. `/gallery` 404s in production; landing has no `GalleryStrip`; footer has no Gallery link. Re-enabling is a small diff. Open gaps: `specs/gallery.md` §9. |
 | GitHub Integration (deep) | — | Planned | Repo↔project linking. |
 | Analytics (full) | [`../specs/admin-dashboard.md`](../specs/admin-dashboard.md) | Planned | |
 
@@ -40,4 +40,4 @@
 | Save / bookmarks | [`../specs/news.md`](../specs/news.md) | Planned | Anonymous/local; no visitor accounts. |
 | Weekly digest | [`../specs/news.md`](../specs/news.md) | Planned | Requires Radar sustainability ≥2 months. |
 
-Dex is now in development on `codex/ai-development-process`. Several older specs/status notes remain stale relative to the implemented site and should be treated as historical unless confirmed by `CURRENT_STATE.md`.
+Dex and Gallery are both in development on `codex/ai-development-process`. Both shipped ahead of their spec docs, and both specs (`ai-assistant.md`, `gallery.md`) have since been rewritten to describe what was actually built. Several older specs/status notes remain stale relative to the implemented site and should be treated as historical unless confirmed by `CURRENT_STATE.md`.

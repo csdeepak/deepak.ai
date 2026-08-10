@@ -613,6 +613,8 @@ Each key is presented as a labeled field. The editor matches the exact shape of 
 
 ## 12. Dex / Embeddings Sync Status — Design Only
 
+> **Superseded (2026-07-31, D-054).** Dex shipped as a **file-backed cached recall** layer, not an embeddings-sync pipeline, so the corpus/sync UX designed below was never the right surface for it. The live Dex admin is **`/admin/dex`** — visitor intake analytics, question logs, and the unanswered-question gap list. `/admin/ai-kb` now redirects there. The `embeddings` table (`docs/09` §8) remains unmigrated and the design below stays on file for if/when retrieval is actually added (see `memory/DECISIONS.md` D-053 for why RAG is deferred until cached matching proves insufficient).
+
 This section defines the UX for `/admin/ai-kb` — **implementation deferred to the Dex sprint (v1.5)**. The `embeddings` table is designed in `docs/09` §8 but not yet migrated. This page exists at `/admin/ai-kb` today as a designed, honest empty state; it does not block Phase 2.
 
 ### Designed UI (LAW-008 — honest empty state)

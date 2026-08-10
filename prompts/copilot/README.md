@@ -6,6 +6,12 @@ Reusable prompts for **GitHub Copilot**.
 
 Prompts, chat instructions, and custom-instruction snippets for GitHub Copilot and Copilot Chat as used with this repository.
 
+## Available Prompts
+
+| Prompt | Target | Purpose |
+| --- | --- | --- |
+| [`project-knowledge-extraction.md`](project-knowledge-extraction.md) | Chat (repo-scoped) | Audit a project repo and draft Dex knowledge cards + FAQs from real code, tests, and commit history — with citations and an explicit unknowns list. |
+
 ## Conventions
 
 - One prompt per Markdown file, `kebab-case.md`.

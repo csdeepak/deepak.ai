@@ -1,157 +1,173 @@
-# Deploy Runbook — Deepak Labs first production deploy
+# Deploy Runbook - Deepak Labs First Production Deploy
 
-> One-page, ordered, click-by-click. Each step has an **Expected result**
-> line — if you don't see it, stop and diagnose before proceeding.
-> Authoritative refs: `docs/10-DEPLOYMENT.md` · `render.yaml` · `RELEASE_CHECKLIST.md`.
+> Owner-executed steps for the first Render deploy. Repo-side prep happens on
+> `codex/ai-development-process`; the owner controls merge, Render secrets,
+> deploy clicks, production migrations, and DNS.
 
----
+## Current Deploy Shape
 
-## Step 1 — Merge feature branch → `main` and confirm CI green
+- Host: Render Blueprint from `render.yaml`.
+- First public URL: `https://deepak-labs-web.onrender.com`.
+- Database: Render Postgres is provisioned with the first deploy.
+- First boot: `CONTENT_SOURCE=file`, so the public site builds before the new
+  production database has schema/content.
+- DB flip: after migrations + ingest, change `CONTENT_SOURCE=db` in Render and
+  redeploy.
+- R2 media: deferred until the owner finishes Cloudflare setup and smoke-tests
+  upload/read-back.
+- Gallery: deferred from v1; `/gallery` is dev-review only and 404s in
+  production until the owner writes alt text/captions and reviews it live.
 
-```bash
-git checkout main
-git merge release/v0.9.0-alpha --no-ff
-git push origin main
-```
+## 1. Before Merge
 
-Then open **GitHub → Actions** and watch the CI run triggered by the push.
-
-**Expected result:** All three CI jobs pass (Typecheck ✓, Build ✓,
-Guard — three.js ✓, Guard — admin isolation ✓, Guard — neural-face
-budgets & banned deps ✓). No red Xs. Time: ~60–90 s.
-
-If CI fails: do NOT proceed to Render. Fix the failure on the feature
-branch, push again, re-merge.
-
----
-
-## Step 2 — Create the Render Blueprint (the first-deploy click)
-
-1. Go to [render.com](https://render.com) → **New** → **Blueprint**.
-2. Connect your GitHub account if not already connected.
-3. Select the `deepak.ai` repository.
-4. Render reads `render.yaml` from the repo root and shows you the planned
-   service: `deepak-labs-web` (type: web, branch: main).
-5. Review the plan — confirm service name and build/start commands match.
-6. Click **Apply** / **Deploy**.
-
-**Expected result:** Render starts a build. You see logs streaming:
-`npm ci` → `npm run build` (the Next.js build, ~60–90 s) → `npm run start`.
-Build should complete without errors.
-
-> `autoDeploy: false` in `render.yaml` means this is the only manual
-> deploy. Step 6 of this runbook flips it to auto-deploy after you
-> confirm production is healthy.
-
----
-
-## Step 3 — Set environment variables
-
-**In Render:** service → **Environment** → **Add Env Var** (or Add Secret).
-
-Paste these **in order**, values **raw / unescaped** (Render does not run
-dotenv-expand — `$` is literal, no backslashes needed):
-
-| Variable | Value | Field type |
-|----------|-------|------------|
-| `NODE_VERSION` | `20` | Plain env var — already in render.yaml, skip if shown |
-| `NODE_ENV` | `production` | Plain env var — already in render.yaml, skip if shown |
-| `SESSION_SECRET` | *(generate: `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`)* | **Secret** |
-| `ADMIN_PASSWORD_HASH` | *(generate: `node -e "const b=require('bcryptjs'); b.hash('yourPassphrase',12).then(h=>console.log(h))"`)* | **Secret** |
-
-**R2 media vars — OMIT for now.** The media pipeline stays in its honest
-disabled state until R2 setup is smoke-tested. Add them in a follow-up
-deploy (no site rebuild needed, just a Render env var update + redeploy).
-
-> **⚠ Escape note for `.env.local` only:** if you copy these values into
-> `apps/web/.env.local` for local dev, bcrypt hashes contain `$` which
-> dotenv expands — wrap in single quotes: `ADMIN_PASSWORD_HASH='$2b$12$...'`.
-> On Render's dashboard you paste them raw; no escaping.
-
-After adding env vars, Render may prompt a redeploy — approve it.
-
-**Expected result:** Service shows "Live" status. The startup check
-(`src/instrumentation.ts`) validates `SESSION_SECRET` and
-`ADMIN_PASSWORD_HASH` at boot and throws a named error if either is
-missing or using the dev fallback — so a silent-credential deploy is
-impossible.
-
----
-
-## Step 4 — Post-deploy smoke test
-
-Open the production URL Render assigned (e.g. `deepak-labs-web.onrender.com`).
-Run each check in order:
-
-| Check | Action | Expected result |
-|-------|--------|----------------|
-| **Landing** | Open `/` | Headline renders; constellation hero visible (or canvas silently absent if JSON fetch fails — copy stands alone either way); no console errors |
-| **/memory** | Open `/memory` | ASMOS memory map loads; clicking ASMOS node shows reconstruction with 3 stages (The question / The experiment / What it showed); Brief panel shows all filled fields |
-| **Project index** | Open `/projects` | Projects list renders (or honest EmptyState if none published in DB mode) |
-| **Project detail** | Open `/projects/asmos` | ASMOS project detail page renders |
-| **/admin login** | Open `/admin/login` → enter your passphrase | Redirects to `/admin/overview`; session persists on refresh |
-| **404 behaviour** | Open `/dev/hero` | Returns 404 (not-found page, not a crash) |
-| **Reduced motion** | Enable OS reduced-motion setting → open `/` | Neural face canvas shows one static frame or no canvas; all copy readable; no animation loops |
-| **Theme toggle** | Toggle light/dark on `/` | Theme switches cleanly; no flash |
-
-**Expected result:** All eight checks pass. If the admin login fails,
-check that `ADMIN_PASSWORD_HASH` was pasted correctly (bcrypt compare
-is case-sensitive and whitespace-sensitive).
-
----
-
-## Step 5 — Custom domain + DNS
-
-1. In Render: service → **Settings** → **Custom Domains** → **Add Custom Domain**.
-2. Enter your apex domain (e.g. `deepaklabs.com`).
-3. At your DNS registrar, add the record Render shows:
-   - Apex: `ALIAS` or `ANAME` record pointing to the Render hostname.
-   - `www`: `CNAME` → apex redirect (Render handles `www → apex`).
-4. Wait for TLS — Render issues a Let's Encrypt cert automatically (up to 10 min).
-
-**Expected result:** `https://deepaklabs.com` serves the site with a valid
-TLS cert. HTTP and `www` redirect to the apex HTTPS URL.
-
-> Keep DNS at your registrar (not pointed to Render's nameservers) so
-> the domain is portable if you change PaaS vendors.
-
----
-
-## Step 6 — Enable auto-deploy on `main`
-
-Once the smoke test passes and the domain is live, flip `autoDeploy`:
+Run the repo checks locally on `codex/ai-development-process`:
 
 ```bash
-# In your local repo:
-git checkout main
+npm run typecheck
+cd apps/web
+npx cross-env CONTENT_SOURCE=file npm run build
+npm run check:bundle
+npm run check:dex
 ```
 
-Edit `render.yaml` line with `autoDeploy: false` → `autoDeploy: true`, then:
+Expected result: typecheck, build, bundle guard, and Dex matcher guard all pass
+with no build warnings. `/` First Load JS stays under the 170 kB D-052 ceiling.
+
+## 2. PR and CI
+
+Push `codex/ai-development-process`, open a PR into `main`, and wait for CI.
+
+Expected result: GitHub Actions passes typecheck, build, public bundle guards,
+and `check:dex`. Do not proceed to Render while CI is red.
+
+## 3. Owner Secrets
+
+Before creating or redeploying the Render service, generate:
 
 ```bash
-git add render.yaml
-git commit -m "chore(deploy): enable auto-deploy on main after successful first deploy"
-git push origin main
+node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+npm run admin:password --workspace=web
 ```
 
-**Expected result:** CI runs on the push; Render auto-deploys on green.
-From this point forward: merge to `main` → CI green → Render auto-deploys.
+Use the first value for `SESSION_SECRET`. Use the bcrypt hash printed by the
+script for `ADMIN_PASSWORD_HASH`.
 
----
+Render value rule: paste bcrypt hashes raw/unescaped. `.env.local` is the only
+place where `$` must be escaped.
 
-## After deploy — immediate follow-ups (not blockers)
+## 4. Create the Render Blueprint
 
-- **Point external profiles** (GitHub bio, LinkedIn, Scholar) at the live domain.
-- **Set R2 env vars** when ready: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
-  `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `MEDIA_PUBLIC_BASE_URL` → redeploy.
-  Smoke-test upload + read-back in the admin before going live.
-- **Add `DATABASE_URL`** when the Render Postgres instance is created
-  (docs/09 → add the managed Postgres in render.yaml, wire the env var,
-  run `npm run db:migrate` on first boot).
-- **Fill `gist.formed`** in `content/asmos.ts` — the year ASMOS work began;
-  currently empty and self-hiding in the Brief panel.
+1. Render dashboard -> New -> Blueprint.
+2. Select the `deepak.ai` repository.
+3. Render reads `render.yaml`.
+4. Confirm it plans:
+   - web service `deepak-labs-web`
+   - Postgres `deepak-labs-db`
+   - `CONTENT_SOURCE=file`
+   - `NEXT_PUBLIC_SITE_URL=https://deepak-labs-web.onrender.com`
+   - `autoDeploy: false`
+5. Enter `SESSION_SECRET` and `ADMIN_PASSWORD_HASH` when Render prompts.
+6. Apply/deploy.
 
----
+Expected result: the first build completes and the service boots on the Render
+subdomain. If auth env vars are missing, `instrumentation.ts` refuses to serve
+with a named startup error.
 
-*This runbook covers Tier 0 static launch. The DB era additions are in
-`docs/10-DEPLOYMENT.md §7`.*
+## 5. Production DB Setup
+
+After the first service deploy is live, run migrations against the Render
+Postgres connection string from the owner machine:
+
+```bash
+DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web
+```
+
+Then seed the production DB from the file-backed source of truth:
+
+```bash
+DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web
+```
+
+Verify the DB has the expected tables, including:
+
+- `content_items`
+- `projects`
+- `dex_visitor_intake`
+- `dex_question_log`
+
+Expected result: migrations `0000` through `0004` are applied and the 18 project
+records exist in production Postgres.
+
+## 6. Flip to DB Mode
+
+In Render, change:
+
+```text
+CONTENT_SOURCE=db
+```
+
+Redeploy the service.
+
+Known limitation: landing hero/site copy still reads from
+`apps/web/content/site.ts`; admin settings writes to `site_settings`, but public
+hero copy does not consume that table yet. This is a known pre-existing gap,
+not a deploy blocker.
+
+## 7. Production Smoke Test
+
+Run these against `https://deepak-labs-web.onrender.com`:
+
+| Check | Expected result |
+| --- | --- |
+| `/` | Hero and landing render; no Gallery strip; no console errors. |
+| `/projects` | Published projects render from DB after ingest. |
+| `/projects/asmos` | ASMOS project detail renders. |
+| `/memory` | ASMOS memory page renders real content. |
+| `/gallery` | 404s in production. |
+| `/dev/hero` | 404s in production. |
+| `/sitemap.xml` | Lists only built public routes. |
+| `/robots.txt` | References the production sitemap and blocks `/admin`. |
+| `/admin/login` | Owner passphrase logs in and redirects to `/admin/overview`. |
+| `/admin/dex` | Dex analytics page renders without DB errors. |
+| Dex panel | Suggested question returns a cached answer; overlong/rate-limited errors degrade gracefully. |
+| Theme/reduced motion | Light/dark and reduced-motion paths stay readable. |
+
+Expected result: all smoke checks pass before sharing the URL externally.
+
+## 8. R2 Media Follow-Up
+
+When Cloudflare R2 setup is complete, add these Render env vars and redeploy:
+
+- `R2_ACCOUNT_ID`
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+- `R2_BUCKET`
+- `MEDIA_PUBLIC_BASE_URL`
+
+Smoke-test Admin -> Media upload and public read-back before treating media as
+active. Do not make R2 a blocker for the first deploy unless the owner chooses.
+
+## 9. Later Custom Domain
+
+After the Render subdomain is healthy:
+
+1. Add the custom domain in Render.
+2. Create the DNS record Render provides.
+3. Wait for TLS.
+4. Change `NEXT_PUBLIC_SITE_URL` to the custom domain.
+5. Redeploy.
+6. Re-check OG tags, `/sitemap.xml`, and `/robots.txt`.
+
+## 10. Maintenance Notes
+
+Dex question logs are intentionally not joined to visitor identity. Until a
+retention job exists, prune manually if needed:
+
+```sql
+DELETE FROM dex_question_log
+WHERE created_at < now() - interval '180 days';
+```
+
+Keep `autoDeploy: false` until the first production smoke test passes. Enable
+auto-deploy in a later commit only after the owner is comfortable with main
+deploying automatically.

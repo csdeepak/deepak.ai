@@ -2,9 +2,47 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-31 (D-053.2)
+**Last updated:** 2026-08-10 (D-057 pre-deployment pass complete)
 
 ## Current Phase
+
+**D-057 COMPLETE — pre-deployment pass, ready to commit and push.**
+
+All engineering verified clean on `codex/ai-development-process`:
+- `typecheck` clean; `CONTENT_SOURCE=file` build 155 kB (under 170 kB ceiling), zero warnings.
+- `check:bundle` 151.3 kB, all guards pass. `check:dex` 34/34.
+
+**Engineering done (uncommitted):**
+- Gallery deferred from v1 (landing strip removed, footer link removed, `/gallery` 404s in production, `BUILT_ROUTES` reverted) — owner decision.
+- Admin error boundary (`admin/error.tsx`) production-honest — no Docker/local-dev language in production.
+- Dex hardening: 500-char question cap, 20-req/5-min-per-IP rate limiters on both Dex endpoints, shared `src/lib/rate-limit.ts`, `dex-panel.tsx` now throws on non-2xx.
+- Photo sources untracked: `photos/*` gitignored, two previously-tracked files removed via `git rm --cached`.
+- SEO: `metadataBase`, `openGraph`, `twitter` in `layout.tsx`; `og-default.png` generated; `sitemap.ts` enumerates `BUILT_ROUTES`; `robots.ts` references sitemap.
+- `render.yaml`: Postgres live, `DATABASE_URL` wired, `NEXT_PUBLIC_SITE_URL` set, `SESSION_SECRET`/`ADMIN_PASSWORD_HASH` as `sync: false`.
+- `ci.yml`: `check:dex` step added, `codex/ai-development-process` in push triggers.
+- Docs: `DEPLOY_RUNBOOK.md` and `RELEASE_CHECKLIST.md` fully current.
+
+**Owner's next actions (ordered):**
+1. Commit in the six groups listed in `AI_HANDOFF.md` → push → open PR into `main` → confirm CI green.
+2. Generate `SESSION_SECRET` + `ADMIN_PASSWORD_HASH` (`npm run admin:password --workspace=web`) before the Render Blueprint creation.
+3. Merge to `main` → Render Blueprint deploy → smoke test per `DEPLOY_RUNBOOK.md`.
+4. After first boot: `db:migrate` → `db:ingest` → flip `CONTENT_SOURCE=db` → redeploy.
+5. Add R2 env vars when Cloudflare setup is done (does not block the first deploy).
+6. Complete Gate 2 (R4 copy tests) and Gate 4 (visual sign-off) in `RELEASE_CHECKLIST.md`.
+
+---
+
+**D-056 IMPLEMENTED (uncommitted) on `codex/ai-development-process`** — Photo Gallery.
+- **Deferred from v1:** all public surfaces hidden in production pending an owner alt-text/caption/copy pass and live browser review.
+- Landing gains a fifth beat, **Gallery**, between Evidence and Collaborate (`GalleryStrip` — zero client JS, CSS scroll-linked Ken Burns); `/gallery` is a full cluster browser (`GalleryBrowser`) with a View Transitions shared-element zoom, keyboard nav, and deep links (`/gallery#g03`). Added to `BUILT_ROUTES`, not a nav lane.
+- File-backed, two-part content: `content/gallery/manifest.generated.json` (machine-written by `npm run gallery:process`, dimensions/blur) merges with hand-authored `PHOTO_META` in `content/gallery.ts` (captions/dates/places/layout knobs). EXIF/GPS stripped at the pipeline; `place` is hand-typed at city granularity only.
+- **Spec:** `specs/gallery.md` was backfilled 2026-08-10 to document the shipped design (it had still read "Template — do not implement"). Its §9 is the live gap list for this feature.
+- **Release gate:** all 11 photos have empty `alt`/`caption`/`info`/`place`. It self-hides to a blank rather than fabricating a label (LAW-008), but empty `alt` means tiles announce as "Open photo g03" — an owner copy pass is required before this is public.
+- **Also open:** photo IDs are positional (`g01…gNN` by sorted filename), so inserting an earlier-sorting photo silently renumbers the set and breaks deep links; `/gallery` is in `BUILT_ROUTES` but absent from the footer sitemap-of-record, so it's reachable only from the landing strip. Both need owner rulings — see `specs/gallery.md` §9.
+- Also landed alongside it: an admin-wide error boundary (`admin/error.tsx`) that turns "DB not running" into a fix-it message instead of a raw stack trace, and `npm run admin:password` for safe interactive passphrase→bcrypt-hash generation (handles the `.env.local` vs. Render escaping gotcha from D-053.2).
+- **Not verified this pass:** no typecheck/build re-run; no in-browser review; nothing committed. See `AI_HANDOFF.md` 2026-08-10 entry for the full reconstruction and reasoning — this was found already built during a repo-understanding pass, not built in this session.
+
+---
 
 **D-053 V1 IMPLEMENTED on `codex/ai-development-process`** - Dex Knowledge Space + cached public AI assistant.
 - **Branch:** created from `feat/instrument-redesign` while preserving the existing uncommitted D-052.7 hero/design-memory work. This branch now carries both the pending hero changes and the new Dex planning edits.
@@ -17,6 +55,17 @@
 - **Owner intake:** interview rounds 1-3 are ingested: target Agentic AI Engineer direction, ASMOS as flagship, Deepak.ai as second strongest current project, debugging/learning narrative, Humanizer AI's work-in-progress boundary, AI employee vision, agent skill definition, Deepak.ai's recruiter proof goal, planned LinkedIn/Instagram AI employee workflows, and review boundary: AI can schedule posts but Deepak approves before publishing. ASMOS is stored as a research-grade working prototype with routing/scoring/memory code, 400+ passing tests, Docker support, Stack Overflow Q&A experiments, and a corrected final token-reduction figure of about 22% (roughly 18-26% by question). A three-agent helpdesk example is approved for explaining checkpointing, ownership, and prompt narrowing.
 - **Round 3 (2026-07-31) added:** target companies/teams (open across AI startups, agent infrastructure teams, AI research labs, and developer tools/product AI teams — not narrowed to one type); AI employee data-access boundaries (owner-provided exports only today, full automation is a future goal; Gmail, saved passwords/payment info, and DMs are permanently off-limits; no auto-publish without approval); the LinkedIn skill Excel schema (hook, topic, structure, tone, CTA, length, audience, why it worked); Instagram Deepak AI's audience (all four groups at once: beginners/students, recruiters, builders, general tech-curious). All five interview questions originally listed in `memory/DEX_SESSION_HANDOFF_2026-07-31.md` are now answered; no outstanding interview gaps remain from that list.
 - **D-053.2 (2026-07-31) — Dex visitor intake form built and verified live:** a skippable "who are you" step (role*, name*, company, contact, reason) now gates the Dex panel, stored to a new `dex_visitor_intake` Postgres table (not file-backed — this is visitor analytics, not owner-approved content). See `memory/DECISIONS.md` D-053.2 for the full design and a client/server DB-isolation bug caught and fixed during the build. Migration `0003_tranquil_blazing_skull.sql` applied locally via `npm run db:migrate`; a real submit was confirmed landing in the table via `psql`, then removed as test data. Local dev Postgres runs via `docker compose -f docker-compose.dev.yml up -d` (container `deepakai-db-1`, port 5433). **Production still needs `db:migrate` run against the Render `DATABASE_URL`** before this is live publicly. No admin viewer exists yet for the captured data (direct DB query only).
+
+---
+
+**D-054 COMPLETE on `codex/ai-development-process`** — Dex observability, role-aware suggestions, matcher guard.
+- **Question log:** new `dex_question_log` table + `/api/dex/answer` logging. Records question, outcome, matched FAQ, and visitor *role* — never name or contact, and never joined to `dex_visitor_intake` (owner privacy decision).
+- **`/admin/dex`:** answer-rate stats, **gap list** (unanswered questions ranked by frequency = the FAQ worklist), role breakdown, most-asked, refused, recent visitors. CSV export at `/admin/dex/export?type=visitors|questions`. `/admin/ai-kb` redirects here; `docs/27` §12 marked superseded.
+- **Role-aware suggestions:** intake role maps to the existing `audience` tag and floats that group first. Presentation order only — nothing hidden.
+- **Matcher bug found by the new log and fixed:** "What is Deepak's expected salary?" was returning a confident cached answer matched to "Who is Deepak?" (the shared token `deepak` alone hit the 8-point threshold). Same for "What are Deepak's political views?". Corpus-ubiquitous terms are now excluded from relevance scoring; such questions correctly return `unknown`.
+- **`npm run check:dex --workspace=web`** — 34-case matcher guard (answerable / refused / honestly-unknown). Plain tsx script, no test runner, mirrors `check-bundle-budget.mjs`. Proven to fail when the fix is reverted. **Not yet wired into `ci.yml`** — worth doing.
+- **Verified:** typecheck clean; `CONTENT_SOURCE=file` build green (`/` 155 kB); `check:bundle` green (151.3 kB); migration `0004` applied locally; full loop exercised in-browser (intake → questions → all three outcome types logged → SQL aggregates confirmed). Admin page itself is **owner-review-pending**: the auth middleware correctly blocks the AI from logging in, so its rendering has not been eyeballed — only its queries and compilation were verified.
+- **Owner action:** log into `/admin/dex` and confirm it reads well. Production still needs `db:migrate` against Render's `DATABASE_URL`.
 
 ---
 
