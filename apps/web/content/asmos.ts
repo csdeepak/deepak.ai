@@ -1,12 +1,12 @@
 /**
- * ⚠ DRAFT SCAFFOLD — the ASMOS memory.
+ * ASMOS — owner-ratified memory (G3 cleared 2026-07-21).
  *
- * This proves the RECONSTRUCTION FORMAT for the vertical slice. The
- * thinking-shape is representative; it must be REPLACED with Deepak's
- * real ASMOS content before any deploy. Per the honesty spine (docs/26
- * §9): NO metric, benchmark, result, or publication here is fabricated —
- * Results and Publication render as honest in-progress states, not
- * invented outcomes. Swapping in the real memory is a content edit only.
+ * Content derives exclusively from the owner's ratified text (session
+ * 2026-07-21). Fields left as "" (formed) are empty because the
+ * ratified text did not supply them; brief.tsx filters empty gist rows
+ * so they self-hide rather than render blank (LAW-008).
+ * "our evaluation runs" in the text leaves role attribution slightly
+ * ambiguous; "Researcher and engineer" is the minimal safe derivation.
  */
 import type { Memory, MemoryEdge, MemoryNode } from "@/features/memory/types";
 
@@ -15,15 +15,16 @@ export const asmosMemory: Memory = {
   title: "ASMOS",
   kind: "Memory · Research",
   oneLine:
-    "A structured memory architecture that lets agents remember with the shape of what they learned — not just a pile of vectors.",
+    "A research-grade multi-agent memory prototype that routes questions by verified topic ownership, cutting prompt tokens by about 22% in evaluation.",
   gist: {
     problem:
-      "Agents forget. Flat vector stores retrieve fragments but lose the structure — the why, the order, the connections — that made knowledge useful.",
+      "Multi-agent systems compared answers across multiple APIs but none actually orchestrated the work or routed it by ownership.",
     approach:
-      "A graph-structured, self-organising memory: episodes consolidate into semantic structure over time, and recall reconstructs context, not just chunks.",
-    status: "In active development — architecture stable, evaluation in progress, manuscript in preparation.",
-    role: "Sole researcher and engineer — design, implementation, and evaluation.",
-    formed: "2025",
+      "Create verified checkpoints, score topic ownership, route each question to the agent that owns that topic, and load only that agent's relevant memory.",
+    status:
+      "Working prototype with routing, scoring, memory, 400+ passing tests, Docker support, and experiments showing about 22% token reduction across Stack Overflow Q&A tasks.",
+    role: "Researcher and engineer",
+    formed: "", // owner to fill — not in ratified text
     links: [],
   },
   stages: [
@@ -32,158 +33,63 @@ export const asmosMemory: Memory = {
       label: "The question",
       state: "settled",
       body: [
-        "Why do capable agents still feel amnesiac? Give a model a vector store and it can fetch a relevant paragraph — but it has forgotten how that paragraph connected to everything else it once knew.",
-        "The question that started ASMOS: what would it take for an agent to remember the way a researcher remembers — by association, by structure, by the trail that led there?",
-      ],
-    },
-    {
-      kind: "hypothesis",
-      label: "The hypothesis",
-      state: "settled",
-      body: [
-        "Memory should not be a flat index of embeddings. It should be a graph that mirrors the structure of what was learned: episodes linked to the concepts they touched, concepts linked to each other, consolidated over time.",
-        "If recall reconstructs the surrounding structure — not just the nearest chunk — then an agent's answers should carry the context that makes them trustworthy.",
-      ],
-    },
-    {
-      kind: "research",
-      label: "What it built on",
-      state: "settled",
-      body: [
-        "Retrieval-augmented generation, associative and episodic memory models from cognitive science, and knowledge-graph construction. The gap: most agent memory is retrieval without structure, and most knowledge graphs are static, not continuously formed from experience.",
+        "The multi-agent systems I was studying only compared answers across multiple APIs — none of them actually orchestrated the work or routed it by ownership.",
       ],
     },
     {
       kind: "experiments",
-      label: "The experiments",
-      state: "in-progress",
+      label: "The experiment",
+      state: "settled",
       body: [
-        "A sequence of probes comparing how well different memory structures preserve the usefulness of knowledge over long horizons and repeated recall.",
+        "I tried creating verified checkpoints from answered questions, using those checkpoints to score topic ownership, and routing each new question to the agent with the strongest proven track record.",
+        "The owner score combines 60% trust, based on verified correctness, and 40% contribution share, based on how much of the correct work on that topic came from that agent.",
       ],
       items: [
         {
-          title: "Flat vector recall (baseline)",
-          note: "Nearest-neighbour retrieval over episode embeddings.",
-          outcome: "partial",
+          title: "Ownership-based routing",
+          note: "Each question routed to the owner agent for that topic; if no clear owner exists, the system falls back to broader memory search.",
+          outcome: "worked",
         },
-        {
-          title: "Graph-structured consolidation",
-          note: "Episodes consolidated into a semantic graph; recall traverses associations.",
-          outcome: "partial",
-        },
-        {
-          title: "Reconstruction-on-recall",
-          note: "Recall reassembles surrounding context rather than returning isolated chunks.",
-          outcome: "partial",
-        },
-      ],
-    },
-    {
-      kind: "failures",
-      label: "Abandoned branches",
-      state: "settled",
-      body: [
-        "The dead ends are kept on purpose — they are where the design actually happened.",
-      ],
-      items: [
-        {
-          title: "Bigger context window instead of memory",
-          note: "Just stuff everything in the prompt. Broke on cost and on long horizons; recency drowned structure. Abandoned.",
-          outcome: "failed",
-        },
-        {
-          title: "Pure vector store, no structure",
-          note: "Retrieved relevant text but lost the connections that made it meaningful — the exact failure ASMOS exists to fix.",
-          outcome: "failed",
-        },
-        {
-          title: "Eager summarisation of old memories",
-          note: "Compressing the past too early destroyed the detail later reasoning needed. Replaced by lazy, recall-driven consolidation.",
-          outcome: "failed",
-        },
-      ],
-    },
-    {
-      kind: "iterations",
-      label: "How it evolved",
-      state: "settled",
-      body: [
-        "Each dead end pushed the design one step: from 'store more' to 'store structure', from 'summarise early' to 'consolidate on recall', from 'retrieve chunks' to 'reconstruct context'. ASMOS is the accumulation of those corrections.",
-      ],
-    },
-    {
-      kind: "architecture",
-      label: "The architecture",
-      state: "settled",
-      body: [
-        "Three layers: an episodic store of raw experience; a semantic graph that consolidates episodes into linked concepts; and a recall process that, given a cue, traverses the graph to reconstruct the relevant context before the agent answers.",
-        "Consolidation is lazy and recall-driven — structure forms where it is actually used, so the memory grows the way attention moves through it.",
       ],
     },
     {
       kind: "results",
-      label: "Where it stands",
-      state: "in-progress",
-      body: [
-        "Evaluation is in progress. Early signals are promising on long-horizon recall and on preserving the context that flat retrieval loses — but the numbers are not yet final, so they are not claimed here. This section will crystallise when the evaluation is complete.",
-      ],
-    },
-    {
-      kind: "publication",
-      label: "The paper",
-      state: "in-progress",
-      body: [
-        "A manuscript is in preparation. No venue or date is claimed until it is real — an empty shelf is more honest than a fabricated citation.",
-      ],
-    },
-    {
-      kind: "future",
-      label: "What's next",
+      label: "What it showed",
       state: "settled",
       body: [
-        "Explainable recall — surfacing why a memory was retrieved. Continual consolidation across sessions. And, fittingly, using ASMOS as the memory behind Dex on this very site — the research running the product that documents it.",
+        "Ownership-based routing genuinely works. The final careful re-test showed about 22% token reduction, with question-level results roughly ranging from 18-26%.",
+        "The comparison used the actual text sent to the AI under the old load-everything approach and under ASMOS's load-only-the-owner-memory approach, counted with a real tokenizer across 50 questions and 10 random-seed reruns.",
       ],
     },
   ],
   dex: [
     {
-      cue: "What problem does ASMOS solve?",
+      cue: "What is ASMOS?",
       answer:
-        "Agents forget. Flat vector stores retrieve fragments but lose the structure that made knowledge useful — the connections, the order, the why. ASMOS gives memory that structure.",
+        "A research-grade multi-agent memory prototype that learns which agent owns each topic from verified checkpoints, routes new questions to that owner, and loads only the relevant memory. In evaluation it cut prompt tokens by about 22%.",
+      source: "results",
+    },
+    {
+      cue: "What insight started ASMOS?",
+      answer:
+        "Realising that the multi-agent systems being studied only compared answers across multiple APIs — none of them actually orchestrated the work or routed it by ownership.",
       source: "question",
     },
     {
-      cue: "How is it different from a normal vector database?",
+      cue: "What did the evaluation show?",
       answer:
-        "A vector store returns the nearest chunk. ASMOS consolidates episodes into a semantic graph and reconstructs the surrounding context on recall — so answers carry the connections that make them trustworthy, not just isolated text.",
-      source: "architecture",
-    },
-    {
-      cue: "What didn't work?",
-      answer:
-        "Three abandoned branches: a bigger context window instead of memory (broke on cost and long horizons), a pure vector store with no structure (lost the connections), and eager summarisation of old memories (destroyed detail later reasoning needed).",
-      source: "failures",
-    },
-    {
-      cue: "Is it published?",
-      answer:
-        "Not yet. A manuscript is in preparation, and evaluation is still in progress — so no venue, date, or metric is claimed. When it's real, it will appear here.",
-      source: "publication",
-    },
-    {
-      cue: "What's next for ASMOS?",
-      answer:
-        "Explainable recall (why a memory was retrieved), continual consolidation across sessions, and using ASMOS as the memory behind Dex on this site.",
-      source: "future",
+        "Ownership-based routing genuinely works. A larger careful re-test showed about 22% token reduction, with question-level results roughly ranging from 18-26%.",
+      source: "results",
     },
   ],
-  draft: true,
+  draft: false,
 };
 
 /**
- * The semantic memory graph for the slice. ASMOS is the one fully-formed,
- * reconstructable memory; the others are REAL but not yet documented —
- * shown as honest "unformed" nodes (docs/26 §9), never faked into detail.
+ * The semantic memory graph for the /memory slice. ASMOS is the one
+ * fully-formed, reconstructable memory. The others are real projects
+ * shown as honest "unformed" nodes (docs/26 §9) — not yet documented
+ * as memories, never faked into detail.
  */
 export const memoryNodes: readonly MemoryNode[] = [
   {

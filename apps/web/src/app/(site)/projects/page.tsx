@@ -3,7 +3,7 @@ import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { ProjectCard } from "@/components/content/project-card";
 import { EmptyState } from "@/components/content/empty-state";
-import { localContent } from "@/services/local-content";
+import { contentService } from "@/services";
 
 /**
  * /projects — the Work index (Index archetype, docs/24 Part 10; D-021
@@ -18,19 +18,19 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkIndexPage() {
-  const projects = await localContent.getProjects();
+  const projects = await contentService.getProjects();
 
   return (
     <Section>
       <Container width="content">
         <header className="max-w-[46ch]">
-          <p className="font-mono text-small uppercase tracking-[0.2em] text-faint">
+          <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
             Work
           </p>
-          <h1 className="mt-4 text-h1 font-semibold tracking-tight text-ink">
+          <h1 className="mt-4 text-section font-display font-semibold text-ink">
             Projects
           </h1>
-          <p className="mt-4 text-body text-muted">
+          <p className="mt-4 text-lead text-muted">
             Shipped systems — where reasoning became real. Each carries the
             question that created it and the branches abandoned along the way.
           </p>

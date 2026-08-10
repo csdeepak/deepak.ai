@@ -19,11 +19,11 @@ export function Collaborate() {
         <ScrollReveal>
           <h2
             id="collaborate-heading"
-            className="text-h1 font-medium tracking-tight text-ink"
+            className="text-section font-display font-medium text-ink"
           >
             Let&rsquo;s build something worth understanding.
           </h2>
-          <p className="mt-5 max-w-[48ch] text-reading text-muted">
+          <p className="mt-5 max-w-[48ch] text-lead text-muted">
             {contactSentence}
           </p>
 

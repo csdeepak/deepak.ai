@@ -22,13 +22,13 @@ Every specification follows this structure:
 | Spec | Feature |
 | --- | --- |
 | [`landing.md`](landing.md) | **Landing page — Specified (Sprint 1 master spec).** |
-| [`gallery.md`](gallery.md) | Media/image gallery. |
+| [`gallery.md`](gallery.md) | **Photo gallery — Specified for D-056 (documented after the build).** |
 | [`projects.md`](projects.md) | Projects showcase. |
 | [`posts.md`](posts.md) | Blog / writing. |
 | [`publications.md`](publications.md) | Research publications. |
 | [`timeline.md`](timeline.md) | Experience timeline. |
 | [`skills.md`](skills.md) | Skills and capabilities. |
-| [`ai-assistant.md`](ai-assistant.md) | Personal AI assistant. |
+| [`ai-assistant.md`](ai-assistant.md) | Personal AI assistant / Dex - Specified for D-053. |
 | [`news.md`](news.md) | News and updates. |
 | [`admin-dashboard.md`](admin-dashboard.md) | Content administration. |
 

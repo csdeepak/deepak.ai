@@ -275,6 +275,60 @@ Summarized here; the copy-paste version lives in the repo `README.md`
 
 ---
 
+## 8a. Deploy-day environment variable sheet
+
+> **Every variable listed below must be set in Render's environment before
+> the first `next start` can serve.** Variables marked ⚠ Secret are the
+> sensitive values — paste them raw into Render's "Add Secret File" or
+> "Secret" env var fields, not as plain text. **See the escape note below**
+> before copying values from `.env.local`.
+
+### Required at Tier 0 (static launch, no DB)
+
+| Variable | Source | Render field type | Notes |
+|----------|--------|-------------------|-------|
+| `NODE_VERSION` | `"20"` | Plain env | Already in `render.yaml` |
+| `NODE_ENV` | `"production"` | Plain env | Already in `render.yaml` |
+| `SESSION_SECRET` ⚠ | Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"` | **Secret** | ≥ 32 random chars. The startup check (`instrumentation.ts`) throws if missing, too short, or using the dev fallback. |
+| `ADMIN_PASSWORD_HASH` ⚠ | Generate with `node -e "const b=require('bcryptjs'); b.hash('yourPassphrase',12).then(h=>console.log(h))"` | **Secret** | bcrypt hash of your admin passphrase. Must start with `$2`. Startup check throws if missing or malformed. |
+
+### Added when the database arrives (docs/09)
+
+| Variable | Source | Render field type | Notes |
+|----------|--------|-------------------|-------|
+| `CONTENT_SOURCE` | `"db"` | Plain env | Flip from unset (file mode) to `"db"` when DB is wired. |
+| `DATABASE_URL` ⚠ | Render Postgres → Connection String | **Secret** (auto-linked via `fromDatabase` in render.yaml) | pgvector must be enabled on the Postgres instance. |
+
+### Added when R2 media goes live (D-049, docs/28)
+
+| Variable | Source | Render field type | Notes |
+|----------|--------|-------------------|-------|
+| `R2_ACCOUNT_ID` ⚠ | Cloudflare dashboard → Account ID | **Secret** | |
+| `R2_ACCESS_KEY_ID` ⚠ | Cloudflare → R2 → API Tokens | **Secret** | |
+| `R2_SECRET_ACCESS_KEY` ⚠ | Cloudflare → R2 → API Tokens | **Secret** | |
+| `R2_BUCKET` | `"deepak-labs-media"` (or your chosen name) | Plain env | Bucket must exist and have public access enabled. |
+| `MEDIA_PUBLIC_BASE_URL` | e.g. `https://pub-xxxxxxxx.r2.dev` | Plain env | The bucket's r2.dev URL or a custom domain. Not a secret — it's the public asset host. **R2 setup is mid-flight** (bucket created; first test upload pending — activate only after smoke-testing upload + read-back). |
+
+---
+
+### ⚠ Critical: raw vs escaped — bcrypt hashes and `$` characters
+
+bcrypt hashes contain `$` characters (e.g. `$2b$12$...`). This is the
+single most common deploy failure source:
+
+- **Render dashboard (recommended path):** paste the value **raw /
+  unescaped**. Render does not run dotenv-expand; `$` is literal. No
+  quoting, no backslashes.
+- **`apps/web/.env.local` (local dev):** dotenv IS used here, so `$` must
+  be **escaped as `\$`** in the hash value, or the entire value wrapped in
+  single quotes. Example: `ADMIN_PASSWORD_HASH='$2b$12$...'`
+
+The same rule applies to `SESSION_SECRET` if it was generated with the
+base64 command above (base64 output occasionally contains `+` and `/` but
+not `$` — usually safe unescaped; check your generated value).
+
+---
+
 ## 9. Open items (owner-gated)
 
 - **D-041 ratification:** confirm Render (or elect Railway / Vercel+Neon

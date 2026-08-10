@@ -78,6 +78,46 @@ npm run typecheck   # tsc --noEmit
 npm run build       # production build
 ```
 
+## Media / R2 setup
+
+Images and PDFs are stored in **Cloudflare R2** (S3-compatible, zero egress
+fees; D-049, `docs/28`). Media is optional — the site builds and runs with no
+R2 configured; the admin's Media page simply stays disabled with an honest
+notice. To enable uploads:
+
+1. **Create a bucket** in the Cloudflare dashboard → R2 → *Create bucket*
+   (e.g. `deepak-labs-media`).
+2. **Enable public access** for reads: either turn on the bucket's **r2.dev**
+   public URL, or connect a **custom domain** (e.g. `media.yourdomain.dev`).
+   Copy that origin — it becomes `MEDIA_PUBLIC_BASE_URL`.
+3. **CORS** (only needed if a browser ever reads the bucket directly; uploads
+   go through the server so this is usually unnecessary). If required, add a
+   rule allowing `GET` from your site origin.
+4. **Create an API token** (R2 → *Manage R2 API Tokens* → *Create*, Object
+   Read & Write, scoped to the bucket). Copy the Access Key ID + Secret.
+5. **Set the environment** (locally in `apps/web/.env.local`, and in Render's
+   env group for production — all `R2_*` values are **secrets**):
+
+   ```
+   R2_ACCOUNT_ID=...
+   R2_ACCESS_KEY_ID=...
+   R2_SECRET_ACCESS_KEY=...
+   R2_BUCKET=deepak-labs-media
+   MEDIA_PUBLIC_BASE_URL=https://pub-xxxxxxxx.r2.dev   # public, not a secret
+   ```
+
+6. Restart the dev server / redeploy. Upload from **Admin → Media**; attach
+   assets to a project from the editor's **Media** section.
+
+**Backup (never vendor-hostage):** `npm run media:backup --workspace=web`
+downloads the entire bucket to `apps/web/media-backup/`, keys preserved — a
+portable mirror re-uploadable to any S3-compatible store.
+
+**Upload safety:** uploads are auth-gated (admin only), verified by magic
+bytes (not the client MIME), size-limited (images ≤ 8 MB, PDFs ≤ 20 MB),
+re-encoded through sharp (EXIF stripped), and **alt text is required for
+images**. Deleting media in use is blocked with an honest message.
+
 ## Deployment
 
 Hosting is a managed PaaS — **Render** (primary recommendation, pending

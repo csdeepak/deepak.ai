@@ -1,16 +1,17 @@
 /*
- * Deepak Labs — Design Tokens (docs/24 Design Bible V2 · Parts 3–5, 12)
+ * Deepak Labs — The Instrument Design System (docs/DESIGN_SYSTEM.md · D-052)
  *
  * Three tiers (D-025):
  *   1. Primitives  — the :root / .dark CSS variables below. PRIVATE.
  *   2. Semantics   — the @theme mappings (color-canvas, color-ink, …).
  *   3. Components  — consume semantics via Tailwind utilities only.
  *
- * V2 (D-039): the palette is now COMMITTED (not provisional) and the
- * product is DARK-FIRST — dark is the default identity, light ("Paper")
- * is a first-class equal. The 3D scene reads the `--scene-*` and
- * semantic tokens live (no hex ever lives in scene code — D-025).
- * Retuning remains a one-file edit.
+ * D-052 retunes the palette to the Instrument system: dark-first stage/ink,
+ * muted/faint as ink-opacity, hairline = ink @ 8%, and a Gemini-inspired
+ * accent GRADIENT (blue → violet → warm pink) that appears ONLY as directed
+ * energy — never a flat brand fill. Semantic token NAMES are preserved so the
+ * pre-reskin build keeps compiling; Phase 3 migrates components to the six
+ * canonical type tokens and gradient-energy usage. One-file retune stands.
  */
 
 @import "tailwindcss";
@@ -20,66 +21,62 @@
 /* ── Tier 1: primitives (private — never referenced by components) ── */
 /* Light mode = "Paper" (first-class equal). Dark overrides in .dark. */
 :root {
-  /* Graphite ramp — cool-neutral, Paper end (bible §3.1) */
-  --graphite-0: #ffffff;
-  --graphite-50: #f7f7f5;
-  --graphite-100: #f2f2ef;
-  --graphite-200: #e6e6e2;
-  --graphite-300: #d3d4d0;
-  --graphite-400: #a7abb0;
-  --graphite-500: #868c93;
-  --graphite-600: #565c63;
-  --graphite-700: #363b41;
-  --graphite-800: #22262b;
-  --graphite-900: #16181c;
-  --graphite-1000: #0b0c0e;
+  /* The Gemini accent gradient — directed energy only (never a flat fill).
+     The three stops are also read by the WebGL scene for pulses. */
+  --grad-1: #4f8cff; /* blue — leading edge (highest contrast) */
+  --grad-2: #b69cff; /* violet — midpoint */
+  --grad-3: #ff9cb0; /* warm pink — diffusing tail */
+  --accent-gradient: linear-gradient(100deg, var(--grad-1), var(--grad-2), var(--grad-3));
+  --signal-solid: var(--grad-1); /* solid fallback: outlines, selection */
 
-  /* Accent — "Signal Azure" (bible §3.2) */
-  --signal: #0a66e0; /* light */
-  --signal-hover: #0954ba;
-  --signal-glow: #3e8eff;
-  --signal-weak: rgb(10 102 224 / 0.1);
-
-  /* Semantic status ramps (bible §3.4) */
+  /* Semantic status ramps (state only, reserved) */
   --green: #1e934a;
   --amber: #b26b00;
   --red: #d22d2d;
 
   /* ── Tier 2: semantic assignments — light ("Paper") ── */
-  --bg-canvas: #fbfbf9;
+  --stage-ink: 10 11 13; /* #0A0B0D — light-mode ink, as RGB channels */
+
+  --bg-canvas: #fafaf7; /* warm off-white parchment */
   --bg-recessed: #f2f2ef;
   --surface-default: #ffffff;
   --surface-raised: #ffffff;
   --overlay-scrim: rgb(16 18 22 / 0.5);
-  --glass-tint: rgb(255 255 255 / 0.82);
+  --glass-tint: rgb(250 250 247 / 0.6); /* nav glass = 60% stage */
 
-  --text-primary: #16181c;
-  --text-muted: #565c63;
-  --text-faint: #868c93;
-  --text-inverse: #fbfbf9;
+  --text-primary: rgb(var(--stage-ink)); /* #0A0B0D */
+  --text-muted: rgb(var(--stage-ink) / 0.6);
+  --text-faint: rgb(var(--stage-ink) / 0.42);
+  --text-inverse: #fafaf7;
   --text-on-accent: #ffffff;
 
-  --border-default: rgb(16 18 22 / 0.1);
-  --border-emphasis: rgb(16 18 22 / 0.18);
+  --border-default: rgb(var(--stage-ink) / 0.08); /* hairline = ink @ 8% */
+  --border-emphasis: rgb(var(--stage-ink) / 0.16);
 
-  --interactive-default: var(--signal);
-  --interactive-hover: var(--signal-hover);
-  --interactive-pressed: var(--signal-hover);
-  --interactive-weak: var(--signal-weak);
+  /* Interactive = the solid signal (blue leading edge). The gradient is used
+     for fills/underlines/energy; solids for links, focus, selection. */
+  --interactive-default: var(--signal-solid);
+  --interactive-hover: #3d7bef;
+  --interactive-pressed: #3d7bef;
+  --interactive-weak: rgb(79 140 255 / 0.12);
 
   --status-success: var(--green);
   --status-warning: var(--amber);
   --status-danger: var(--red);
-  --status-info: var(--signal);
+  --status-info: var(--signal-solid);
 
-  /* ── Scene tokens (bible §3.3, §6.5) — read live by the 3D scene ── */
-  --scene-key: #e6ecf6; /* cool key (~4300K neutral-cool) */
-  --scene-task: #ffb877; /* warm task light (~3200K) — the one warmth */
-  --scene-rim: #cdddf5; /* cool separation hairlight */
-  --scene-node-dim: #b9bfc7; /* graph node at low luminance */
-  --scene-node-bright: #f4f7fb; /* graph node at full luminance */
-  --scene-twin: #b8bcc2; /* matte ceramic — graphite-neutral (bible §7.2) */
-  --scene-bench: #6a6f77; /* the workbench, one step darker */
+  /* ── Scene tokens (read live by the 3D scene — no hex in scene code) ── */
+  --scene-key: #e6ecf6;
+  --scene-task: #ffb877;
+  --scene-rim: #cdddf5;
+  --scene-node-dim: #b9bfc7;
+  --scene-node-bright: #f4f7fb;
+  --scene-twin: #b8bcc2;
+  --scene-bench: #6a6f77;
+
+  /* Section rhythm (docs/DESIGN_SYSTEM §3) */
+  --rhythm-mobile: 96px;
+  --rhythm-desktop: 160px;
 
   /* Z-index bands (docs/15 §2.11) */
   --z-base: 0;
@@ -93,33 +90,28 @@
   --z-emergency: 800;
 }
 
-/* Dark mode — the default identity (bible §2.2). A dim, precise lab. */
+/* Dark mode — the default identity. The Instrument's dark stage. */
 .dark {
-  --bg-canvas: #0b0c0e;
+  --stage-ink: 242 243 245; /* #F2F3F5 — dark-mode ink, as RGB channels */
+
+  --bg-canvas: #0a0b0d; /* the stage */
   --bg-recessed: #08090b;
   --surface-default: #131519;
   --surface-raised: #1b1e24;
   --overlay-scrim: rgb(0 0 0 / 0.6);
-  --glass-tint: rgb(19 21 25 / 0.72);
+  --glass-tint: rgb(10 11 13 / 0.6); /* nav glass = 60% stage */
 
-  --text-primary: #f3f5f7;
-  --text-muted: #a2a9b0;
-  --text-faint: #6a7178;
-  --text-inverse: #0b0c0e;
+  --text-primary: rgb(var(--stage-ink)); /* #F2F3F5 */
+  --text-muted: rgb(var(--stage-ink) / 0.6);
+  --text-faint: rgb(var(--stage-ink) / 0.38);
+  --text-inverse: #0a0b0d;
 
-  --border-default: rgb(255 255 255 / 0.09);
-  --border-emphasis: rgb(255 255 255 / 0.16);
+  --border-default: rgb(var(--stage-ink) / 0.08); /* hairline = ink @ 8% */
+  --border-emphasis: rgb(var(--stage-ink) / 0.16);
 
-  /* Signal brightens one step on dark; it behaves as light here. */
-  --signal: #3e8eff;
-  --signal-hover: #5aa0ff;
-  --signal-glow: #5aa0ff;
-  --signal-weak: rgb(62 142 255 / 0.14);
-  --interactive-default: var(--signal);
-  --interactive-hover: var(--signal-hover);
-  --interactive-pressed: var(--signal-hover);
-  --interactive-weak: var(--signal-weak);
-  --status-info: var(--signal);
+  --interactive-hover: #6fa0ff;
+  --interactive-pressed: #6fa0ff;
+  --interactive-weak: rgb(79 140 255 / 0.16);
 
   /* Scene: the room is darker, the node contrast widens. */
   --scene-node-dim: #2b3038;
@@ -151,6 +143,11 @@
   --color-accent-pressed: var(--interactive-pressed);
   --color-accent-weak: var(--interactive-weak);
 
+  /* Gradient stops exposed as colours for energy accents. */
+  --color-grad-1: var(--grad-1);
+  --color-grad-2: var(--grad-2);
+  --color-grad-3: var(--grad-3);
+
   --color-success: var(--status-success);
   --color-warning: var(--status-warning);
   --color-danger: var(--status-danger);
@@ -158,68 +155,86 @@
 }
 
 @theme {
-  /* Spacing: Tailwind's default 0.25rem base = the 4px unit (space.N == p-N) */
+  /* Spacing: Tailwind's 0.25rem base = the 4px unit. 8px grid = even steps. */
 
-  /* Containers (bible §5.2) */
+  /* Containers (docs/DESIGN_SYSTEM §3) */
   --container-reading: 42.5rem; /* 680 */
   --container-content: 75rem; /* 1200 */
   --container-wide: 90rem; /* 1440 */
   --container-narrow: 25rem; /* 400 */
 
-  /* Breakpoints (bible §16) */
+  /* Breakpoints */
   --breakpoint-sm: 40rem; /* 640 */
   --breakpoint-md: 64rem; /* 1024 */
   --breakpoint-lg: 90rem; /* 1440 */
   --breakpoint-xl: 120rem; /* 1920 */
 
-  /* Radius — closed set (bible §5.3) */
+  /* Radius — closed set */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-pill: 999px;
 
-  /* The system's one real shadow (bible §5.3) */
+  /* The system's one real shadow */
   --shadow-overlay: 0 16px 48px -12px rgb(0 0 0 / 0.55), 0 1px 2px rgb(0 0 0 / 0.4);
 
-  /* Type scale (bible §4.2) */
-  --text-legal: 0.75rem;
-  --text-legal--line-height: 1.4;
-  --text-micro: 0.78rem;
-  --text-micro--line-height: 1.4;
+  /* ── The six canonical type sizes (docs/DESIGN_SYSTEM §2) ── */
+  --text-hero: clamp(3.5rem, 6vw + 1rem, 7rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.02em;
+  --text-section: clamp(2rem, 3vw + 1rem, 3.5rem);
+  --text-section--line-height: 1.05;
+  --text-section--letter-spacing: -0.02em;
+  --text-card-title: 1.25rem;
+  --text-card-title--line-height: 1.2;
+  --text-card-title--letter-spacing: -0.01em;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-micro: 0.8125rem;
+  --text-micro--line-height: 1.5;
+
+  /* Legacy aliases (Phase 3 migrates components off these, then they are
+     deleted — see docs/DESIGN_SYSTEM §2 transition note). */
+  --text-display: var(--text-hero);
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-reading: var(--text-lead);
+  --text-reading--line-height: 1.6;
   --text-small: 0.875rem;
   --text-small--line-height: 1.5;
-  --text-body: 1rem;
-  --text-body--line-height: 1.55;
-  --text-reading: 1.125rem;
-  --text-reading--line-height: 1.6;
-  --text-h4: 1.25rem;
-  --text-h4--line-height: 1.4;
-  --text-h3: 1.375rem;
-  --text-h3--line-height: 1.3;
-  --text-h2: 1.75rem;
-  --text-h2--line-height: 1.2;
+  --text-legal: 0.75rem;
+  --text-legal--line-height: 1.4;
   --text-h1: 2.25rem;
   --text-h1--line-height: 1.12;
-  --text-display: clamp(2.75rem, 6vw + 1rem, 7.5rem);
-  --text-display--line-height: 1.02;
-  --text-display--letter-spacing: -0.02em;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 1.2;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.3;
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.4;
 
-  /* Motion (bible §12.2) */
+  /* ── Motion (docs/DESIGN_SYSTEM §4) ── */
   --duration-instant: 80ms;
   --duration-fast: 130ms;
+  --duration-hover: 180ms;
   --duration-base: 220ms;
   --duration-slow: 320ms;
+  --duration-reveal: 400ms;
   --duration-narrative: 560ms;
 
+  /* The two ownable easings. */
+  --ease-instrument: cubic-bezier(0.22, 1, 0.36, 1); /* default reveals/hover */
+  --ease-arc: cubic-bezier(0.65, 0, 0.35, 1); /* energy — pulses, sweeps */
+  /* Legacy easing aliases (kept for existing components). */
   --ease-out-std: cubic-bezier(0.2, 0, 0, 1);
   --ease-in-out-std: cubic-bezier(0.45, 0, 0.55, 1);
-  /* "settle" — smooth approach, minimal (<2%) overshoot (bible §12.1) */
-  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-settle: var(--ease-instrument);
 
-  /* Fonts wired via next/font variables in the root layout.
-     Display licence is a build gate (bible §4.1); Inter is the
-     documented interim for the display face. Editorial serif likewise. */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Fonts wired via next/font variables in the root layout. */
+  --font-sans: var(--font-inter), "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
@@ -238,7 +253,7 @@
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.55;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -253,34 +268,33 @@
     }
   }
 
-  /* The focus ring — one recipe, never suppressed (bible §14, Law) */
+  /* The focus ring — one recipe, never suppressed. Solid signal (blue). */
   :focus-visible {
-    outline: 2px solid var(--interactive-default);
+    outline: 2px solid var(--signal-solid);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* Tabular figures wherever data lives (bible §4.3) */
+  /* Tabular figures wherever data lives */
   .tabular {
     font-variant-numeric: tabular-nums lining-nums;
   }
 
   ::selection {
-    background-color: var(--interactive-default);
-    color: var(--text-on-accent);
+    background-color: var(--signal-solid);
+    color: #ffffff;
   }
 }
 
 @layer utilities {
   /*
-   * `entrance` recipe as zero-JS CSS — used by the hero text block so
-   * the LCP element never waits on hydration (bible §15). Sections
-   * below the fold use the ScrollReveal component instead.
+   * `entrance` — zero-JS CSS for the LCP hero text so it never waits on
+   * hydration. Sections below the fold use the ScrollReveal component.
    */
   @keyframes dl-entrance {
     from {
       opacity: 0;
-      transform: translateY(16px);
+      transform: translateY(12px);
     }
     to {
       opacity: 1;
@@ -289,10 +303,293 @@
   }
 
   .animate-entrance {
-    animation: dl-entrance var(--duration-base) var(--ease-out-std) both;
+    animation: dl-entrance var(--duration-reveal) var(--ease-instrument) both;
   }
 
-  /* Dex's breath — the ONE permitted ambient loop (bible §8.2). */
+  /* Accent gradient clipped to text — for ONE energy word, never a paragraph. */
+  .text-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Active-nav / link underline in the accent gradient. */
+  .gradient-underline {
+    position: relative;
+  }
+  .gradient-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent-gradient);
+  }
+
+  /* Gradient underline that sweeps in on hover — for cards (via .group) and
+     links. Wipes left→right in ease-instrument; reduced-motion just shows it. */
+  .gradient-underline-hover {
+    position: relative;
+  }
+  .gradient-underline-hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    border-radius: 2px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-hover) var(--ease-instrument);
+  }
+  .group:hover .gradient-underline-hover::after,
+  .gradient-underline-hover:hover::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-underline-hover::after {
+      transition: none;
+    }
+  }
+
+  /* The pill CTA (docs/DESIGN_SYSTEM §5). */
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding-inline: 20px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgb(var(--stage-ink) / 0.2);
+    font-weight: 500;
+    color: var(--text-primary);
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+    transition:
+      color var(--duration-hover) var(--ease-instrument),
+      border-color var(--duration-hover) var(--ease-instrument);
+  }
+  /* Hover fills with a STATIC gradient overlay (energy is reserved — not animated). */
+  .cta-pill--energy::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: opacity var(--duration-hover) var(--ease-instrument);
+    z-index: -1;
+  }
+  .cta-pill--energy:hover {
+    color: #ffffff;
+    border-color: transparent;
+  }
+  .cta-pill--energy:hover::before {
+    opacity: 1;
+  }
+
+  /* True gradient focus outline for chrome that opts in. */
+  .focus-gradient:focus-visible {
+    outline: none;
+    border-image: var(--accent-gradient) 1;
+    box-shadow: 0 0 0 2px var(--bg-canvas), 0 0 0 4px var(--grad-2);
+  }
+
+  /* Section vertical rhythm — 96px mobile / 160px desktop. */
+  .section-rhythm {
+    padding-block: var(--rhythm-mobile);
+  }
+  @media (min-width: 64rem) {
+    .section-rhythm {
+      padding-block: var(--rhythm-desktop);
+    }
+  }
+
+  /* ── Gallery cluster (D-056) ──────────────────────────────────────────────
+   *
+   * A CLUSTER, not a grid. Three rules make it read that way:
+   *
+   *   1. Every photo keeps its real aspect ratio (--ar from the file's true
+   *      dimensions). Nothing is cropped to a house shape.
+   *   2. Footprint varies widely (--size ~0.7 to ~1.4), so photos differ by
+   *      almost 2x rather than a few pixels.
+   *   3. Each photo carries a --tilt and a vertical nudge, so nothing shares
+   *      a baseline. Rows never line up, which is what kills the grid read.
+   *
+   * Motion is scroll-DRIVEN, never an ambient loop: everything below is bound
+   * to `animation-timeline: view()`, so it advances with the visitor's scroll
+   * and stops when they stop. The one-ambient-loop rule stays spent on Dex's
+   * breath, and "native scroll owns truth" holds.
+   *
+   * Zero JavaScript — which is why the landing cluster costs nothing against
+   * the / First Load JS budget.
+   */
+  .gallery-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.75rem, 2vw, 1.75rem);
+  }
+
+  .gallery-photo {
+    --ar: 1;
+    --size: 1;
+    --tilt: 0deg;
+    --depth: 0.8;
+    /* Size variance is damped on small screens. At full strength a 0.7x photo
+     * on a phone lands around 45px wide — technically varied, practically
+     * invisible. Below 48rem the spread is halved toward 1. */
+    --size-eff: calc(1 + (var(--size) - 1) * 0.45);
+    --base: clamp(8rem, 17vw, 15rem);
+    /* Height is the unit; width follows the real aspect ratio. That is what
+     * lets a portrait stay tall and a panorama stay wide in the same run. */
+    height: calc(var(--base) * var(--size-eff));
+    width: calc(var(--base) * var(--size-eff) * var(--ar));
+    flex: none;
+    overflow: hidden;
+    border-radius: var(--radius-md, 0.5rem);
+    rotate: var(--tilt);
+    /* Break the shared baseline — the single biggest anti-grid move. */
+    margin-block: calc(var(--depth) * -0.75rem) calc(var(--depth) * 0.75rem);
+    box-shadow: 0 1.5rem 3rem -1.5rem rgb(0 0 0 / calc(0.45 * var(--depth)));
+    transition:
+      rotate var(--duration-base) var(--ease-instrument),
+      scale var(--duration-base) var(--ease-instrument),
+      box-shadow var(--duration-base) var(--ease-instrument),
+      filter var(--duration-hover) var(--ease-instrument);
+  }
+
+  /* Full size variance once there is room for it to read. */
+  @media (min-width: 48rem) {
+    .gallery-photo {
+      --size-eff: var(--size);
+    }
+  }
+
+  .gallery-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Hover: the photo straightens and lifts, as if picked up off the pile. */
+  .gallery-photo:hover,
+  .gallery-photo:focus-visible {
+    rotate: 0deg;
+    scale: 1.04;
+    filter: brightness(1.05);
+    box-shadow: 0 2rem 4rem -1.25rem rgb(0 0 0 / 0.55);
+    z-index: 2;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Presentation-style entrance: each photo pops up from small and slightly
+     * over-tilted, then settles. Staggered so the cluster assembles rather
+     * than appearing all at once. */
+    @keyframes gallery-photo-in {
+      from {
+        opacity: 0;
+        scale: 0.82;
+        rotate: calc(var(--tilt) * 2.5);
+        translate: 0 2rem;
+      }
+      to {
+        opacity: 1;
+        scale: 1;
+        rotate: var(--tilt);
+        translate: 0 0;
+      }
+    }
+    .gallery-photo {
+      animation: gallery-photo-in var(--duration-narrative) var(--ease-instrument) both;
+      animation-delay: calc(var(--i, 0) * 65ms);
+    }
+
+    @supports (animation-timeline: view()) {
+      /* Scroll-driven Ken Burns — the photo slowly zooms and drifts across the
+       * whole scroll pass. Nearer photos (higher --depth) travel further, so
+       * the cluster has real parallax instead of moving as one flat sheet.
+       * This is the "alive" quality Google Photos gets from autoplay, without
+       * autoplay: it is entirely under the visitor's thumb. */
+      @keyframes gallery-kenburns {
+        from {
+          transform: translate3d(calc(var(--depth) * -1.5rem), calc(var(--depth) * 0.9rem), 0)
+            scale(1.12);
+        }
+        to {
+          transform: translate3d(calc(var(--depth) * 1.5rem), calc(var(--depth) * -0.9rem), 0)
+            scale(1.02);
+        }
+      }
+      .gallery-photo img {
+        animation: gallery-kenburns linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+        will-change: transform;
+      }
+    }
+  }
+
+  /* ── Gallery page: detail sequencing (D-056) ──────────────────────────────
+   * The page uses the same .gallery-cluster / .gallery-photo primitives as the
+   * landing section — one layout language, no second grid system. */
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Detail view: the image arrives directionally, so the motion says which
+     * way you moved through the sequence. --ease-arc is the energy easing. */
+    @keyframes gallery-enter-right {
+      from {
+        opacity: 0;
+        transform: translate3d(2.5rem, 0, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes gallery-enter-left {
+      from {
+        opacity: 0;
+        transform: translate3d(-2.5rem, 0, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .gallery-enter-right {
+      animation: gallery-enter-right var(--duration-slow) var(--ease-arc) both;
+    }
+    .gallery-enter-left {
+      animation: gallery-enter-left var(--duration-slow) var(--ease-arc) both;
+    }
+
+    /* Metadata lags the image by a beat — the sequencing that creates
+     * hierarchy instead of everything landing at once. */
+    @keyframes gallery-meta-in {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 8px, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .gallery-meta {
+      animation: gallery-meta-in var(--duration-base) var(--ease-instrument) both;
+      animation-delay: var(--duration-slow);
+    }
+  }
+
+  /* Dex's breath — the ONE permitted ambient loop. */
   @keyframes dl-breathe {
     0%,
     100% {
@@ -316,5 +613,21 @@
       animation: none;
       opacity: 1;
     }
+  }
+
+  /* Hero beat sub-line warm accent tint (D-052.1 §Accent use #2).
+     Blends the Gemini accent gradient at 40% strength over dark-mode ink,
+     yielding pastel warm hues that remain ≥ 4.5:1 against the dark stage.
+     Only meaningful inside the hero section (which is always .dark). */
+  .hero-subline-gradient {
+    background-image: linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--grad-1) 40%, var(--text-primary) 60%),
+      color-mix(in srgb, var(--grad-2) 40%, var(--text-primary) 60%),
+      color-mix(in srgb, var(--grad-3) 40%, var(--text-primary) 60%)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }

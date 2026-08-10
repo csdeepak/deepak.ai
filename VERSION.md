@@ -1,6 +1,6 @@
 # Version
 
-**Current Version:** `v0.6.0-alpha`
+**Current Version:** `v0.9.0-alpha`
 
 ---
 
@@ -23,6 +23,9 @@ Deepak Labs uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH[
 
 | Version         | Stage | Summary                                                      |
 | --------------- | ----- | ------------------------------------------------------------ |
+| `v0.9.0-alpha`  | alpha | Rich metadata + media sprint (`docs/28`, D-048/049): generous typed optional fields per content type (no JSONB), Cloudflare R2 media pipeline (`media`/`content_media`/`content_links`), auth-gated upload with EXIF-strip + reference-checked delete, one-command bucket backup, enriched Project editor + self-hiding detail rendering. |
+| `v0.8.0-alpha`  | alpha | Admin CMS (`docs/27`, D-046/047): iron-session + bcrypt auth, `(admin)` route group, Projects/site-copy editors, version history + restore, scheduled-publish cron (SKIP LOCKED), bundle-isolation CI guard. |
+| `v0.7.0-alpha`  | alpha | DB sprint: decade-horizon schema (`docs/09`), CTI via Drizzle + pgvector (D-043/044/045), Docker Compose dev DB, idempotent ingest, DB-backed ContentService, `CONTENT_SOURCE` selector. |
 | `v0.6.0-alpha`  | alpha | Launch readiness: release gates + owner content checklist, graceful-absence nav/footer, deployment plan (`docs/10`, Render) + config, `/projects` Work pages (D-040/041/042). |
 | `v0.5.0-alpha`  | alpha | V2 Design Bible ratified (D-039); dark-first token retune; Hero Scene V2 (boot sequence, luminance graph, Dex awakening). |
 | `v0.4.0-alpha`  | alpha | Sprint H-01: hero scene runtime foundation (tier gate, rail, governor, stand-ins). |

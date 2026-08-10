@@ -1,0 +1,32 @@
+[
+  {
+    "id": "interview-recruiter-fit",
+    "persona": "recruiter",
+    "question": "What kind of AI role are you trying to be hired for first, and what evidence should Dex use to support that fit?"
+  },
+  {
+    "id": "interview-current-focus",
+    "persona": "technical interviewer",
+    "question": "What are you actively building or learning right now, and what changed in your thinking recently?"
+  },
+  {
+    "id": "interview-project-pride",
+    "persona": "collaborator",
+    "question": "Which project are you most proud of, and what part of it was hardest in a way a recruiter would not immediately see?"
+  },
+  {
+    "id": "interview-failures",
+    "persona": "research mentor",
+    "question": "Name one failure, wrong turn, or abandoned idea that taught you something important."
+  },
+  {
+    "id": "interview-style",
+    "persona": "student",
+    "question": "How would you explain your working style to a junior student who wants to learn from you?"
+  },
+  {
+    "id": "interview-boundaries",
+    "persona": "founder",
+    "question": "What should Dex never overclaim about you, even if it would sound impressive?"
+  }
+]

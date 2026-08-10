@@ -2,13 +2,227 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-07-11
+**Last updated:** 2026-08-10 (D-057 pre-deployment pass complete)
 
 ## Current Phase
 
-**V2 implementation underway — launch readiness reached (`v0.6.0-alpha`).** The V2 Product Design Bible (`docs/24-DESIGN_BIBLE_V2.md`, D-039) is frozen and being implemented page-by-page. Sprint HS-1 (Hero Scene → V2) shipped; the Landing V2 rebuild shipped; **this sprint made the Tier 0 site deployable-on-content and added the `/projects` Work pages.**
+**D-057 COMPLETE — pre-deployment pass, ready to commit and push.**
 
-## Launch-readiness sprint (latest — release gates · deployment · /projects)
+All engineering verified clean on `codex/ai-development-process`:
+- `typecheck` clean; `CONTENT_SOURCE=file` build 155 kB (under 170 kB ceiling), zero warnings.
+- `check:bundle` 151.3 kB, all guards pass. `check:dex` 34/34.
+
+**Engineering done (uncommitted):**
+- Gallery deferred from v1 (landing strip removed, footer link removed, `/gallery` 404s in production, `BUILT_ROUTES` reverted) — owner decision.
+- Admin error boundary (`admin/error.tsx`) production-honest — no Docker/local-dev language in production.
+- Dex hardening: 500-char question cap, 20-req/5-min-per-IP rate limiters on both Dex endpoints, shared `src/lib/rate-limit.ts`, `dex-panel.tsx` now throws on non-2xx.
+- Photo sources untracked: `photos/*` gitignored, two previously-tracked files removed via `git rm --cached`.
+- SEO: `metadataBase`, `openGraph`, `twitter` in `layout.tsx`; `og-default.png` generated; `sitemap.ts` enumerates `BUILT_ROUTES`; `robots.ts` references sitemap.
+- `render.yaml`: Postgres live, `DATABASE_URL` wired, `NEXT_PUBLIC_SITE_URL` set, `SESSION_SECRET`/`ADMIN_PASSWORD_HASH` as `sync: false`.
+- `ci.yml`: `check:dex` step added, `codex/ai-development-process` in push triggers.
+- Docs: `DEPLOY_RUNBOOK.md` and `RELEASE_CHECKLIST.md` fully current.
+
+**Owner's next actions (ordered):**
+1. Commit in the six groups listed in `AI_HANDOFF.md` → push → open PR into `main` → confirm CI green.
+2. Generate `SESSION_SECRET` + `ADMIN_PASSWORD_HASH` (`npm run admin:password --workspace=web`) before the Render Blueprint creation.
+3. Merge to `main` → Render Blueprint deploy → smoke test per `DEPLOY_RUNBOOK.md`.
+4. After first boot: `db:migrate` → `db:ingest` → flip `CONTENT_SOURCE=db` → redeploy.
+5. Add R2 env vars when Cloudflare setup is done (does not block the first deploy).
+6. Complete Gate 2 (R4 copy tests) and Gate 4 (visual sign-off) in `RELEASE_CHECKLIST.md`.
+
+---
+
+**D-056 IMPLEMENTED (uncommitted) on `codex/ai-development-process`** — Photo Gallery.
+- **Deferred from v1:** all public surfaces hidden in production pending an owner alt-text/caption/copy pass and live browser review.
+- Landing gains a fifth beat, **Gallery**, between Evidence and Collaborate (`GalleryStrip` — zero client JS, CSS scroll-linked Ken Burns); `/gallery` is a full cluster browser (`GalleryBrowser`) with a View Transitions shared-element zoom, keyboard nav, and deep links (`/gallery#g03`). Added to `BUILT_ROUTES`, not a nav lane.
+- File-backed, two-part content: `content/gallery/manifest.generated.json` (machine-written by `npm run gallery:process`, dimensions/blur) merges with hand-authored `PHOTO_META` in `content/gallery.ts` (captions/dates/places/layout knobs). EXIF/GPS stripped at the pipeline; `place` is hand-typed at city granularity only.
+- **Spec:** `specs/gallery.md` was backfilled 2026-08-10 to document the shipped design (it had still read "Template — do not implement"). Its §9 is the live gap list for this feature.
+- **Release gate:** all 11 photos have empty `alt`/`caption`/`info`/`place`. It self-hides to a blank rather than fabricating a label (LAW-008), but empty `alt` means tiles announce as "Open photo g03" — an owner copy pass is required before this is public.
+- **Also open:** photo IDs are positional (`g01…gNN` by sorted filename), so inserting an earlier-sorting photo silently renumbers the set and breaks deep links; `/gallery` is in `BUILT_ROUTES` but absent from the footer sitemap-of-record, so it's reachable only from the landing strip. Both need owner rulings — see `specs/gallery.md` §9.
+- Also landed alongside it: an admin-wide error boundary (`admin/error.tsx`) that turns "DB not running" into a fix-it message instead of a raw stack trace, and `npm run admin:password` for safe interactive passphrase→bcrypt-hash generation (handles the `.env.local` vs. Render escaping gotcha from D-053.2).
+- **Not verified this pass:** no typecheck/build re-run; no in-browser review; nothing committed. See `AI_HANDOFF.md` 2026-08-10 entry for the full reconstruction and reasoning — this was found already built during a repo-understanding pass, not built in this session.
+
+---
+
+**D-053 V1 IMPLEMENTED on `codex/ai-development-process`** - Dex Knowledge Space + cached public AI assistant.
+- **Branch:** created from `feat/instrument-redesign` while preserving the existing uncommitted D-052.7 hero/design-memory work. This branch now carries both the pending hero changes and the new Dex planning edits.
+- **Implemented:** file-backed `apps/web/content/dex/` seed from owner-provided LinkedIn/GitHub audits + resume; `src/lib/dex` matcher; `/api/dex/suggested`; `/api/dex/answer`; styled `DexPanel`; landing CTA "Know about Deepak using AI".
+- **Direction:** v1 is **not live RAG**. It is a file-backed, cached recall layer: suggested questions + approved FAQ answers + knowledge cards. Public visitors cost zero model/API calls.
+- **Private AI use:** AI/Codex is reserved for owner-triggered refreshes only: Codex interview, new project, LinkedIn post paste/import, CV/resume update, manual memory note. Trigger outputs remain drafts until owner approval.
+- **Public guard:** Dex answers only about Deepak, his projects, skills, experience, tools, posts, and research direction. Off-topic questions decline without a model call. No uncited claims.
+- **Spec updated:** `specs/ai-assistant.md` now defines Dex v1, data files, trigger flow, refusal policy, and future RAG upgrade path.
+- **Verification:** `npm.cmd run typecheck` passed; `CONTENT_SOURCE=file npm.cmd run build` passed; `npm.cmd run check:bundle --workspace=web` passed. Default build without `CONTENT_SOURCE=file` still fails if `.env.local` points at DB mode with no local Postgres running (pre-existing).
+- **Owner intake:** interview rounds 1-3 are ingested: target Agentic AI Engineer direction, ASMOS as flagship, Deepak.ai as second strongest current project, debugging/learning narrative, Humanizer AI's work-in-progress boundary, AI employee vision, agent skill definition, Deepak.ai's recruiter proof goal, planned LinkedIn/Instagram AI employee workflows, and review boundary: AI can schedule posts but Deepak approves before publishing. ASMOS is stored as a research-grade working prototype with routing/scoring/memory code, 400+ passing tests, Docker support, Stack Overflow Q&A experiments, and a corrected final token-reduction figure of about 22% (roughly 18-26% by question). A three-agent helpdesk example is approved for explaining checkpointing, ownership, and prompt narrowing.
+- **Round 3 (2026-07-31) added:** target companies/teams (open across AI startups, agent infrastructure teams, AI research labs, and developer tools/product AI teams — not narrowed to one type); AI employee data-access boundaries (owner-provided exports only today, full automation is a future goal; Gmail, saved passwords/payment info, and DMs are permanently off-limits; no auto-publish without approval); the LinkedIn skill Excel schema (hook, topic, structure, tone, CTA, length, audience, why it worked); Instagram Deepak AI's audience (all four groups at once: beginners/students, recruiters, builders, general tech-curious). All five interview questions originally listed in `memory/DEX_SESSION_HANDOFF_2026-07-31.md` are now answered; no outstanding interview gaps remain from that list.
+- **D-053.2 (2026-07-31) — Dex visitor intake form built and verified live:** a skippable "who are you" step (role*, name*, company, contact, reason) now gates the Dex panel, stored to a new `dex_visitor_intake` Postgres table (not file-backed — this is visitor analytics, not owner-approved content). See `memory/DECISIONS.md` D-053.2 for the full design and a client/server DB-isolation bug caught and fixed during the build. Migration `0003_tranquil_blazing_skull.sql` applied locally via `npm run db:migrate`; a real submit was confirmed landing in the table via `psql`, then removed as test data. Local dev Postgres runs via `docker compose -f docker-compose.dev.yml up -d` (container `deepakai-db-1`, port 5433). **Production still needs `db:migrate` run against the Render `DATABASE_URL`** before this is live publicly. No admin viewer exists yet for the captured data (direct DB query only).
+
+---
+
+**D-054 COMPLETE on `codex/ai-development-process`** — Dex observability, role-aware suggestions, matcher guard.
+- **Question log:** new `dex_question_log` table + `/api/dex/answer` logging. Records question, outcome, matched FAQ, and visitor *role* — never name or contact, and never joined to `dex_visitor_intake` (owner privacy decision).
+- **`/admin/dex`:** answer-rate stats, **gap list** (unanswered questions ranked by frequency = the FAQ worklist), role breakdown, most-asked, refused, recent visitors. CSV export at `/admin/dex/export?type=visitors|questions`. `/admin/ai-kb` redirects here; `docs/27` §12 marked superseded.
+- **Role-aware suggestions:** intake role maps to the existing `audience` tag and floats that group first. Presentation order only — nothing hidden.
+- **Matcher bug found by the new log and fixed:** "What is Deepak's expected salary?" was returning a confident cached answer matched to "Who is Deepak?" (the shared token `deepak` alone hit the 8-point threshold). Same for "What are Deepak's political views?". Corpus-ubiquitous terms are now excluded from relevance scoring; such questions correctly return `unknown`.
+- **`npm run check:dex --workspace=web`** — 34-case matcher guard (answerable / refused / honestly-unknown). Plain tsx script, no test runner, mirrors `check-bundle-budget.mjs`. Proven to fail when the fix is reverted. **Not yet wired into `ci.yml`** — worth doing.
+- **Verified:** typecheck clean; `CONTENT_SOURCE=file` build green (`/` 155 kB); `check:bundle` green (151.3 kB); migration `0004` applied locally; full loop exercised in-browser (intake → questions → all three outcome types logged → SQL aggregates confirmed). Admin page itself is **owner-review-pending**: the auth middleware correctly blocks the AI from logging in, so its rendering has not been eyeballed — only its queries and compilation were verified.
+- **Owner action:** log into `/admin/dex` and confirm it reads well. Production still needs `db:migrate` against Render's `DATABASE_URL`.
+
+---
+
+**D-052.7 COMPLETE (no commit) on `feat/instrument-redesign`** — smooth camera flow + bigger nodes + force-directed graph + all-projects report + real skills.
+- **FIX 1 (jerky camera):** rebuilt the flight rail as a **short, local, nearest-neighbour** path (biased to the project/skill cluster), **centripetal** Catmull-Rom, arc-length sampled, settle vantage frames the cluster; lerp 0.06 pos / slerp 0.08 orient. **Measured** frame-to-frame delta (200 samples): median 0.005 / max 0.007; max control-point gap 0.053 ≤ 0.055 (12% ceiling). No more teleporting.
+- **FIX 2 (too small):** world Ø project→0.023, skill→0.014, ambient→0.0085. **Browser-measured** at settle: **project ~67px, skill ~37, ambient ~13** (targets 60-90/36-52/12-18 all met); close passes 90-170px.
+- **FIX 3 (not all projects):** 18 total / **6 published** / 12 draft — graph = published (LAW-003, correct). Added dev override `HERO_GRAPH_INCLUDE_DRAFTS=true` (local preview only, warns). Graceful 1→18.
+- **FIX 4 (real skills):** source = project **tags** (`skillsLearned` empty everywhere). Enrich now **force-directed clusters** projects around shared skills (verified 0.052 vs 0.121). Project labels = real title; skill labels = real name; labels font-scale with node size.
+- **Scope:** no committed deps (Playwright local-only, reverted), no click/nav/panels (next sprint), no status changes. JSON regenerated published-only (44.9 KB gz). Budgets green (`/` 150.7 kB). Final in-browser aesthetic pass = owner sign-off.
+- **Owner action:** review in-browser, commit, then move tag `stable-glow-hero-v2` (git block in report).
+
+**D-052.6 COMPLETE (no commit) on `feat/instrument-redesign`** — real node size + camera flight through the graph.
+- **Phase 1 (root cause, browser evidence):** the sub-3px pinpoints were `gl.POINTS` **driver size-cap** (ANGLE/D3D on Windows), not the geometry — the D-052.5 shader had a 14px floor so the shrink is downstream in the GPU. Confirmed via a real Playwright WebGL probe (headless SwiftShader reports `[1,1023]`, would render large → the fault is the owner's hardware point path).
+- **Phase 2 (instanced billboards):** all layers re-authored as camera-facing **world-sized quads** (no `gl_PointSize`) → no cap + real parallax. Core radius 0.5 (bright body). **Browser-MEASURED** (Playwright, 1440×900 dpr2): at the settled camera **project ≈43px, skill ≈24, ambient ≈10** (targets 34-48/20-28/9-14); close passes 60–108px.
+- **Phase 3 (camera flight):** scroll-driven `CatmullRomCurve3` (off 0.60→1.0) flies **through** the field; control points **derived from graph data** (depth-band centroids, weave, node-avoid). smootherstep speed, look-ahead + slerp 0.08, fog tracks camera. Proximity (≤0.14) brightens project/skill +40% and fades in a **DOM label** from the node name — **max 3, nearest**, projected from 3D.
+- **Tooling:** Playwright/Chromium installed locally for measurement, **reverted from tracked package files** (not committed).
+- **Scope:** no committed deps, no JSON/data-model/nav/DB/copy change. Budgets unchanged (`/` 150.7 kB; lazy 3D 253.5 kB gz). Click/nav/panels = next sprint. Final in-browser aesthetic pass = owner sign-off.
+- **Owner action:** review in-browser, commit, then `git tag stable-glow-hero-v2 && git push origin stable-glow-hero-v2` (moving the tag — see git block in the report).
+
+**D-052.5 COMPLETE (no commit) on `feat/instrument-redesign`** — bulb nodes made legible. After D-052.4, nodes were effectively invisible (hero read as bare wireframe) because a blanket 4–8 px cap + 0.90 density guard erased them. Retuned node rendering only:
+- **Per-layer size ranges** (replaces the 4–8 px cap): project **14–20 px**, skill **10–14 px**, ambient **6–10 px** at the resting Beat-3 camera — non-overlapping, hierarchy readable at a glance. Verified analytically vs. real geometry + camera rail at t=0.65/0.80/0.95 (`BULB_SIZE 1.05→3.8`, per-layer `uMinPx/uMaxPx`).
+- **Higher cores + readable halos** (project 2.4/0.35, skill 1.7/0.28, ambient 1.0/0.20; core mask 0.28→0.34) → each reads as a lit bulb.
+- **Layered saturation** (project 1.0, skill 0.85, ambient 0.62) → ambient recedes as atmosphere.
+- **Density guard relaxed 0.90 → 0.95**; edges unchanged (0.14); copy legibility protected by existing right-shift + faded-headline + scrim.
+- Scope: node rendering only. Budgets unchanged. Live in-browser look = owner sign-off (no browser in build env). D-052.5 logged.
+
+**D-052.4 COMPLETE (committed `36775ff`, tagged `stable-glow-hero-v2`) on `feat/instrument-redesign`** — node glow reads as a colour constellation + edge pulses fire on a cadence.
+
+**What landed in D-052.4 (2026-07-22):**
+- **Honest finding first (LAW-008):** the owner's "flat grey dots / static wireframe" screenshot was **not** a code strip. Git proves HEAD (D-052.3) added the bulb shader; tree clean; shader + pulses + correct cross-fade all present. The real cause: **267 of 280 inner nodes (95 %) are the ambient layer, which was hard-coded a single cool grey** — so the network was dominated by grey dots and the 13 coloured bulbs were lost. Pulses ran continuously (cadence constants unused). Cross-fade was already correct.
+- **FIX 1 — per-node gradient colour:** every node biased along `--grad-1→2→3` by its position (projected onto the ~10° accent axis, normalised across the cloud). Layer = brightness/bloom, not flat hue. Ambient nodes now span blue→violet→pink instead of grey. Density guard untouched; bulb material gains `toneMapped:false`.
+- **FIX 2 — pulse cadence:** a new pulse every 1.8–2.4 s on a fresh path, ~4.5 s lifetime → 2–3 concurrent, opacity envelope = discrete events. Static edges dimmed 0.18 → 0.14.
+- **FIX 3 — no change:** cross-fade already correct (verified off = 0.32/0.45/0.50/0.55/0.60; never both > 0.70). Reported PASS.
+- **Scope held:** no new deps, no JSON regeneration, no data-model/nav/routing/DB/copy change. `hero-face-3d.json` still 49 KB gz.
+- **Gates:** tsc clean; build + budgets — see final report. Live visual confirmation is the owner sign-off item (no browser in build env).
+- **Owner action:** review in-browser, commit, then `git tag stable-glow-hero-v2 && git push origin stable-glow-hero-v2`.
+
+---
+
+**D-052.3 COMPLETE (no commit — T1) on `feat/instrument-redesign`** — the glowing-nodes hero, reconstructed. Owner reviews in-browser, then commits + tags `stable-glow-hero`.
+
+**What landed in D-052.3 (2026-07-21):**
+- **Recovery:** D-052.2 (semantic node layers, Beat 2/3 cross-fade, scroll dead-zone) was lost in a revert; restored FROM reflog `fae4dab`. The bulb shader, glow boost, camera pull-back and portrait refinement are new on top.
+- **Pillar 1 — face:** portrait-prior refined (`FACE_SY 0.34→0.32`, `FACE_FLOOR 0.45→0.40`), regenerated from real `portrait-source.jpeg`. Feature concentration 26.5× → 30.9× (93 % in-face, silhouette kept). Poster + `network` (48.3 KB gz) regenerated. Face shifts +0.15 right on desktop ≥640 px, centred on mobile.
+- **Pillar 2 — glow:** ambient background glow 8 % → **12–15 %** peak, heavily blurred, 10 s breath.
+- **Pillar 3 — bulbs:** inner nodes are custom-shader lit bulbs (emissive core + fresnel halo), additive, 4–8 px clamped, density-guarded, per-node breathing. Project/skill/ambient layers preserved.
+- **Beat 2 / camera:** cross-fade never both >70 %; `CAM_END_Z +0.05 → +0.12` depth field; bloom 0.35/1.2; bottom scrim for sub-line legibility.
+- **Gates:** tsc clean; `next build` exit 0, no warnings; `/` 154 kB; 3D chunk 253.5 kB gz; JSON 48.3 KB gz; posters 85.4 KB.
+
+**Owner action:** review in-browser, commit, then `git tag stable-glow-hero && git push origin stable-glow-hero` (this is the checkpoint we lost).
+
+---
+
+**D-052.1 COMPLETE on `feat/instrument-redesign`** — four surgical fixes on top of D-052. Committed and pushed.
+
+**What landed in D-052.1 (2026-07-21):**
+- **FIX 1 — Theme mismatch resolved:** Hero `<section>` now carries `class="dark"` unconditionally → copy overlay always uses dark-mode tokens. `NavShell` adds `class="dark"` via IntersectionObserver while `[data-hero-section]` is visible.
+- **FIX 2 — Headline:** `identitySentence` = "Turning curiosity into working systems." in `content/site.ts`.
+- **FIX 3 — BLOCKED:** `apps/web/scripts/assets/portrait-source.jpg` absent. Per LAW-008, regeneration deferred until owner drops the source photo and runs `npm run hero:generate`.
+- **FIX 4 — Accent glow:** (a) Ambient WebGL glow plane, accent gradient ~8% peak, 10s breathing cycle; (b) `.hero-subline-gradient` utility; (c) `.gradient-underline-hover` on CTA secondary.
+
+---
+
+**D-052 — Phases 0–5 complete.**
+
+The Instrument redesign + 3D neural-face hero (D-052, supersedes D-050 Track 1) is built and statically verified on branch `feat/instrument-redesign` (cut off the release work). Nothing committed by the AI (T1). Owner reviews in-browser, then commits/merges.
+
+**What landed this session (2026-07-21, D-052):**
+- **Phase 0** — fixed the live hero copy regression at root (`content/site.ts` held the old rejected headline; hero reads the file, `site_settings` DB is write-only — documented) → `"I build intelligent systems."`; removed the dead "sound" toggle (LAW-008).
+- **Phase 1** — `docs/DESIGN_SYSTEM.md` + the Instrument token layer (`globals.css`): dark-first stage/ink, Gemini accent gradient (energy-only), six-size type scale, Inter Tight display, two energy easings.
+- **Phase 3** — site-wide reskin: glass nav with active gradient underline, 96/160 rhythm, six-token type migration on `/` + `/projects`, ProjectCard rebuilt (hover gradient underline, no tile imagery), detail page question-as-pull-quote, admin chrome quiet.
+- **Phase 2** — the 3D hero (`features/hero-scene/neural-face/`): pipeline v2 (`hero-face-3d.json` 43.8 kB gz, posters 86 kB, `--depth-map` flag), custom-shader particle relief → CatmullRom dive → inner network with meshline pulses + bloom; poster-first SSR LCP; fallback ladder (reduced-motion/tier-0/no-WebGL/context-loss → poster); lazy `next/dynamic({ssr:false})` mount. `/` First Load **154 kB** (≤170); lazy 3D chunk **253.5 kB gz** (≤500); three.js absent from `/` First Load.
+- **Phase 4** — `check-bundle-budget.mjs` extended (170 kB ceiling, lazy chunk ≤500 kB, 3D-asset + poster existence & budgets); CI step relabelled D-052; D-052 logged in `DECISIONS.md`.
+- **Phase 5** — 15-item tester pass: static/code items PASS; live-browser items (fps, context-loss, LCP timing, memory ×10, mobile emulation) flagged as owner sign-off (no browser in the build env — not faked).
+
+**Owner sign-off before commit (D-052):** `npm run dev` → `/` desktop (poster → face → dive → network); reduced-motion (poster only); mobile (2500-node tier, no bloom); light theme (hero stays a dark stage); DevTools (3D chunks load post-idle only). Owner git block is in `AI_HANDOFF.md`.
+
+---
+
+## Prior phase (release/v0.9.0-alpha) — RELEASE-READY
+
+The pre-D-052 release work (below) remains valid on its branch. D-052 builds on top of it.
+
+**RELEASE-READY — pending owner deploy click.**
+
+All engineering gates are GREEN. The working tree is clean to commit and merge to `main`. Owner triggers the first Render deploy per `docs/DEPLOY_RUNBOOK.md`.
+
+**What cleared in this final session (2026-07-21):**
+- G3 (deploy-blocking gate) cleared: `content/asmos.ts` rewritten with owner-ratified ASMOS content (ownership-based multi-agent routing; corrected later to about 22% prompt-token reduction); `draft: false` flipped.
+- D-050 Arrival act-0 sub-line owner-ratified: "Me, rendered as a network of the work." All four sub-lines now owner-ratified.
+- `apps/web/src/instrumentation.ts` added: loud startup check for `SESSION_SECRET` / `ADMIN_PASSWORD_HASH` at `next start` in production.
+- `docs/10-DEPLOYMENT.md §8a`: deploy-day env var sheet with raw-vs-escaped note.
+- `docs/DEPLOY_RUNBOOK.md`: single-page click-by-click deploy sequence.
+- `brief.tsx`: 1-line fix to self-hide empty gist fields (LAW-008 — avoids blank "Formed" row).
+- Arrival HEIGHT_FRAC mobile shrink (0.62 at ≤640px → 0.82 at ≥900px) ready to commit.
+- `content/asmos.ts` `gist.formed` is `""` (self-hiding) — owner to fill the year ASMOS began.
+
+**Remaining owner actions (ordered):**
+1. Commit + push on `release/v0.9.0-alpha` (git commands below in AI_HANDOFF).
+2. Review Final Gate Table in AI_HANDOFF — all gates GREEN.
+3. Merge to `main` → confirm CI green → Render Blueprint deploy.
+4. Post-deploy smoke test per `docs/DEPLOY_RUNBOOK.md` Step 4.
+5. Fill `gist.formed` in `content/asmos.ts` (year ASMOS began — single string).
+6. R4 copy tests + visual look-dev sign-off on live production URL.
+
+---
+
+### D-050 Track 1 — "Neural Face Lite" hero shipped (Canvas2D, zero runtime deps).
+
+The public landing `/` has a new dependency-free **Canvas2D particle-portrait hero**. An offline `sharp` pipeline (`apps/web/scripts/generate-hero-face.mjs`, `npm run hero:generate`) turns a personal source photo into a quantized constellation (`public/hero-face.json`: ≤3,000 nodes, ≤6,000 KNN edges, pulse paths, luminance-derived pseudo-depth — no ML) that a `"use client"` `<NeuralFaceHero />` **fetches** (never imports) and renders as dim nodes + sub-perceptual edges + a rare accent pulse + pointer parallax + ambient breathing. Feature folder: `apps/web/src/features/neural-face/`.
+
+**D-050 amendment (owner-ratified):** the ambient **R3F scene was removed from `/`** — `HeroSceneRegion` now lives **only at `/dev/hero`**. `features/hero-scene/` was **not touched**. The Arrival sub-line's old `useHeroStore` scene-act coupling was replaced by a **self-contained, dependency-free** `useScrollAct` driver (native scroll → act index; no GSAP/Lenis). One-commit reversible for v1.5 (swap `NeuralFaceHeroRegion`→`HeroSceneRegion ambient` in `page.tsx`, repoint `arrival.tsx` import).
+
+**Budgets (D-050, CI-enforced):** `/` First Load JS ceiling amended **152 → 164 kB** (≤ +12 kB for Track 1). `hero-face.json` ≤ **60 KB gzipped** (pipeline prints raw+gz, fails over budget after one auto-retry; synthetic-image validation measured ≈28 KB gz at the 3,000-node cap). New CI guard (`scripts/check-bundle-budget.mjs`) fails on three/gsap/lenis/sharp in `/`'s First Load JS, on `/` > 164 kB, or if the hero-face dataset is bundled instead of fetched.
+
+**No-fake-data / graceful absence:** there is **no real owner photo in the repo**, so **no `hero-face.json` is committed** — the hero copy stands alone until the owner drops `apps/web/scripts/assets/portrait-source.jpg` and runs `npm run hero:generate`. Missing photo = the pipeline fails loudly with the exact drop path; missing JSON = the component renders nothing. `scripts/assets/` is gitignored (README kept tracked). Zero-DB + zero-asset public build verified.
+
+**Owner copy ruling pending:** the Arrival ambient **sub-line** was rewritten (old lines narrated the now-removed 3D scene + Dex → dishonest to keep, LAW-008). New lines are authored dev copy, flagged for owner ratification; the ratified identity + support lines were untouched.
+
+---
+
+### v0.9.0-alpha — Rich metadata + media sprint complete (Phases 1–3).
+
+D-048 (rich typed field matrix) + D-049 (Cloudflare R2 media) ratified & implemented (`docs/28`). Every content type gained a generous set of **optional, typed, self-hiding** fields — no JSONB bag, no custom-field builder (D-043 upheld). Projects (the one live public page) render cover / duration / context / role / collaborators / overview / gallery / outcomes / "What I learned" / live+video+PDF evidence, each self-hiding; an empty project renders identically to before. Media pipeline: `media`/`content_media`/`content_links` tables + migration 0002, R2 S3 client (server-only), magic-byte + size + EXIF-strip validation, auth-gated upload with alt-text-required, `/admin/media` library, reference-checked delete, `npm run media:backup` bucket mirror. Version history extended to all new fields + media (round-trip verified). **Budgets:** `/` 152 kB, `/projects` 106 kB (both unchanged); `/projects/[slug]` 106→111 kB (+5 kB next/image, the required optimization path). three.js + admin + aws-sdk absent from all public First Load JS (CI guards pass). Typecheck + build green, zero warnings.
+
+**Media activation is owner-gated:** set `R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET` + `MEDIA_PUBLIC_BASE_URL` (README → "Media / R2 setup"). Until then the Media page shows an honest disabled state — nothing faked. Text fields work immediately in DB mode.
+
+### v0.8.0-alpha — Admin CMS complete (Phases 1–3). Acceptance ritual passed.
+
+D-046 (collocation) and D-047 (iron-session Option A) ratified. Admin CMS fully implemented: auth (iron-session + bcrypt, in-memory rate-limiter, constant-time compare), admin shell, Projects editor (all 18 drafts editable, question publish-gate, lifecycle state machine, abandoned branches, version history + restore), site-copy editor (DB-mode only, single-writer banner), `content_versions` + `site_settings_versions` tables (with origin provenance field), scheduled-publish cron with SKIP LOCKED, CI admin bundle isolation guard (hard failure), security headers in next.config.ts, robots.ts disallows /admin, render.yaml cron stub.
+
+**Acceptance ritual:** draft → write question → publish → appears on /projects in **1.9s** (limit: 10 min ✓). Build: `/` = 152 kB unchanged. Typecheck clean.
+
+## DB Sprint — all three phases complete + ingest (latest)
+
+`docs/09-DATABASE.md` authored and fully implemented. D-043/D-044/D-045 all ratified.
+
+**Phase 1 — Schema design:** Decade-horizon relational schema. CTI pattern (`content_items` base + type tables). Full schema: `content_items`, `abandoned_branches`, `content_stages` + `stage_items`, `projects`, `publications`, `posts`, `timeline_entries`, `skills`, `gallery_items`, `content_versions`, `relations`, `site_settings`, `users`, `sessions`, `github_cache`, `embeddings` (pgvector, chunk-based, sync_status).
+
+**Phase 2 — Migrations + local dev:**
+- `apps/web/src/db/schema.ts` — Drizzle TypeScript schema (9 tables implemented)
+- `apps/web/src/db/migrations/0000_fair_silver_surfer.sql` — single migration: tables + FKs + D-043 binding conditions (all merged here; 0001 was manually-created and not in the journal, so it was merged into 0000 before first apply)
+- `apps/web/src/db/index.ts` — lazy DB client (never instantiated in file mode)
+- `apps/web/drizzle.config.ts` — drizzle-kit config (loads `.env.local` via dotenv — WSL/Windows interop fix)
+- `docker-compose.dev.yml` — local Postgres (pgvector/pgvector:pg17, **port 5433** — avoids Windows Postgres on 5432)
+- Updated `.env.example` — `DATABASE_URL`, `CONTENT_SOURCE` documented
+- `apps/web/scripts/db-ingest.ts` — idempotent ingest from `content/site.ts` → DB (loads `.env.local` via dotenv)
+- `apps/web/package.json` — `db:generate`, `db:migrate`, `db:ingest` scripts
+
+**Phase 3 — DB-backed ContentService:**
+- `apps/web/src/services/db-content.ts` — full ContentService impl via Drizzle (all 8 methods, 3 queries per collection call, no N+1)
+- `apps/web/src/services/index.ts` — source selector: `CONTENT_SOURCE=db → dbContent`, else `localContent`
+- Pages updated: `projects/page.tsx` + `projects/[slug]/page.tsx` now import `contentService` from `@/services` (not `localContent` directly)
+
+**Verified:** typecheck clean (zero errors), build green: `/` = 152 kB, three.js absent from all First Load JS, 7 static pages. File mode works with no DB present — `CONTENT_SOURCE` unset = file mode by default.
+
+## Launch-readiness sprint (session 22–26 — release gates · content fill · 18 project drafts)
 
 The repo is now in a state where the owner can deploy Tier 0 the moment `content/site.ts` is filled. Three phases, all green (`typecheck` + `build`, zero warnings; three.js absent from First Load JS across `/`, `/projects`, `/projects/[slug]`):
 
@@ -20,7 +234,13 @@ The repo is now in a state where the owner can deploy Tier 0 the moment `content
 
 **Owner's next actions:** fill `OWNER_CONTENT_CHECKLIST.md` → clear `RELEASE_CHECKLIST.md` gates → ratify the deploy vendor → trigger the first Render deploy.
 
-**Known follow-ups (out of scope this sprint):** other lanes (Research/Posts/About + Publications/Skills/Timeline/Contact/Search) still unbuilt (correctly hidden from chrome); the Arrival `<h1>` is hardcoded and diverges from `site.ts.identitySentence` (flagged in the checklist — wire to one source or keep in sync); docs/09 must answer the Project↔Memory convergence question.
+**Identity copy wired (session 23):** the Arrival `<h1>` is now single-sourced from `site.ts.identitySentence` (hardcoded string removed) with a companion `identitySupport` line; owner-ratified copy is in. Checklist items 1–2 ✅. Two honest copy observations reported to the owner (subject-verb "learns and enjoy", first→third-person voice / LAW-002, duplicated "Deepak" in eyebrow+`<h1>`) — left for the owner to rule on, not auto-corrected.
+
+**Content fill (session 25):** `currentFocus`, `contactSentence`, `contactEmail`, `outbound.github`, `outbound.linkedin`, `outbound.scholar` (null, self-hides), `outbound.x`, `outbound.instagram` all inserted. X and Instagram wired in `evidence.tsx` + `footer.tsx` with graceful-absence guards (additive outbound extension — no closed set in docs/14 or docs/24). Checklist items 7, 8, 9 ✅ DONE. Build: `/` 152 kB, zero warnings, three.js absent from First Load JS.
+
+**Project corpus inserted (session 26):** all 18 projects in `content/site.ts` as `status: "draft"`. None published — LAW-003 requires `question` first. `/projects` shows EmptyState (correct). `getProjects()` now sorts newest-first (was missing before). `context` → `problem`, `stack` → `tags` field mapping documented. Featured flag already existed. Checklist updated: per-project list with 6 featured first. Publishing flow: write question → flip status → project appears.
+
+**Known follow-ups (out of scope):** other lanes (Research/Posts/About + Publications/Skills/Timeline/Contact/Search) still unbuilt (correctly hidden from chrome); docs/09 must answer the Project↔Memory convergence question.
 
 ## V2 · Landing Experience rebuilt (latest — product-experience sprint)
 

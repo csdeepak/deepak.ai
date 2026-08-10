@@ -1,0 +1,30 @@
+# Local development database — optional.
+#
+# Uses port 5433 on the host to avoid conflicts with any local Postgres
+# installation on the default 5432.
+#
+# Start:    docker compose -f docker-compose.dev.yml up -d
+# Stop:     docker compose -f docker-compose.dev.yml down
+# Wipe:     docker compose -f docker-compose.dev.yml down -v   (destroys data)
+# Migrate:  npm run db:migrate     (from repo root)
+# Ingest:   npm run db:ingest      (loads content/site.ts into DB)
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: deepak_labs_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d deepak_labs_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:

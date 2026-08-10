@@ -14,6 +14,314 @@ Before finishing a session, record:
 
 ## Session Log
 
+### 2026-08-10 (pre-deployment pass, continued) — D-057: gallery deferral, hardening, SEO, Postgres, CI, documentation sync
+
+- **What I did:** Continued the pre-deployment pass from `TRANSFER.md` (written mid-session by a prior agent that hit account limits). Picked up from "NOT done" — `render.yaml` and `ci.yml` were already completed by the prior agent; this session ran final verification and finished the documentation sync.
+  - **Verification:** `typecheck` clean; `CONTENT_SOURCE=file` build green (155 kB, zero warnings); `check:bundle` 151.3 kB (all guards pass); `check:dex` 34/34. All Phase 0 and Phase 1.5 checks from TRANSFER.md complete.
+  - **render.yaml confirmed:** Postgres `databases:` block active, `DATABASE_URL` wired via `fromDatabase`, `NEXT_PUBLIC_SITE_URL` set to the Render subdomain, `SESSION_SECRET`/`ADMIN_PASSWORD_HASH` as `sync: false`, `autoDeploy: false`. Cron/worker blocks remain commented.
+  - **ci.yml confirmed:** `check:dex` step present, `codex/ai-development-process` in push triggers.
+  - **Documentation sync (this session):** Updated `FEATURE_STATUS.md` (Gallery → Deferred from v1); updated `specs/gallery.md` §Status to record the v1 deferral; added `D-057` to `DECISIONS.md` (the three owner decisions + all eight engineering changes); added this session entry to `AI_HANDOFF.md`; updated `CURRENT_STATE.md`. Deleted `TRANSFER.md` (its job is done — contents absorbed here and into D-057).
+- **Why:** TRANSFER.md mandated documentation sync as Phase 6 before commits. The three owner decisions (gallery deferral, Render subdomain first, provision Postgres with first deploy) needed a D-entry before the work is considered complete.
+- **State:** All engineering work from TRANSFER.md is done and verified. Documentation is now current. Commits pending — see next steps below.
+- **Verification:** Same as above. Browser verification (golden path + negative tests + OG tags) is the owner's gate before sharing the URL publicly.
+- **Not verified (and why):** Browser pass — no browser in the build env. The production-mode `/gallery` 404 guard requires `NODE_ENV=production` which only fires under `next start`, not `next dev`; safe to trust the one-line guard and confirm at the first real deploy's smoke test. `/admin/dex` rendering requires owner login.
+- **Next — commits (coherent groups, do NOT `git add -A`):**
+  1. `feat: D-054 — Dex question log, /admin/dex analytics, matcher guard` — all D-054 files: `src/lib/dex/log.ts`, `src/app/api/dex/answer/route.ts` (log wiring), `src/app/(admin)/admin/dex/`, `src/features/admin/queries/dex.ts`, `src/db/migrations/0004_lumpy_quasimodo.sql`, `src/db/migrations/meta/0004_snapshot.json`, `scripts/check-dex-matcher.ts`, `src/lib/dex/intake-shared.ts` (dedup), `src/app/(admin)/admin/ai-kb/page.tsx` (redirect), and the D-054 updates to `content/dex/*.json`, `src/features/dex/dex-panel.tsx`, `src/features/dex/dex-intake-form.tsx`, `src/lib/dex/intake.ts`, `src/lib/dex/search.ts`.
+  2. `feat: D-056 — photo gallery (deferred from v1)` — gallery feature files: `content/gallery.ts`, `content/gallery/`, `public/gallery/`, `scripts/process-gallery.mjs`, `src/features/gallery/`, `src/app/(site)/gallery/`, `src/app/(site)/page.tsx` (gallery strip removed + 404 guard added), `apps/web/src/constants/routes.ts` (gallery removed from BUILT_ROUTES), `apps/web/src/components/layout/footer.tsx` (gallery link removed), plus gallery-related globals.css changes.
+  3. `feat: admin resilience — error boundary + admin:password script` — `src/app/(admin)/admin/error.tsx`, `scripts/set-admin-password.ts`, related package.json script.
+  4. `fix: production hardening — Dex rate limits, input cap, photo sources untracked` — `src/lib/rate-limit.ts`, `src/app/api/dex/answer/route.ts` (cap+rate), `src/app/api/dex/intake/route.ts` (rate), `src/features/dex/dex-panel.tsx` (throw on non-2xx), `.gitignore` (photos/*), `photos/` staged deletions, `photos/README.md`.
+  5. `feat: SEO — metadataBase, OpenGraph, sitemap` — `src/app/layout.tsx`, `public/og-default.png`, `scripts/generate-og-image.mjs`, `src/app/sitemap.ts`, `src/app/robots.ts`, `.env.example` (`NEXT_PUBLIC_SITE_URL`).
+  6. `chore(deploy): Postgres in render.yaml, CI check:dex, docs sync` — `render.yaml`, `.github/workflows/ci.yml`, `docs/DEPLOY_RUNBOOK.md`, `docs/DESIGN_SYSTEM.md`, `docs/27-ADMIN_CMS_ARCHITECTURE.md`, `RELEASE_CHECKLIST.md`, `memory/` files, `specs/`, `prompts/`, `.claude/launch.json`, `TRANSFER.md` deletion.
+- **Open questions / blockers:**
+  - Owner must generate `SESSION_SECRET` + `ADMIN_PASSWORD_HASH` before entering them in Render.
+  - R2 (Cloudflare object storage) setup is owner-side, expected EOD 2026-08-10 — will need env vars added to Render separately, does not block the first deploy.
+  - Gate 2 (R4 copy tests) and Gate 4 (visual sign-off) in `RELEASE_CHECKLIST.md` are owner-only.
+  - `cvUrl` is still `null` in `content/site.ts` — CV CTA self-hides, fine to ship.
+  - After first deploy: run `db:migrate` then `db:ingest` against the Render `DATABASE_URL`, then flip `CONTENT_SOURCE=db` in the Render dashboard and redeploy.
+
+### 2026-08-10 (retroactive documentation pass) — D-056 Gallery + admin resilience, catching up an undocumented session
+
+- **What I did:** This was a repo-understanding pass (owner request: "understand the repo"), not a build session — no code was written. It found the working tree substantially ahead of the last written handoff (D-054, 2026-07-31): a full Photo Gallery feature plus two admin-resilience pieces existed on disk, uncommitted, with no session log entry, no `DECISIONS.md` entry, and no `FEATURE_STATUS.md`/`CURRENT_STATE.md` update. Per the standing rule of reading and writing memory before building further, this entry closes that documentation gap before any new work begins. What was found and is now recorded:
+  - **Gallery (now `D-056` in `DECISIONS.md`):** `content/gallery.ts` + `content/gallery/manifest.generated.json` (file-backed, EXIF/GPS-stripped, city-granularity `place` only), `scripts/process-gallery.mjs` (`npm run gallery:process`), `features/gallery/{gallery-strip,gallery-browser}.tsx`, `app/(site)/gallery/page.tsx`, plus supporting CSS in `globals.css` and a `BUILT_ROUTES` entry. Landing (`app/(site)/page.tsx`) now runs Hero → Mission → Evidence → **Gallery** → Collaborate (was four beats). Full design rationale is in the D-056 entry — see that for the "cluster not a grid" and privacy reasoning.
+  - **`apps/web/src/app/(admin)/admin/error.tsx`:** a new admin-wide error boundary. Detects DB-connection failures (ECONNREFUSED/ENOTFOUND/"Failed query"/etc. pattern-matched from the error text) and shows the fix ("start Docker Desktop, run `docker compose -f docker-compose.dev.yml up -d`, retry") instead of a raw Next.js stack trace; genuine non-DB errors fall through to a generic message with the real error text, not mislabelled as a DB problem.
+  - **`scripts/set-admin-password.ts`** (`npm run admin:password`): interactive TTY-only prompt (hidden input, confirm-twice, 12-char minimum) that bcrypt-hashes a new admin passphrase and prints two forms — backslash-escaped for `.env.local` (Next's dotenv-expand strips unescaped `$` in bcrypt hashes, silently breaking login) and the raw form for pasting into Render's dashboard env vars (which are not `.env`-parsed). This formalizes a gotcha already noted in the D-053.2 log entry from 2026-07-31.
+  - Confirmed `check-dex-matcher.ts` and `lib/dex/log.ts` — also untracked in git — are **not** documentation gaps; both are already fully described in the existing D-054 entry, just not yet committed.
+- **Why:** can't safely build the next lane on top of undocumented state, and the owner's standing instruction is to understand before building (see this assistant's own memory). Writing this now rather than silently absorbing the context and moving on.
+- **State:** Nothing here was written by an AI session that left evidence of itself — dated by the source photos' EXIF-adjacent filenames (`WhatsApp Image 2026-08-04...`) now sitting untracked at `photos/`, cross-referenced with `manifest.generated.json`'s `date` fields. All of it is uncommitted (`git status` shows every file above as modified or `??`). Nothing was reviewed live in-browser by the owner as far as this pass could determine.
+- **Verification:** none — documentation-only pass, no `typecheck`/`build`/`check:*` run, no code touched.
+- **Not verified (and why):** Gallery's in-browser behavior (View Transitions zoom, keyboard nav, reduced-motion path, landing strip Ken Burns) — this pass did not open a browser. The admin error boundary's actual trigger path (stopping Docker and loading `/admin`) — not exercised.
+- **Then, same session (owner instruction "update the gallery spec to match what shipped"):** rewrote `specs/gallery.md` from its "Template — do not implement" stub into a real spec documenting the shipped design (35 → ~180 lines), following the `specs/README.md` template and the house style `specs/ai-assistant.md` set when it was rewritten for D-053. It states up front that it was written after the build. Updated the `specs/README.md` index row to match. **Writing it surfaced six gaps nobody had recorded** — now `specs/gallery.md` §9, and the most useful output of the exercise:
+  1. **Alt text is empty on all 11 photos** — the type requires it, the content doesn't supply it, so tiles announce as "Open photo g03". Called a release gate, not cosmetic.
+  2. **Photo IDs are positional and fragile** — `gallery:process` assigns `g01…gNN` by sorted filename index, so adding a photo that sorts earlier silently renumbers everything after it, breaking `PHOTO_META` keys and any shared `/gallery#gNN` link.
+  3. **`/gallery` appears in no sitemap** — it's in `BUILT_ROUTES`, but the footer's curated `COLUMNS` array has no Gallery entry, so the route is reachable only from the landing strip and by direct URL. D-021/D-023 call the footer the sitemap-of-record. Needs an owner ruling. (Related: the `BUILT_ROUTES` doc comment in `constants/routes.ts` still says only `/` and `/projects` are built — stale one-liner, left alone since it's code, not docs.)
+  4. **No orphan guard** — nothing checks that `PHOTO_META` keys, manifest entries, and files in `public/gallery/` agree; a deleted source leaves stale WebP behind.
+  5. **All 11 photos are `featured: true`**, so the landing strip and `/gallery` currently show an identical set — the distinction exists but isn't exercised.
+  6. Nothing in the feature has been reviewed in-browser.
+- **Next:** (1) Owner copy pass on the 11 photos' `alt`/`caption`/`info`/`place` in `content/gallery.ts` — release gate, see above. (2) Owner rules on the footer/sitemap omission (gap 3). (3) Owner reviews Gallery in-browser, then this work gets committed (nothing here is committed yet). (4) `check:dex` still not wired into `ci.yml` (carried over from D-054, still open). (5) Optional, deferred: stable content-hash photo IDs (gap 2) and a `check:gallery` guard in the mould of `check:bundle`/`check:dex` covering gaps 1 and 4.
+- **Open questions/blockers:** the `D-055` numbering gap in `DECISIONS.md` (harmless — noted, not backfilled). Whether Gallery gets a DB-backed admin editor later (the code and spec both document the intended future shape: R2 + a `gallery_items` table, already a deferred table in the docs/09 plan) — not scoped.
+
+### 2026-07-31 (continued) - D-054: Close the loop — Dex observability + matcher fix
+
+- **What I did:** Made Dex observable, then used what it observed to fix a real answer-quality bug.
+  - `dex_question_log` table (migration `0004_lumpy_quasimodo.sql`, applied locally) + `src/lib/dex/log.ts`, wired into `/api/dex/answer`. Records question, outcome, matched FAQ, visitor role. Swallows its own errors so logging can never cost a visitor their answer.
+  - `/admin/dex` dashboard on `features/admin/queries/dex.ts`: answer-rate stats, gap list (unanswered ranked by frequency), role breakdown, most-asked, refused, recent visitors. CSV export at `/admin/dex/export?type=visitors|questions`.
+  - Role-aware suggested-question ordering via `DEX_ROLE_TO_AUDIENCE` — presentation order only, nothing hidden.
+  - `/admin/ai-kb` (which falsely claimed "Dex is not live — deferred to v1.5") now redirects to `/admin/dex`; nav updated; `docs/27` §12 marked superseded rather than deleted.
+  - Deduped the role type-guard into `isDexVisitorRole` in `intake-shared.ts` (it had been copy-pasted into `intake.ts` and `log.ts`).
+- **Bug the new logging caught immediately:** the first real session logged *"What is Deepak's expected salary?"* → **`cached`, matched to "Who is Deepak?"** — a confident, wrong answer. Cause: `"deepak"` appears in nearly every FAQ question/alias/answer, so a query sharing only that token scores exactly the 8-point threshold. *"What are Deepak's political views?"* did the same. Fixed with `SCORING_NOISE`, excluding corpus-ubiquitous terms from **relevance scoring only** — they stay in `DEEPAK_TOPIC_TERMS` so such questions return an honest `unknown` rather than a refusal, and bare "Deepak" still matches via the substring rule. This also mattered for the dashboard itself: false-positive matches would have hidden real gaps from the gap list.
+- **Why:** The intake table from D-053.2 was write-only, and "add more FAQs" was guesswork without knowing what people actually ask. Answer-rate is also the only thing that could ever make the standing "RAG only if cached proves insufficient" rule falsifiable.
+- **State:** Complete and verified locally. Production has **not** had `db:migrate` run. `check:dex` is **not yet in `ci.yml`** — one step worth taking.
+- **Verification:** `typecheck` clean; `CONTENT_SOURCE=file` build green (`/` 155 kB, 0 warnings); `check:bundle` green (151.3 kB, all guards); `git diff --check` clean. In-browser: cleared localStorage → intake form → submitted as `builder` → **confirmed Technical group floated to the top** (was General/Recruiter) → asked an answerable question, an unrecorded one, and a task request → all three logged with the correct `answer_kind` and role, verified via `psql`. Dashboard aggregate SQL verified directly in psql (3 total → 1 answered / 1 unanswered / 1 refused = 33%). New `npm run check:dex --workspace=web` guard: 34/34 pass, and **proven to fail** (exit 1, 4 regressions) when the matcher fix is temporarily reverted. All QA rows deleted afterwards — both Dex tables are back to 0.
+- **Not verified (and why):** the `/admin/dex` page's *rendering*. The admin auth middleware correctly redirected me to `/admin/login`, and entering a password is outside what I'll do. Its queries, SQL, and compilation are all verified; only the visual needs Deepak's eyes.
+- **Next:** (1) Owner logs into `/admin/dex` and sanity-checks the layout. (2) Add `check:dex` to `ci.yml` next to `check:bundle`. (3) Run `db:migrate` on production when ready. (4) Once real questions accumulate, work the gap list top-down — that is now the FAQ backlog. (5) Rate limiting + a retention policy on `dex_question_log` before the site sees real traffic.
+- **Open questions / blockers:** none blocking.
+
+### 2026-07-31 (continued) - D-053.2: Dex visitor intake form (analytics, skippable, DB-backed)
+
+- **What I did:** Built the visitor intake form the owner requested after interview round 3: a small "who are you" step before a Dex chat session, whose primary purpose is analytics (a record of who is visiting Deepak.ai and in what role), not personalization.
+  - Added `dexVisitorIntake` table to `apps/web/src/db/schema.ts` (role, name, company, contact, reason, createdAt — standalone, not linked to `content_items`).
+  - Ran `drizzle-kit generate` → `apps/web/src/db/migrations/0003_tranquil_blazing_skull.sql` (schema-only; **not applied**, see State below).
+  - Split intake code into `apps/web/src/lib/dex/intake-shared.ts` (client-safe role enum/labels/types) and `apps/web/src/lib/dex/intake.ts` (`import "server-only"`, `getDb()`-backed parse/save).
+  - Added `POST /api/dex/intake` (`apps/web/src/app/api/dex/intake/route.ts`) — validates and saves, returns `{ok:false}`/503 on DB failure without throwing.
+  - Added `apps/web/src/features/dex/dex-intake-form.tsx` and wired it into `apps/web/src/features/dex/dex-panel.tsx`, gated by a `localStorage` flag (`dex-intake-status`: unset → show form; `submitted`/`skipped` → straight to chat, never asked again in that browser).
+  - Updated the `dex-visitor-intake-idea` knowledge card and `dex-intake-form-faq` FAQ entry to reflect the analytics purpose (was originally framed as a tone-tailoring idea; the owner corrected this).
+  - Added `.claude/launch.json` (`deepak-web-dev-file`: `cross-env CONTENT_SOURCE=file npm run dev --workspace=web`) to make local browser preview possible without a running Postgres, since `.env.local` defaults to `CONTENT_SOURCE=db`.
+- **Bug caught and fixed:** the first draft had `dex-intake-form.tsx` (a client component) importing directly from `intake.ts`, which pulls in `getDb()`/`pg`/Node's `fs` — this 500'd the page in-browser ("Module not found: Can't resolve 'fs'"). Fixed by the client/server module split above. This is the same DB-isolation discipline `check-bundle-budget.mjs` already enforces for the admin bundle; worth remembering for any future Dex feature that touches the DB.
+- **Why:** DB-backed rather than file-backed because this is visitor-generated analytics data, not owner-approved content — it doesn't belong in `apps/web/content/dex/` alongside the reviewed knowledge base. Skippable and non-blocking by design so a DB or network hiccup never stops a visitor from chatting with Dex. See `memory/DECISIONS.md` D-053.2 for the full rationale.
+- **State:** Docker Desktop was not running at the start of this session, so the migration was generated but not applied and the live write was untested. **Update (same day, owner started Docker Desktop):** started local Postgres with `docker compose -f docker-compose.dev.yml up -d` (container `deepakai-db-1`, healthy on port 5433), applied the migration with `npx drizzle-kit migrate` from `apps/web`, and confirmed the table structure with `psql \d dex_visitor_intake`. **This feature is now live end-to-end in local dev.**
+- **Verification:** `npm.cmd run typecheck` passed; `git diff --check` passed; Dex JSON files still validate. In-browser (dev server, `CONTENT_SOURCE=file`, Browser tool), full pass with Postgres unreachable: intake form rendered correctly with all fields and 5 role options; submit correctly showed "Couldn't save that just now — you can still continue to chat."; Skip correctly proceeded straight to chat; a suggested question returned the correct cached answer with citation. Second pass after Postgres came up: cleared `localStorage`, reloaded, filled the form (role `builder`, name "QA Test Entry") and submitted — no error shown, went straight to chat — then confirmed via `docker exec deepakai-db-1 psql ... SELECT * FROM dex_visitor_intake` that the row actually landed with the correct role/name/timestamp, and deleted it as test data (table is back to 0 rows). Also confirmed the "shown once" behavior: closing and reopening Dex after resolving intake goes straight to the chat view, no re-prompt.
+- **Next:** (1) Run `db:migrate` against the production Render `DATABASE_URL` before this is live publicly (local dev is done, production is not). (2) Decide if/when to build an admin viewer for this table (currently only queryable directly via `psql`). (3) Consider basic spam/rate-limit protection before this is public-facing at scale (not built — explicitly out of scope for v1).
+- **Open questions / blockers:** none. Feature is code-complete and verified in local dev; only remaining step is the production migration, which is the owner's call on timing.
+
+### 2026-07-31 - Owner interview round 3 + full repo understanding pass
+
+- **What I did:** Did a full repo exploration pass (structure, `apps/web` architecture, content model, design system, hero-scene D-052.7 state, `specs/`/`memory/` conventions, tooling/CI) before touching code, per the owner's explicit request to understand the project before starting the next build step. Then ran interview round 3 and ingested the answers into the file-backed Dex knowledge space: target companies/teams (open across AI startups, agent infrastructure teams, AI research labs, and developer tools/product AI teams); AI employee data-access boundaries (owner-provided exports only today, moving toward automation later; Gmail, saved passwords/payment info, and DMs are permanently off-limits regardless of automation level; no auto-publish without approval); the LinkedIn skill Excel schema (hook, topic, structure, tone, CTA, length, audience, why it worked); Instagram Deepak AI's audience (all four groups at once — beginners/students, recruiters, builders, general tech-curious); and a new owner idea — a visitor intake form ("who are you") before a Dex chat session starts — added as a planned/not-yet-built card and FAQ so Dex answers honestly that it's proposed, not shipped.
+  - Added source `owner-interview-2026-07-31` to `apps/web/content/dex/sources.json`.
+  - Added 5 knowledge cards to `apps/web/content/dex/knowledge-cards.json`: `target-companies-teams`, `ai-employee-data-boundaries`, `linkedin-skill-excel-schema`, `instagram-ai-audience`, `dex-visitor-intake-idea`.
+  - Added 5 FAQ entries to `apps/web/content/dex/faq-cache.json` with aliases and related-card links.
+  - Added 3 of the 5 new questions to `apps/web/content/dex/suggested-questions.json` (target companies, AI employee data boundaries, Instagram audience — kept the Excel schema and intake-form idea as free-text-only since they're more niche).
+  - Widened `DEEPAK_TOPIC_TERMS` in `apps/web/src/lib/dex/search.ts` with terms from this round (`startup`, `startups`, `team`, `teams`, `companies`, `company`, `infrastructure`, `lab`, `labs`, `excel`, `audience`, `beginners`, `boundaries`, `privacy`, `form`, `intake`) so related free-text questions fall back to "unknown" instead of "refusal" when they don't hit a cached match.
+- **Why:** This continues the same beginner-friendly, zero-runtime-cost cached-recall model from D-053/D-053.1 — no live model calls added. The owner explicitly asked for a real understanding pass first (not just trusting the handoff doc) before picking the next engineering lane, so this session prioritized that before any interview/content work.
+- **State:** All five interview questions originally listed in `memory/DEX_SESSION_HANDOFF_2026-07-31.md` (target companies, privacy/tool boundaries, LinkedIn Excel columns, Instagram audience, next engineering lane) are now answered. The owner has not yet picked which of the remaining `Dex AI Build TODO` items (more FAQ coverage, owner update flow, tests, UI polish, admin knowledge space, import triggers, analytics, RAG) to build next.
+- **Verification:** Dex JSON validation passed for all 4 content files; `npm.cmd run typecheck` passed; `git diff --check` passed; direct `tsx` matcher probes passed for all 5 new questions (all returned `cached` with the correct matched question and `owner-interview-2026-07-31` source) plus two existing refusal checks ("Can you write my LinkedIn post?", "Can you schedule my post?") still correctly refuse.
+- **Next:** Ask the owner which numbered item from the `Dex AI Build TODO` (pasted into this session) to build next — the owner update flow (paste-and-approve knowledge import) and adding a test suite (none exists anywhere in the repo yet) are the two most load-bearing candidates before UI polish or an admin page.
+- **Open questions / blockers:** none blocking. The visitor-intake-form idea (form before a Dex session asking who the visitor is) is recorded as a planned idea only — not scoped or built yet, needs its own design pass when picked up.
+
+### 2026-07-28 - D-053.1: Owner interview round 1 ingested
+
+- **Update 2026-07-30:** Added owner interview round 2 to Dex: Deepak is interested across agent infrastructure, applied AI automation, AI research engineering, developer tools, and product AI. Added AI employee definition as a reviewed daily AI research/content workflow; agent skill definition as a reusable workflow capability learned from structured examples; Deepak.ai recruiter proof as evidence that Deepak builds agents, automations, model experiments, and AI products that remove repeated manual work. Added planned AI employee workflows for a LinkedIn skill.md posting assistant and an Instagram Deepak AI visual-content assistant using tools such as HeyGen, Suno, ElevenLabs, image generation, and writing assistants. Added review boundary: AI can schedule posts, but Deepak approves before publishing. Softened the ASMOS recruiter pitch to omit ACM publication status until the owner confirms it.
+
+- **What I did:** Added the owner's first interview answers to the file-backed Dex knowledge space: Agentic AI Engineer target role; ASMOS as flagship; Deepak.ai as second strongest current project; ASMOS checkpoint routing and corrected token-reduction evidence; debugging and learning approach; and an honest Humanizer AI work-in-progress status. Corrected ASMOS from the earlier 24% figure to the final about 22% result, with roughly 18-26% question-level spread across the larger re-test. Added working-prototype details: routing/scoring/memory code, 400+ passing tests, Docker support, Stack Overflow Q&A experiments, real tokenizer measurement across 50 questions and 10 random-seed reruns, and owner scoring at 60% trust plus 40% contribution share. Added the owner's three-agent helpdesk example as the approved simple explanation for checkpoints, ownership, fallback search, and prompt narrowing. Expanded cached FAQs and suggested questions, and widened the local topic gate for agentic and workflow terms.
+- **Why:** Dex must represent Deepak's own positioning and reasoning, while refusing unrelated questions without any public model or API call. The cached content keeps this update zero-cost and reviewable.
+- **State:** Interview round 1 is approved content. The remaining interview needs are preferred team or company context and deeper examples of agent skills and AI employee workflows.
+- **Verification:** JSON parsing and `npm.cmd run typecheck` passed; direct matcher probes passed for target role, ASMOS, Deepak.ai, debugging, Humanizer AI, and the off-topic assignment refusal. A repeat file-mode build was attempted but Next could not open `apps/web/.next/trace` because the running local dev server holds the file lock; the prior D-053 file-mode build remains green.
+- **Next:** Run the verification suite, then continue the owner interview with evidence-focused questions.
+
+### 2026-07-27 - D-053: Dex Knowledge Space v1 implemented
+
+- **Branch:** `codex/ai-development-process` created from `feat/instrument-redesign`. The worktree already had uncommitted D-052.7 hero/design-memory changes; these were preserved and carried onto the new branch.
+- **What I did:**
+  - Turned `specs/ai-assistant.md` from a template into the D-053 build contract.
+  - Chose **Dex v1 = cached grounded recall**, not live RAG from day one.
+  - Defined the manual trigger model: Codex interview, new project, LinkedIn post paste/import, CV/resume update, manual memory note.
+  - Defined the public runtime policy: suggested questions and cached answers first; free-text matching second; off-topic refusal before any model call; cited answers only.
+  - Extracted owner-provided intake from `Deepak_LinkedIn_Recruiter_Audit.xlsx`, `Deepak_GitHub_Portfolio_Analysis.xlsx`, and `DEEPAK__RESUME.pdf` into ignored `tmp/dex-intake/extracted_intake.json` for private analysis.
+  - Added file-backed Dex content under `apps/web/content/dex/`: sources, knowledge cards, FAQ cache, suggested questions, and starter interview questions.
+  - Added `src/lib/dex` types/content/search with a cached matcher and topic gate.
+  - Added `/api/dex/suggested` and `/api/dex/answer`.
+  - Replaced the placeholder `DexPanel` with a styled Radix dialog/bottom sheet and added `DexTrigger` to the landing hero as "Know about Deepak using AI".
+  - Updated `memory/CURRENT_STATE.md` to mark D-053 v1 implemented.
+- **Why:** The owner wants the AI feature to be beginner-friendly, low-cost, manually refreshed, and protected from API-credit abuse. The repo's existing law already says Dex recalls, never invents, so the implementation should begin as a Knowledge Space and cache before adding embeddings/RAG.
+- **Verification:**
+  - `npm.cmd run typecheck` passed.
+  - `CONTENT_SOURCE=file npm.cmd run build` passed; `/` First Load JS reported 155 kB.
+  - `npm.cmd run check:bundle --workspace=web` passed; guard reports `/` approx. 151.3 kB and lazy 3D chunk approx. 253.4 kB gz.
+  - Direct matcher probe: "Who is Deepak?", "What is ASMOS?", and "What computer vision experience..." return cached cited answers; "Can you write my assignment?" returns the scoped refusal.
+- **Next recommended work:**
+  1. Owner reviews Dex in-browser from the landing CTA.
+  2. Interview the owner for missing subjective context: role target, strongest project story, failures, boundaries, and tone.
+  3. Expand the FAQ cache from interview answers.
+  4. Add a local/admin owner-trigger workflow for future imports.
+  5. Later, consider embeddings only after real visitor questions prove cached matching is insufficient.
+- **Open questions / blockers:** the first seed is useful but still owner-review-needed. Some scraped audit rows contain discrepancies/risks; they are not published as direct claims. LinkedIn v1 stays manual paste/import, not automatic API sync.
+
+### 2026-07-21 — D-052: Instrument redesign + 3D neural-face hero (Phases 0–5)
+
+- **Branch:** `feat/instrument-redesign` (cut off the release work). **Nothing committed by the AI (T1)** — owner reviews in-browser, then commits/merges.
+- **What I did (five phases):**
+  - **Phase 0 — regressions:** root-caused the live hero copy bug. The hero `<h1>` (`arrival.tsx` → now `NeuralFace3DClient`) reads `siteContent.identitySentence` via a **static file import**; the `site_settings` DB table is **write-only** (admin `SettingsEditor` writes it, no public read path exists), so the file was the sole source and held the old rejected string. Fixed at the file (`"I build intelligent systems."`), documented file-vs-DB precedence in a code comment, flagged the write-only-settings latent gap. Removed the dead `SoundToggle` (LAW-008).
+  - **Phase 1 — design system:** `docs/DESIGN_SYSTEM.md` + the Instrument token layer in `globals.css` (dark-first stage/ink, muted/faint as ink-opacity, hairline ink@8%, Gemini accent gradient energy-only, six-size type scale, `ease-instrument`/`ease-arc`, `.cta-pill`/`.gradient-underline*`/`.section-rhythm` utilities). Inter Tight wired in `layout.tsx`. Motion primitives aligned (`tokens.ts`/`variants.ts`: 400ms/12px reveal).
+  - **Phase 3 — reskin:** nav → glass + active gradient underline (+client for `usePathname`); Section rhythm 96/160; mission/evidence/collaborate/arrival + projects index → six-token scale + display face; ProjectCard rebuilt (title + role, hover gradient underline, no imagery); detail page question → large display pull-quote at 160px rhythm; AdminShell wordmark → display (admin stays gradient-free).
+  - **Phase 2 — 3D hero (`features/hero-scene/neural-face/`):** pipeline v2 extends `generate-hero-face.mjs` → `hero-face-3d.json` (8000 surface / 2500 mobile / 280 inner + 12 pulses) + `hero-face-poster.webp` (+`-sm`), `--depth-map` flag. Scene = custom-shader particle relief (additive, circular mask, drift+breathing) → CatmullRom camera dive with fog cross-fade → instanced inner nodes + faint edges + meshline `dashOffset` pulses + selective bloom. `NeuralFace3DClient` owns the poster-first SSR LCP, tier/idle/intersection gating, native-scroll offset, copy overlay, and the fallback ladder. `next/dynamic({ssr:false})` keeps three lazy.
+  - **Phase 4 — governance/CI:** `check-bundle-budget.mjs` extended (170 kB ceiling; lazy 3D chunk ≤500 kB gz; `hero-face-3d.json` ≤140 kB gz + posters ≤90 kB existence/budget); `ci.yml` step relabelled; **D-052** logged in `DECISIONS.md` (supersedes D-050 Track 1, amends the bundle law, records the ScrollControls→native-scroll deviation).
+  - **Phase 5 — tester pass:** static/code items verified; browser-only items flagged, not faked.
+- **Verified numbers:** typecheck clean; `next build` green, 0 warnings, 14 pages; `/` First Load **154 kB** (Next) / 150.4 kB (guard) ≤170; three.js **absent** from `/` First Load; lazy 3D stack **253.5 kB gz** (5 chunks) ≤500; `hero-face-3d.json` 43.8 kB gz; posters 86.0 kB; `--depth-map` flag works.
+- **Deliberate deviation (flagged):** native window-scroll drives the scene, not drei `<ScrollControls>` (which owns its own scroll container and fights the document flow of the sections below the hero). Honours "native scroll wins" + keeps the page flowing. Recorded in D-052 + the scene header.
+- **Needs owner's browser (NOT faked as PASS):** 60/40 fps, visual/likeness correctness, LCP under Fast 3G, real `WEBGL_lose_context` recovery, mount/unmount ×10 memory, mobile emulation smoothness.
+- **Owner sign-off checklist:** `npm run dev` → `/` desktop (poster → face → dive → network); confirm copy overlays Beat 1 and fades; reduced-motion → poster only; mobile emulation → 2500 nodes, no bloom; light theme → hero stays a dark stage; DevTools Network → 3D chunks load only after idle.
+- **Owner git commands (run after in-browser sign-off):**
+  ```bash
+  # Stage the D-052 work (Phases 0–5) on the current branch:
+  git add -A
+  git commit -m "feat: D-052 — Instrument design system + 3D neural-face hero (supersedes D-050 Track 1)"
+  git push origin feat/instrument-redesign
+  # After sign-off, open a PR into main (or, once CI green):
+  git checkout main && git merge feat/instrument-redesign --no-ff && git push origin main
+  ```
+- **Open / next:** wire a `getSiteSettings()` read path so admin copy edits reach the public site (the write-only gap); optionally add `/memory` to the reskin scope (it still has `text-[0.65rem]` micro-labels outside the six-token scale); real depth map via `--depth-map` for richer relief; the live-browser QA sign-off above.
+
+### 2026-07-21 — D-050 Close-Out + Release Readiness (final engineering session)
+
+- **What I did:** Four engineering deliverables completing the last deploy-blocking gates.
+  1. **`brief.tsx` self-hide fix** — added `.filter(([, value]) => value)` before `.map()` on `rows` in the Brief dialog so empty gist fields (e.g. `formed: ""`) never render a blank label (LAW-008). One line.
+  2. **`content/asmos.ts` rewritten** — old scaffold described a fabricated "structured memory architecture" project (wrong project, wrong framing). Replaced entirely with owner-ratified content: ASMOS is an ownership-based multi-agent orchestration system; ratified text covers the insight (systems only compared answers, not routed by ownership), the experiment (subtask routing by owning agent), and the result (originally recorded as ~24%; corrected on 2026-07-28 to about 22% prompt-token reduction after a larger re-test). 3 stages (`question`, `experiments`, `results`), 3 dex Q&As grounded in those stages, `role: "Researcher and engineer"`, `formed: ""` (self-hiding), `links: []`. `draft: false` flipped. `memoryNodes`/`memoryEdges` preserved unchanged. Clears **G3 (hard deploy gate)**.
+  3. **`apps/web/src/instrumentation.ts` created** — Next.js `register()` startup hook. Throws a named error at `next start` in production if `SESSION_SECRET` is missing/dev-fallback/< 32 chars or `ADMIN_PASSWORD_HASH` is missing/doesn't start with `$2`. Guarded by `process.env.NEXT_PHASE === "phase-production-build"` so CI builds with no real secrets pass clean. Closes the silent-credential failure mode (previous gap: `session.ts` used `?? "dev-secret-min-32-chars-change-me!"` silent fallback).
+  4. **`docs/DEPLOY_RUNBOOK.md` created** — 6-step click-by-click first-deploy sequence: merge → CI green → Render Blueprint click → env vars (with raw/escape guide) → smoke test table (8 checks) → custom domain + TLS → flip `autoDeploy: true`.
+  5. **`docs/10-DEPLOYMENT.md §8a` added** — complete deploy-day env var sheet as a new section; full table of all 11 env vars with field type, scope, and generation commands; R2 omitted with reason; escape-note for bcrypt hashes.
+  6. **Arrival act-0 sub-line swapped** — "A researcher-engineer, read as a network of the work." → "Me, rendered as a network of the work." (owner ruling: LAW-002 third-person violation). All four sub-lines now owner-ratified.
+  7. **`memory/CURRENT_STATE.md` updated** — status set to "RELEASE-READY — pending owner deploy click".
+  8. **`memory/DECISIONS.md` G3 amendment note added** — records the ASMOS rewrite and Arrival ratification against D-050.
+- **Build evidence (final run):** typecheck EXIT 0; build 14 static pages, zero warnings, `/` = 151 kB First Load JS; D-050 bundle guard 148.2 kB ✓ (≤ 164 kB); three/gsap/lenis/sharp absent ✓; hero-face.json 31.4 kB gz ✓ (≤ 60 kB); admin isolation ✓.
+- **Ratified sub-lines (verbatim):**
+  - Act 0: "Me, rendered as a network of the work."
+  - Act 1: "Systems, memory, and the questions between them."
+  - Act 2: "Everything here is real, or it isn't shown."
+  - Act 3: "Keep scrolling — the work comes first."
+- **CV:** `cvUrl: null` stays. No PDF in `apps/web/public/`. `hero.tsx` has `{siteContent.cvUrl && (...)}` guard — CTA self-hides. Owner to upload PDF and fill `cvUrl` when ready.
+- **Why:** Release-readiness close-out. Final gate table confirmed RELEASE-READY pending owner-only items (copy tests R4, visual sign-off, R2, six featured projects).
+- **Owner must do to deploy (in order):**
+  1. Review + commit uncommitted working tree (git commands in final report below)
+  2. Run copy tests R4: read all ratified landing copy aloud (10-second test), brief/a-friend test
+  3. Visual look-dev sign-off: open `/` in Chrome + Safari on mobile; confirm hero on both; confirm dark/light
+  4. `git checkout main && git merge release/v0.9.0-alpha --no-ff && git push origin main` — wait for CI green
+  5. Render Blueprint → env vars → deploy → smoke test (DEPLOY_RUNBOOK.md §4)
+  6. Flip `autoDeploy: true` in `render.yaml` after smoke test passes
+  7. Fill `content/asmos.ts` `gist.formed` (year ASMOS work began) — currently `""`, self-hides
+  8. Write `question` fields for featured six projects, flip their `status: "published"` → `/projects` goes live
+  9. Set up R2 env vars when ready (media pipeline already built, just needs credentials)
+- **Open:** `gist.formed` in asmos.ts; featured 6 projects question+publish; R2 setup; visual sign-off; R4 copy tests. None of these block the deploy click — they are post-deploy or parallel.
+
+### 2026-07-20 — D-050 Track 1: "Neural Face Lite" Canvas2D hero
+
+- **What I did:** Built the dependency-free Canvas2D particle-portrait hero and swapped it in for the ambient R3F scene on `/`.
+  - **Pipeline:** `apps/web/scripts/generate-hero-face.mjs` (`npm run hero:generate`) — `sharp` reads a downscaled (≤220px) greyscale portrait; per-pixel score = 0.45·luminance + 0.55·Sobel-edge (edge-biased so eyes/nose/mouth/jaw win); rank-then-clamp keeps ≤3,000 nodes (MIN 300 floor guarantees a face even for very dark images); KNN (k=3) edges via a spatial bucket index, median-pruned (>2.5×) and capped ≤6,000; 4–6 pulse paths as region-seeded random walks; output `public/hero-face.json` (flat quantized arrays + meta). Prints raw+gz sizes, **fails over 60 KB gz after one auto-retry** at a 2,000-node cap. Missing photo ⇒ loud one-line failure (LAW-008), never a fake face.
+  - **Component:** `apps/web/src/features/neural-face/` — `renderer.ts` (imperative Canvas2D: DPR cap 2, offscreen static edge layer blitted per frame, brightness-tiered node batching, ≤2 pulses with `lighter` comp + ≥2s gaps, pointer-lerp parallax + touch autonomous drift, per-node breathing, 800ms smoothstep fade-in, **zero per-frame allocation**), `NeuralFaceHero.tsx` (SSR-safe shell, **fetch-only** load, IntersectionObserver + visibility pause, debounced resize, reduced-motion single static frame, full listener teardown, `aria-hidden`), `types.ts` (+ structural validator), `NeuralFaceHeroRegion.tsx`, `constants.ts`, `use-scroll-act.ts`.
+  - **Integration:** `app/(site)/page.tsx` now mounts `NeuralFaceHeroRegion` (was `HeroSceneRegion ambient`). `arrival.tsx` reads `useScrollAct()` (was `useHeroStore`) and its ambient sub-line copy was rewritten for the no-scene hero. `features/hero-scene/` untouched; the 3D scene still lives at `/dev/hero`.
+  - **Guardrails:** `.gitignore` ignores `apps/web/scripts/assets/*` (keeps `README.md`); `apps/web/scripts/assets/README.md` documents the drop location; `package.json` gains `hero:generate` + `check:bundle`; `scripts/check-bundle-budget.mjs` + a new CI step enforce the 164 kB `/` ceiling, banned-dep absence (three/gsap/lenis/sharp), and fetch-not-bundled dataset.
+  - **Governance:** D-050 added to `DECISIONS.md` (two-track ruling + budgets + zero-dep term + the R3F-removal amendment + the sharp-devDep **conflict note**). `CURRENT_STATE.md` + this entry updated.
+- **Why:** owner directive (D-050 sprint) — a distinctive "alive-not-animated" hero with no WebGL on the public critical path. Owner ruled (this session) to **replace** the ambient R3F mount on `/` rather than coexist, with a minimal self-contained sub-line driver, reversible in one commit for v1.5.
+- **Verification:** typecheck clean. Pipeline validated on **synthetic** images (normal/tiny-180px/very-dark/oversized-4000×5000) — all green, ≈28 KB gz at the 3,000-node cap; those synthetic outputs are **not committed**. Build/budget numbers + the T9 tester table are in the final report.
+- **Owner must do to activate:** drop a real `apps/web/scripts/assets/portrait-source.jpg` (or `.png`) → `cd apps/web && npm run hero:generate` → commit the produced `public/hero-face.json`. Until then the hero copy stands alone (correct graceful absence). Also pending: ratify the rewritten Arrival sub-line copy.
+- **Note:** the local `.env.local` has `CONTENT_SOURCE=db`; with no Postgres running, `npm run build` fails on `/projects/[slug]` (ECONNREFUSED) — **pre-existing, unrelated to this sprint**. CI + the public/zero-DB build run in **file mode** (build with `CONTENT_SOURCE=file`).
+
+### 2026-07-12 — Rich Metadata + Media Sprint complete (Phases 1–3)
+
+- **What I did:** Enriched the content model + built the deferred media pipeline (`docs/28`, D-048/D-049).
+  - Phase 1: authored `docs/28` (field matrix + media architecture), proposed D-048/D-049. Owner ratified both — D-048 with `skillsLearned` amendment (dedicated typed field, distinct from tags); D-049 = Cloudflare R2 with 3 conditions (env-only creds + README/CORS, one-command backup, upload constraints).
+  - Phase 2: schema — rich typed columns on projects/publications/timeline/skills + `media`/`content_media`/`content_links` tables (migration `0002_romantic_martin_li.sql`, incl. `ck_image_has_alt` CHECK + `uq_content_media_cover` partial unique index); applied. Types + ingest updated (new fields empty when absent). ProjectEditor regrouped (Basics/Body/Dates & Context/Links/Skills/Media/Advanced) with `StringListEditor` + `MediaPicker`; `actions/projects.ts` persists all fields + content_media; buildSnapshot/restore extended (round-trip verified via a temp script).
+  - Phase 3: media pipeline — `lib/media/{storage,validate,url}.ts`, `actions/media.ts` (upload + reference-checked delete), `/admin/media` library + `queries/media.ts`, `next.config` R2 allow-list, `scripts/media-backup.ts`. Public `/projects/[slug]` renders all new fields self-hiding.
+- **Why:** owner directive — editors too sparse; LinkedIn-grade *optional* metadata + media. Rich-but-typed (D-043 upheld: no JSONB, no custom-field builder).
+- **Budgets (before → after):** `/` 152→152 kB, `/projects` 106→106 kB, `/projects/[slug]` 106→111 kB (+5 kB next/image on the detail route). three.js/admin/aws absent from public First Load JS (CI guards pass). Build green, zero warnings.
+- **OWNER MUST DO to activate media:** create an R2 bucket + public URL + API token; set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `MEDIA_PUBLIC_BASE_URL` in `.env.local` (+ Render env). Steps in README → "Media / R2 setup". Cost: R2 free tier ≈ **$0/mo**; D-041 total unchanged. Text fields need no setup (work in DB mode now).
+- **Open / deferred:** public pages for Posts/Timeline/Skills/Research still future sprints (their new fields are built + editable, rendering-designed-but-dormant); full markdown rendering of Project `overview` is paragraph-split for now (adopt a real MD pipeline when the Posts reading column ships); `content_links` table exists but only wired for future Post/Timeline use.
+
+### 2026-07-12 — Admin CMS Sprint complete (Phases 1–3)
+
+- **What I did:** Full Admin CMS implementation from architecture through acceptance.
+  - Phase 1: `docs/27-ADMIN_CMS_ARCHITECTURE.md` — auth options, route structure, IA, version history, threat model. D-046 + D-047 proposed.
+  - Owner ratified D-046 (collocation) and D-047 (iron-session Option A) with 4 binding amendments (rate-limiter honesty/known-gap, SKIP LOCKED cron, origin provenance on versions, CI guard as hard failure).
+  - Phase 2: `iron-session` + `bcryptjs` installed. `content_versions` + `site_settings_versions` schema + migration 0001 applied. Auth infrastructure (`src/lib/auth/session.ts`, `src/middleware.ts`, `loginAction`/`logoutAction` with constant-time bcrypt and in-memory rate-limiter). Admin shell (`AdminShell.tsx` with nav rail). Login page. Admin layout (uses `x-pathname` header to skip shell on login, no redirect loop). Overview page (freshness engine, publish queue, recent activity). Projects list, new-project form, project editor (full field set, abandoned branches, publish bar with lifecycle state machine, schedule). Settings/site-copy editor (single-writer banner). Security headers in `next.config.ts`. `robots.ts` disallows /admin. `render.yaml` cron stub. Version history pages.
+  - Phase 3: VersionHistory component (with origin badge, restore creates new version). CI hard guard for admin bundle isolation. `db-publish-scheduled.ts` cron with `FOR UPDATE SKIP LOCKED`. `db:publish-scheduled` npm script.
+  - Acceptance ritual: **1.9s** end-to-end (draft → question → publish → appears on /projects). Limit: 10 min.
+- **Why:** Admin CMS sprint per session brief. D-046/D-047 ratified by owner.
+- **Next owner actions:**
+  1. Add `SESSION_SECRET` (32+ byte random) and `ADMIN_PASSWORD_HASH` (bcrypt of chosen passphrase) to Render env + `.env.local`
+  2. Remove the test credentials from `.env.local` (currently: `SESSION_SECRET=dev-local-secret...`, `ADMIN_PASSWORD_HASH=$2b$10$szs3A...`)
+  3. Run `npm run db:ingest` to populate 18 projects + site settings
+  4. Test `CONTENT_SOURCE=db` mode in dev: open http://localhost:3000/admin
+  5. Write `question` fields for the 18 project drafts (featured 6 first), publish them
+  6. Ratify D-041 (Render deploy vendor) — then trigger first deploy
+- **Open questions:** Publications/Posts/Timeline/Skills editors are stubs (honest empty states) — they need their own sprint. Relations editor not built. `content_stages` table not yet used by admin.
+
+### 2026-07-12 (handoff ritual) — VERSION + CHANGELOG + ingest fix + memory sync
+
+- **What I did:** Completed the handoff ritual for the DB sprint.
+  - Fixed `scripts/db-ingest.ts` — same WSL/Windows env-var issue as `drizzle.config.ts`; added `dotenv` load at the top so `DATABASE_URL` is read from `.env.local` before `getDb()` is called.
+  - Bumped `VERSION.md` to `v0.7.0-alpha`; added v0.7.0-alpha row to version history table.
+  - Created `CHANGELOG.md` v0.7.0-alpha entry (Added/Changed/Decisions sections, full DB sprint summary).
+  - Updated `memory/CURRENT_STATE.md` and `memory/AI_HANDOFF.md` (this entry).
+- **Key correction to prior session notes:** `0001_constraints_and_indexes.sql` was manually created outside drizzle-kit and therefore NOT in `meta/_journal.json`. Drizzle `migrate` skips files not in the journal. All 0001 content was merged into `0000_fair_silver_surfer.sql` before the first `npm run db:migrate` run. There is no 0001 file in the repo.
+- **Next owner actions:**
+  1. Run `npm run db:ingest` (from repo root, with Docker DB running) — populates 18 project drafts + site settings
+  2. Uncomment `CONTENT_SOURCE=db` in `apps/web/.env.local`, run `npm run dev`, verify `/projects` still shows EmptyState (all drafts) and no errors
+  3. Write `question` fields for 18 projects (6 featured first) in `content/site.ts` + flip `status: "published"` → `/projects` goes live
+  4. Ratify D-041 (Render deploy vendor) → trigger first deploy
+- **State:** `v0.7.0-alpha`. All DB sprint artifacts complete and synced.
+
+### 2026-07-11 (DB sprint — all three phases) — docs/09 + Drizzle schema + migrations + ContentService
+
+- **What I did:** Full docs/09 database sprint. D-043/D-044/D-045 ratified by owner with three binding conditions before Phase 2 began.
+- **D-043 binding conditions honored:**
+  - (1) CTI hidden behind `contentService` interface — `dbContent` returns typed `Project[]` etc., page components never see joins or Drizzle objects.
+  - (2) LAW-003 CHECK (`ck_published_has_question`) in migration 0001 — only fires when `status = 'published'`; drafts with `question = ''` insert/update freely.
+  - (3) `ck_no_self_relation` CHECK + `uq_relations_from_to_kind` UNIQUE both in migration 0001. Closed kind enum enforced at application boundary (types/content.ts RelationKind); extensions require a D-entry.
+- **Phase 2 files:**
+  - `apps/web/src/db/schema.ts` — 9-table Drizzle schema
+  - `apps/web/src/db/migrations/0000_fair_silver_surfer.sql` — auto-generated (tables + FKs)
+  - `apps/web/src/db/migrations/0001_constraints_and_indexes.sql` — binding conditions + 10 indexes
+  - `apps/web/src/db/index.ts` — lazy-init DB client singleton
+  - `apps/web/drizzle.config.ts` — drizzle-kit config
+  - `docker-compose.dev.yml` (repo root) — pgvector/pgvector:pg17, optional
+  - `.env.example` updated with `CONTENT_SOURCE` and `DATABASE_URL` docs
+  - `apps/web/scripts/db-ingest.ts` — idempotent upsert of 18 projects + site settings
+  - `apps/web/package.json` — `db:generate`, `db:migrate`, `db:ingest` scripts
+  - Packages: `drizzle-orm pg` (prod), `drizzle-kit @types/pg tsx` (dev)
+- **Phase 3 files:**
+  - `apps/web/src/services/db-content.ts` — full ContentService via Drizzle (8 methods, 3 queries/collection, no N+1)
+  - `apps/web/src/services/index.ts` — `CONTENT_SOURCE=db → dbContent`, else `localContent`
+  - `projects/page.tsx` + `projects/[slug]/page.tsx` — import `contentService` from `@/services`
+- **Verified:** `tsc --noEmit` zero errors; `npm run build` green: `/` = 152 kB, 7 static pages, three.js absent from all First Load JS. File mode works with no DB present.
+- **Deferred tables** (future sprints): content_stages, content_versions, embeddings/pgvector, users/sessions, github_cache, gallery_items, search_vector GENERATED column.
+- **Next owner actions:** write question fields for 18 projects, flip status to published; ASMOS real content (deploy gate); first Render deploy.
+
+### 2026-07-11 (session 26) — Content corpus: 18 projects inserted as drafts
+
+- **What I did:** Inserted all 18 owner-supplied projects into `content/site.ts` as `status: "draft"`. Zero projects are published — LAW-003 (`question` required) and the brief's explicit instruction. Draft gating verified end-to-end: `getProjects()` filters `published`, `generateStaticParams()` calls `getProjects()`, so zero detail routes are generated and `/projects` shows the honest EmptyState. Added newest-first sort (`publishedAt` descending) to both `getProjects()` and `getFeaturedProjects()` in `local-content.ts` (recency law — was missing before).
+- **Field mapping decisions (documented, not silent):**
+  - `brief.context` → `problem` — both are one-line project descriptions; same semantic role.
+  - `brief.stack` → `tags[]` — `tags: string[]` is the existing home for tech labels in the Project type; no schema field for stack exists.
+  - `question: ""` on all 18 — owner must write and set `status: "published"` per LAW-003.
+  - `projectStatus: "archived"` default on all — owner can flip to `"active"` for live projects.
+  - Dental AI date range (2025-10 → 2026-05): `publishedAt: "2026-05-01"` (end date per brief); range noted in `problem` field.
+  - Repo URLs copied byte-identical (including `weaher_app` typo).
+- **Featured flag**: already existed in the Project type (D-042). No additive extension needed; no D-entry. Docs/24 defines no featured visual treatment for the index — `ProjectCard` renders all published projects uniformly. Surfaced: a featured treatment (badge, larger card, or separate section) can be added in a future sprint.
+- **Checklist update**: replaced generic P1/P2/P3 with a per-project list of all 18 — 6 featured first (with note "write these first — publishing the featured six makes /projects launch-ready"), then the remaining 12. Publishing flow documented.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` = 152 kB; three.js absent from all First Load JS; `/projects` = 166 B generating zero `[slug]` routes (all drafts); `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump — content corpus session).
+
+### 2026-07-11 (session 25) — Content fill: currentFocus · contact · outbound links · X + Instagram
+
+- **What I did:** Inserted all owner-ratified copy into `content/site.ts` exactly as provided: `currentFocus` (phrase + `updatedAt: "2026-07-11"`), `contactSentence`, `contactEmail` (`csdeepak2005@gmail.com`), `outbound.github`, `outbound.linkedin`. `outbound.scholar` left `null` — owner confirmed no Scholar profile; verified it self-hides in both `evidence.tsx` and `footer.tsx` (graceful absence, LAW-008). Extended the `outbound` object additively with `x` and `instagram` (URLs provided by owner); wired both in `evidence.tsx` (trust-seeds nav) and `footer.tsx` with the same graceful-absence guard pattern. Marked checklist items 7, 8, 9 ✅ DONE.
+- **Outbound-set decision (X + Instagram):** docs/14 and docs/24 define no closed/ratified outbound-platform set — docs/24 Part 10.C and Part 11.7 reference "outbound links" generically; the existing three fields (github/scholar/linkedin) were code convention, not a locked contract. Added `x` and `instagram` as a purely additive change. This is a content/data extension, not an architectural change — an AI_HANDOFF note is the right scope (no D-entry warranted).
+- **R5 gate status (reported):** `currentFocus` is wired in `hero.tsx` only → renders on `/dev/hero` (dev-only, 404 in prod). The freshness stamp renders ≤30 days from `updatedAt`; phrase renders unconditionally when non-null. The V2 landing (`arrival.tsx`) does NOT render `currentFocus` — wiring it there is a future session task.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` = 152 kB (page 2.27 kB); three.js absent from First Load JS on `/`; `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump — content-fill session).
+- **Note:** Checklist heading + mission copy (items 3–6) remain owner-pending. The ASMOS real content (item 12) remains the deploy-blocking gate.
+
+### 2026-07-11 (session 24) — Micro: hero copy ruling (literal string, owner-confirmed)
+
+- **What I did:** Set `content/site.ts` `identitySupport` to the first-person ruling copy ("…what I build, but how I think, learn, and evolve.") and `identitySentence` to the literal ratified string **"Deepak learns and enjoy building intelligent systems.."** No component change (`arrival.tsx` untouched — it already single-sources both fields with self-hide guards).
+- **Conflict surfaced + owner-ruled:** the ruling's prose ("switch to first person, remove duplicate name, moot subject-verb") contradicted its literal `identitySentence` string (third person, repeats "Deepak", "learns and enjoy", double period). I stopped and asked rather than guess; **owner explicitly chose the literal string as pasted.** Inserted exactly, per "insert EXACTLY."
+- **docs/24 constraint check on the final copy (reported, not changed, per standing instruction):** `identitySentence` — present tense ✓ · length ✓ · banned vocabulary ✓; **flagged:** subject-verb "learns and enjoy" (→ "enjoys"), third-person voice vs docs/24 §18 first-person preference + LAW-002 (names Deepak in the first line), duplicate "Deepak" (eyebrow + `<h1>`), and a trailing double period ".."​. `identitySupport` — present tense ✓ · length ✓ · banned vocab ✓; first person, clean. All left exactly as ratified.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` 152 kB (page 2.27 kB); three.js absent from First Load JS; hero self-hide guards intact; `features/hero-scene/` untouched. `v0.6.0-alpha` (no bump).
+- **Note for next session:** these hero copy flags are owner-ratified as-is — do not "fix" them without a new ruling.
+
+### 2026-07-11 (session 23) — Micro: identity copy + single source of truth
+
+- **What I did:** (1) Wired the Arrival `<h1>` to `siteContent.identitySentence` and **removed the hardcoded headline entirely** (`arrival.tsx`) — the earlier divergence (session 22 gotcha) is resolved; the component now holds no identity copy (single-writer law). Heading + supporting line each self-hide if their field is emptied (graceful absence). (2) Inserted owner-ratified copy into `content/site.ts`: `identitySentence` = "Deepak learns and enjoy building intelligent systems."; added a companion field **`identitySupport`** = "An adaptive mind working across agentic AI, memory, and software engineering — documenting not just what he builds, but how he thinks, learns, and evolves." (docs/24 names the hero "identity line" but assigns no supporting-line field, so `identitySupport` was added next to `identitySentence`). Rendered beneath the `<h1>` as a `text-reading` muted line. (3) Marked checklist items 1–2 ✅ DONE.
+- **docs/24 constraint check (verified, not rewritten):** tense present ✓ · length ✓ · banned vocabulary ✓ — both lines pass the named constraints. **Reported (did NOT silently fix, per the brief):** (a) subject-verb agreement — "Deepak learns and enjoy" should read "enjoys"; (b) voice shift first→third person (docs/24 §18 prefers first-person where personal; and LAW-002 "identity discovered, never introduced" — naming Deepak in the very first line introduces identity up front); (c) minor redundancy — the eyebrow already prints `name` ("Deepak"), so "Deepak" now appears twice in the hero. All three left as-is for the owner to rule on.
+- **Verified:** `typecheck` + `build` clean, zero warnings; `/` 152 kB (page 2.27 kB); **three.js absent from First Load JS**. `features/hero-scene/` untouched.
+- **State:** `v0.6.0-alpha` (no bump — micro copy/wiring change). CURRENT_STATE follow-up about the hardcoded-`<h1>` divergence is now cleared.
+- **Next (unchanged):** owner finishes `OWNER_CONTENT_CHECKLIST.md` (still open: `currentFocus`, mission confirm, `contactSentence`/`contactEmail`, outbound links, `cvUrl`, Arrival act sub-lines, per-project `question`s, and the real ASMOS memory) → clear `RELEASE_CHECKLIST.md` → ratify vendor (D-041) → first Render deploy.
+
 ### 2026-07-11 (session 22) — Launch-readiness sprint (release gates · deployment · /projects)
 
 - **What I did:** Three phases to make Tier 0 deployable-on-content, all green (`typecheck` + `build`, zero warnings; three.js verified absent from First Load JS across `/`, `/projects`, `/projects/[slug]` via app-build-manifest cross-check).

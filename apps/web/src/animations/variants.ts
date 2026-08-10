@@ -1,19 +1,22 @@
 import type { Variants } from "motion/react";
-import { DURATION, EASE_OUT } from "./tokens";
+import { DURATION, EASE_OUT, EASE_INSTRUMENT } from "./tokens";
 
 /**
- * Reusable motion recipes (docs/15 §4). Components consume these —
+ * Reusable motion recipes (docs/DESIGN_SYSTEM §4). Components consume these —
  * never raw duration/easing pairs (anti-duplication rule).
  * Reduced-motion parity is handled globally by MotionConfig("user").
  */
 
-/** `entrance` — opacity + ≤16px translate, base, once (docs/08). */
+/**
+ * The Instrument reveal — 400ms fade + 12px translate-up, once, ease-instrument
+ * (docs/DESIGN_SYSTEM §4). The canonical scroll-reveal recipe.
+ */
 export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: DURATION.base, ease: EASE_OUT },
+    transition: { duration: DURATION.reveal, ease: EASE_INSTRUMENT },
   },
 };
 

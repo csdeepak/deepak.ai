@@ -52,6 +52,26 @@ export interface AbandonedBranch {
   learned: string; // what it taught (honesty over completeness)
 }
 
+/**
+ * A media asset attached to content (D-049). The `url` is derived at read time
+ * from the storage key + base URL — never persisted. `alt` is required for
+ * images (accessibility is honesty); '' for PDFs.
+ */
+export interface MediaAsset {
+  kind: "image" | "pdf";
+  url: string;
+  alt: string;
+  caption: string;
+  width?: number;
+  height?: number;
+}
+
+/** A labeled EXTERNAL link (internal cross-links are Relations — LAW-005). */
+export interface ExternalLink {
+  label: string;
+  url: string;
+}
+
 export interface Project extends ContentBase {
   type: "project";
   /**
@@ -79,6 +99,24 @@ export interface Project extends ContentBase {
    * schema — it is an explicit open question docs/09 must answer.
    */
   abandonedBranches?: AbandonedBranch[];
+
+  /**
+   * Rich metadata (D-048) — every field optional and self-hiding (LAW-008).
+   * A project with none of these renders exactly as it did before the sprint.
+   */
+  overview?: string; // long-form "Decisions & trade-offs" body (markdown)
+  startDate?: string; // ISO date; drives the duration display
+  endDate?: string; // ISO date; absent = ongoing ("present")
+  context?: string; // "PES coursework" / "Personal" / an org
+  role?: string; // "Solo" / "Lead, team of 4"
+  collaborators?: string[];
+  liveUrl?: string; // live demo
+  videoUrl?: string; // demo video (URL only — no embed/upload)
+  outcomes?: string[]; // results/impact bullets
+  skillsLearned?: string[]; // "What I learned" takeaways (distinct from tags)
+  coverImage?: MediaAsset;
+  gallery?: MediaAsset[];
+  attachments?: MediaAsset[]; // PDFs — report, paper, poster
 }
 
 export interface Publication extends ContentBase {
@@ -90,6 +128,12 @@ export interface Publication extends ContentBase {
   plainSummary: string; // the researcher→engineer bridge (docs/04)
   pdfUrl?: string;
   bibtex?: string;
+  // Rich metadata (D-048) — all optional, self-hiding
+  doi?: string;
+  pubDate?: string; // precise date; overrides year display
+  pubStatus?: "preprint" | "published" | "under-review";
+  arxivUrl?: string;
+  attachments?: MediaAsset[];
 }
 
 export interface Post extends ContentBase {
@@ -97,6 +141,10 @@ export interface Post extends ContentBase {
   dek: string;
   readingMinutes: number;
   tags: string[];
+  // Rich metadata (D-048)
+  coverImage?: MediaAsset;
+  attachments?: MediaAsset[];
+  relatedLinks?: ExternalLink[]; // external — internal links are Relations
 }
 
 export interface TimelineEntry extends ContentBase {
@@ -106,10 +154,18 @@ export interface TimelineEntry extends ContentBase {
   startDate: string;
   endDate?: string; // absent = current
   summary: string; // one-line what-it-produced
+  // Rich metadata (D-048)
+  place?: string;
+  highlights?: string[];
+  logo?: MediaAsset;
+  links?: ExternalLink[]; // e.g. a "Proof" link
 }
 
 export interface Skill extends ContentBase {
   type: "skill";
   context: string; // one-line context ("currently using for …")
   current: boolean; // Currently working on vs Previously
+  // Rich metadata (D-048)
+  category?: string;
+  sinceYear?: number;
 }
