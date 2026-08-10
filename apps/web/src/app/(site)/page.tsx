@@ -4,7 +4,7 @@ import { Evidence } from "@/features/landing/sections/evidence";
 import { Collaborate } from "@/features/landing/sections/collaborate";
 
 /**
- * Landing — the Landing Experience (D-052 Track 2).
+ * Landing — the Landing Experience (D-052 Track 2, extended D-056).
  *
  * A four-beat story, built around the hero:
  *   1. Hero       — the 3D neural-face: face → dive → inner network

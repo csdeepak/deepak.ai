@@ -410,6 +410,185 @@
     }
   }
 
+  /* ── Gallery cluster (D-056) ──────────────────────────────────────────────
+   *
+   * A CLUSTER, not a grid. Three rules make it read that way:
+   *
+   *   1. Every photo keeps its real aspect ratio (--ar from the file's true
+   *      dimensions). Nothing is cropped to a house shape.
+   *   2. Footprint varies widely (--size ~0.7 to ~1.4), so photos differ by
+   *      almost 2x rather than a few pixels.
+   *   3. Each photo carries a --tilt and a vertical nudge, so nothing shares
+   *      a baseline. Rows never line up, which is what kills the grid read.
+   *
+   * Motion is scroll-DRIVEN, never an ambient loop: everything below is bound
+   * to `animation-timeline: view()`, so it advances with the visitor's scroll
+   * and stops when they stop. The one-ambient-loop rule stays spent on Dex's
+   * breath, and "native scroll owns truth" holds.
+   *
+   * Zero JavaScript — which is why the landing cluster costs nothing against
+   * the / First Load JS budget.
+   */
+  .gallery-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.75rem, 2vw, 1.75rem);
+  }
+
+  .gallery-photo {
+    --ar: 1;
+    --size: 1;
+    --tilt: 0deg;
+    --depth: 0.8;
+    /* Size variance is damped on small screens. At full strength a 0.7x photo
+     * on a phone lands around 45px wide — technically varied, practically
+     * invisible. Below 48rem the spread is halved toward 1. */
+    --size-eff: calc(1 + (var(--size) - 1) * 0.45);
+    --base: clamp(8rem, 17vw, 15rem);
+    /* Height is the unit; width follows the real aspect ratio. That is what
+     * lets a portrait stay tall and a panorama stay wide in the same run. */
+    height: calc(var(--base) * var(--size-eff));
+    width: calc(var(--base) * var(--size-eff) * var(--ar));
+    flex: none;
+    overflow: hidden;
+    border-radius: var(--radius-md, 0.5rem);
+    rotate: var(--tilt);
+    /* Break the shared baseline — the single biggest anti-grid move. */
+    margin-block: calc(var(--depth) * -0.75rem) calc(var(--depth) * 0.75rem);
+    box-shadow: 0 1.5rem 3rem -1.5rem rgb(0 0 0 / calc(0.45 * var(--depth)));
+    transition:
+      rotate var(--duration-base) var(--ease-instrument),
+      scale var(--duration-base) var(--ease-instrument),
+      box-shadow var(--duration-base) var(--ease-instrument),
+      filter var(--duration-hover) var(--ease-instrument);
+  }
+
+  /* Full size variance once there is room for it to read. */
+  @media (min-width: 48rem) {
+    .gallery-photo {
+      --size-eff: var(--size);
+    }
+  }
+
+  .gallery-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Hover: the photo straightens and lifts, as if picked up off the pile. */
+  .gallery-photo:hover,
+  .gallery-photo:focus-visible {
+    rotate: 0deg;
+    scale: 1.04;
+    filter: brightness(1.05);
+    box-shadow: 0 2rem 4rem -1.25rem rgb(0 0 0 / 0.55);
+    z-index: 2;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Presentation-style entrance: each photo pops up from small and slightly
+     * over-tilted, then settles. Staggered so the cluster assembles rather
+     * than appearing all at once. */
+    @keyframes gallery-photo-in {
+      from {
+        opacity: 0;
+        scale: 0.82;
+        rotate: calc(var(--tilt) * 2.5);
+        translate: 0 2rem;
+      }
+      to {
+        opacity: 1;
+        scale: 1;
+        rotate: var(--tilt);
+        translate: 0 0;
+      }
+    }
+    .gallery-photo {
+      animation: gallery-photo-in var(--duration-narrative) var(--ease-instrument) both;
+      animation-delay: calc(var(--i, 0) * 65ms);
+    }
+
+    @supports (animation-timeline: view()) {
+      /* Scroll-driven Ken Burns — the photo slowly zooms and drifts across the
+       * whole scroll pass. Nearer photos (higher --depth) travel further, so
+       * the cluster has real parallax instead of moving as one flat sheet.
+       * This is the "alive" quality Google Photos gets from autoplay, without
+       * autoplay: it is entirely under the visitor's thumb. */
+      @keyframes gallery-kenburns {
+        from {
+          transform: translate3d(calc(var(--depth) * -1.5rem), calc(var(--depth) * 0.9rem), 0)
+            scale(1.12);
+        }
+        to {
+          transform: translate3d(calc(var(--depth) * 1.5rem), calc(var(--depth) * -0.9rem), 0)
+            scale(1.02);
+        }
+      }
+      .gallery-photo img {
+        animation: gallery-kenburns linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+        will-change: transform;
+      }
+    }
+  }
+
+  /* ── Gallery page: detail sequencing (D-056) ──────────────────────────────
+   * The page uses the same .gallery-cluster / .gallery-photo primitives as the
+   * landing section — one layout language, no second grid system. */
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Detail view: the image arrives directionally, so the motion says which
+     * way you moved through the sequence. --ease-arc is the energy easing. */
+    @keyframes gallery-enter-right {
+      from {
+        opacity: 0;
+        transform: translate3d(2.5rem, 0, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes gallery-enter-left {
+      from {
+        opacity: 0;
+        transform: translate3d(-2.5rem, 0, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .gallery-enter-right {
+      animation: gallery-enter-right var(--duration-slow) var(--ease-arc) both;
+    }
+    .gallery-enter-left {
+      animation: gallery-enter-left var(--duration-slow) var(--ease-arc) both;
+    }
+
+    /* Metadata lags the image by a beat — the sequencing that creates
+     * hierarchy instead of everything landing at once. */
+    @keyframes gallery-meta-in {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 8px, 0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .gallery-meta {
+      animation: gallery-meta-in var(--duration-base) var(--ease-instrument) both;
+      animation-delay: var(--duration-slow);
+    }
+  }
+
   /* Dex's breath — the ONE permitted ambient loop. */
   @keyframes dl-breathe {
     0%,
