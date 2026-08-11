@@ -18,6 +18,7 @@
     "og:generate": "node scripts/generate-og-image.mjs",
     "check:dex": "tsx scripts/check-dex-matcher.ts",
     "gallery:process": "node scripts/process-gallery.mjs",
+    "gallery:migrate-r2": "tsx scripts/gallery-r2-migrate.ts",
     "admin:password": "tsx scripts/set-admin-password.ts",
     "check:bundle": "node scripts/check-bundle-budget.mjs"
   },

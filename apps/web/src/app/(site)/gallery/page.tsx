@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/container";
 import { GalleryBrowser } from "@/features/gallery/gallery-browser";
-import { galleryPhotos } from "../../../../content/gallery";
+import { getGalleryPhotos } from "@/services/gallery";
 
 export const metadata: Metadata = {
   title: "Gallery",
@@ -16,13 +16,15 @@ export const metadata: Metadata = {
  * is one continuous cluster; the date, time, place and info belong to the photo
  * and appear only when one is selected.
  */
-export default function GalleryPage() {
+export default async function GalleryPage() {
   // Deferred pending an owner alt-text/caption pass and a live review — all
   // 11 photos still ship with empty alt text (a release gate, not cosmetic;
   // see specs/gallery.md §9 Known Gaps #1) and the page has never been
   // reviewed live (§9 #6). Production 404s until that happens; dev stays
   // open so it's easy to review and re-enable.
   if (process.env.NODE_ENV === "production") notFound();
+
+  const galleryPhotos = await getGalleryPhotos();
 
   return (
     <Container width="content">

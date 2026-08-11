@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { ScrollReveal } from "@/animations/scroll-reveal";
-import { featuredPhotos } from "../../../content/gallery";
+import { getGalleryPhotos } from "@/services/gallery";
 
 /**
  * Landing-page photo cluster (D-056).
@@ -21,7 +21,9 @@ import { featuredPhotos } from "../../../content/gallery";
  * player; here the same feel comes from the visitor's own scroll, which keeps
  * the design system's one-ambient-loop rule intact.
  */
-export function GalleryStrip() {
+export async function GalleryStrip() {
+  const photos = await getGalleryPhotos();
+  const featuredPhotos = photos.filter((p) => p.featured);
   if (featuredPhotos.length === 0) return null;
 
   return (

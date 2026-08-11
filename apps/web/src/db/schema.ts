@@ -20,6 +20,7 @@ import {
   text,
   boolean,
   integer,
+  real,
   timestamp,
   date,
   jsonb,
@@ -334,6 +335,44 @@ export const dexQuestionLog = pgTable("dex_question_log", {
   answerKind: text("answer_kind").notNull(),
   matchedQuestion: text("matched_question").notNull().default(""),
   visitorRole: text("visitor_role").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ── gallery_items — photo gallery (D-056, docs/29) ─────────────────────────────
+//
+// Standalone table (not CTI): the gallery is a distinct domain from the content
+// spine. Binaries live in Cloudflare R2 (D-049); only two storage keys (grid
+// tile + full rendition), metadata, and layout knobs live here.
+//
+// Public URL is derived at read time via mediaPublicUrl(gridKey) — never stored,
+// so the bucket/CDN can move with a single env change (D-013).
+//
+// alt_text starts empty (awaiting owner copy pass before publishing).
+// published: false = self-hides in production (LAW-008). Ordered by sort_order.
+
+export const galleryItems = pgTable("gallery_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  gridKey: text("grid_key").notNull(),
+  fullKey: text("full_key").notNull(),
+  altText: text("alt_text").notNull().default(""),
+  caption: text("caption").notNull().default(""),
+  info: text("info").notNull().default(""),
+  place: text("place").notNull().default(""),
+  date: text("date").notNull().default(""),
+  time: text("time").notNull().default(""),
+  width: integer("width").notNull(),
+  height: integer("height").notNull(),
+  orientation: text("orientation").notNull(),
+  blurData: text("blur_data").notNull(),
+  size: real("size").notNull().default(1.0),
+  tilt: real("tilt").notNull().default(0.0),
+  depth: real("depth").notNull().default(0.8),
+  sortOrder: integer("sort_order").notNull().default(0),
+  featured: boolean("featured").notNull().default(false),
+  published: boolean("published").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
