@@ -2,27 +2,64 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-08-10 (PR #2 merged to main — ready to deploy)
+**Last updated:** 2026-08-13 (D-058 Phase A + B live on Vercel)
 
 ## Current Phase
 
-**READY TO DEPLOY — PR #2 merged to `main`, CI green, secrets set.**
+**DEPLOYED AND LIVE — Vercel + Neon + Cloudflare R2, not Render.**
 
-- PR `codex/ai-development-process → main` merged at commit `1895646`.
-- CI #6 green (typecheck, build, three.js guard, admin bundle guard, hero budgets, `check:dex`).
-- `SESSION_SECRET` and `ADMIN_PASSWORD_HASH` already set in the Render dashboard.
+The Render-based plan below this line (D-057 era) is **superseded by reality**:
+the owner completed Cloudflare R2 + Neon Postgres setup and deployed to
+**Vercel** instead. `render.yaml` / `docs/DEPLOY_RUNBOOK.md` / this file's own
+older entries still describe Render — treat those as historical unless a
+future session reconciles them (tracked as V2 Phase G, not started).
 
-**Owner's next actions (ordered):**
-1. **Render Blueprint deploy** — go to Render dashboard → New → Blueprint → select `deepak.ai` repo → confirm it plans `deepak-labs-web` service + `deepak-labs-db` Postgres + `CONTENT_SOURCE=file` + `autoDeploy: false` → Apply. First boot reads files (no DB needed yet).
-2. **Smoke test** the Render subdomain per `docs/DEPLOY_RUNBOOK.md` §7 — check `/`, `/projects/asmos`, `/sitemap.xml`, `/robots.txt`, `/admin/login`, Dex panel.
-3. **DB setup** (after service is live): from your machine, get the Render connection string from the dashboard, then:
-   ```bash
-   DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web
-   DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web
-   ```
-4. **Flip to DB mode** — change `CONTENT_SOURCE=db` in Render env vars → manual redeploy.
-5. **R2 env vars** when Cloudflare setup is done — add `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `MEDIA_PUBLIC_BASE_URL` to Render → redeploy. Does not block step 1.
-6. **Complete release gates** in `RELEASE_CHECKLIST.md` (Gate 2 R4 copy tests, Gate 4 visual sign-off).
+Two real Vercel deploy bugs were found and fixed this session (see D-058
+below): a doubled `outputDirectory` path (`apps/web/apps/web/.next`), and an
+unreachable-DB-at-build-time failure in `generateStaticParams`. Both fixed
+and confirmed via the actual failing build reproduced locally, not guessed.
+
+**Full context for continuing this work:**
+[`memory/V2_LANDING_SESSION_HANDOFF_2026-08-13.md`](V2_LANDING_SESSION_HANDOFF_2026-08-13.md)
+is a self-contained pickup brief. [`docs/30-V2-LANDING-REDESIGN.md`](../docs/30-V2-LANDING-REDESIGN.md)
+is the full plan, phase-by-phase, with its own progress log (§7).
+
+---
+
+**D-058 Phases A + B COMPLETE on `main`** — Hero mobile fix + neural-network redesign.
+
+- **Phase A (mobile hero broken):** real cause was two things, not the two
+  original hypotheses — `failIfMajorPerformanceCaveat: true` false-rejecting
+  real mobile GPUs, and the mobile surface portrait rendering at ~10% of
+  desktop's visual coverage (reduced point count × size × DPR cap,
+  arithmetically near-invisible, not actually broken). Fixed iteratively
+  against real `?herodebug=1` device evidence (Android, `deviceMemory:8`,
+  Chrome 150) — `uSize` matched to desktop, `mobileCount` 2500→5000→8000
+  (full parity). **Owner-confirmed fixed on real device.**
+- **Phase B (guide showed wrong content, too fast):** root cause —
+  `updateLabels` ranked project AND skill nodes together by raw distance, so
+  a skill regularly won the label slot over a project. Rail rewritten to walk
+  an ORDERED path (chronological through projects by `publishedAt`,
+  bookended by two named skill nodes) instead of nearest-neighbour-by-
+  distance; labels restricted to projects + the two bookends. Real skill
+  vocabulary from the owner (`HERO_SKILL_ADDITIONS`/`FOUNDATIONAL_SKILLS`/
+  `GENERAL_AI_SKILLS` in `enrich-hero-network.ts`, 22 skill nodes, was 7)
+  resolved what had been an explicit open question. Dwell/pacing went through
+  **two rounds** — first attempt was real but too small (measured: ~20% of
+  journey was dwell); second attempt (2 laps, larger radius) measured +92%
+  total rail length, 5.1× the dwell arc-length, verified by direct
+  measurement against the real dataset, not estimated. Ambient background
+  glow behind the hero also raised ~12–15%→~20–25% peak opacity same
+  session. **Owner has not yet re-confirmed the second dwell pass or the
+  glow change in-browser** — that is the immediate next step for whoever
+  picks this up.
+- **Full detail, all measurements, and every commit:** `docs/30-V2-
+  LANDING-REDESIGN.md` §7 (progress log) and the handoff doc linked above.
+- **Not started:** V2 Phases C (Posts — `/admin/posts` is currently a stub,
+  "ships in the next sprint," genuinely not built), D (Posts on landing),
+  E (Timeline section — owner said they'd share a reference image, not yet
+  received), F (Gallery re-enable — gated on an owner copy pass, not
+  engineering), G (Render→Vercel docs reconciliation).
 
 ---
 
