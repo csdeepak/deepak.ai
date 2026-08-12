@@ -875,7 +875,17 @@ function SceneContent({
     const uniforms = {
       uTime: { value: 0 },
       uPointer: { value: new THREE.Vector2() },
-      uSize: { value: isMobile ? 3.2 : 4.2 },
+      // D-058 Phase A: real-device evidence (?herodebug=1, deviceMemory:8,
+      // dpr:3.75) showed the mount pipeline works, but the face read as
+      // barely visible. Mobile combines a reduced point COUNT (mobileCount,
+      // ~31% of desktop's) with a capped DPR (1.5 vs up to 2) for point size
+      // — together that was ~10% of desktop's visual coverage (coverage
+      // scales with size²). Point count and the DPR cap are real perf guards
+      // (fewer points = less fill; the DPR cap stops a high-ratio phone
+      // rendering far more pixels than desktop) and are left alone. Size is
+      // the cheap lever — it costs nothing extra per point since the count is
+      // unchanged — so it now matches desktop's 4.2 instead of 3.2.
+      uSize: { value: isMobile ? 4.2 : 4.2 },
       uOpacity: { value: 1 },
       uPixelRatio: { value: pr },
       uTint: { value: new THREE.Vector3(...SURFACE_TINT) },
