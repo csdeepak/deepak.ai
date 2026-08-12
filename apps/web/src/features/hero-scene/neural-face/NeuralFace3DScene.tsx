@@ -732,16 +732,64 @@ function buildHomogeneousInner(data: HeroFace3D, pos: Float32Array): InnerScene 
 // centroid the camera settles looking at.
 const FLIGHT_START = 0.6; // = BEAT.diveEnd
 
-// D-052.7 FIX 1: a SHORT, LOCAL, CONTINUOUS rail. Control points come from a
-// nearest-neighbour walk through the graph (biased to the project/skill cluster,
-// `focusIdx`), so consecutive points are always spatially adjacent — no more
-// scattering across the whole cloud. Hard constraint: each consecutive step
-// ≤ 9 % of the bbox diagonal (well inside the 12 % ceiling). The curve is
-// CENTRIPETAL Catmull-Rom (no overshoot/cusps) and sampled by arc length
-// (getPointAt) so scroll maps to constant travel speed.
+// D-052.7 FIX 1's original algorithm, extracted so the homogeneous fallback
+// (no data.network — nothing to order chronologically) keeps its previous
+// behaviour: a short, local nearest-neighbour walk from the front-most node,
+// each step ≤ walkStep and within localR of the start (stays local, no
+// scattering across the whole cloud).
+function nearestNeighbourWalk(
+  N: number,
+  V: (i: number) => THREE.Vector3,
+  walkStep: number,
+  localR: number,
+): number[] {
+  let start = 0;
+  for (let i = 1; i < N; i++) if (V(i).z > V(start).z) start = i;
+  const startPos = V(start);
+
+  const visited = new Set<number>([start]);
+  const order: number[] = [start];
+  let cur = start;
+  for (let step = 0; step < 8; step++) {
+    let best = -1;
+    let bestD = Infinity;
+    const cp = V(cur);
+    for (let i = 0; i < N; i++) {
+      if (visited.has(i)) continue;
+      const p = V(i);
+      const dc = p.distanceTo(cp);
+      if (dc > walkStep || p.distanceTo(startPos) > localR) continue;
+      if (dc < bestD) { best = i; bestD = dc; }
+    }
+    if (best < 0) break;
+    visited.add(best);
+    order.push(best);
+    cur = best;
+  }
+  return order;
+}
+
+// D-058 Phase B: an ORDERED path through `orderedIdx` (the caller sorts —
+// chronologically through projects, bookended by skill nodes; see the
+// `flight` useMemo below), not a spatial nearest-neighbour walk. Superseded
+// nearest-neighbour walk (D-052.7 FIX 1) picked whatever was spatially
+// closest regardless of kind, which is why the guide could land on a skill
+// instead of a project (docs/30 Phase B). Ordering by story rather than
+// proximity means two chronologically-adjacent nodes can sit far apart after
+// force-directed layout, so every consecutive pair is now BRIDGED with the
+// same interpolation technique the entry/settle transitions always used —
+// each sub-step ≤ 9 % of the bbox diagonal (D-052.7 FIX 1's smoothness
+// ceiling) still holds regardless of that distance. A short loiter cluster
+// at each real waypoint gives the camera a dwell beat there — arc-length
+// parametrization (getPointAt) means more points near a waypoint = more
+// scroll-normalized time spent close to it — which is the fix for "the
+// guide moves too fast," without touching REGION_VH or scroll semantics.
+const LOITER_STEPS = 3;
+const LOITER_RADIUS_FACTOR = 0.18; // × walkStep
+
 function buildFlightRail(
   pos: Float32Array,
-  focusIdx: number[],
+  orderedIdx: number[],
 ): { rail: THREE.CatmullRomCurve3; deepFocus: THREE.Vector3; maxStep: number } {
   const N = pos.length / 3;
   const V = (i: number) => new THREE.Vector3(pos[i * 3]!, pos[i * 3 + 1]!, pos[i * 3 + 2]!);
@@ -756,43 +804,15 @@ function buildFlightRail(
     }
   }
   const diag = Math.hypot(mx[0]! - mn[0]!, mx[1]! - mn[1]!, mx[2]! - mn[2]!) || 1;
-  const walkStep = 0.09 * diag; // stays under the 12 % ceiling with the weave offset
+  const walkStep = 0.09 * diag; // per-substep ceiling (D-052.7 FIX 1)
   const localR = 0.5 * diag;
 
-  const focus = focusIdx.length ? focusIdx : Array.from({ length: N }, (_, i) => i);
-  const focusSet = new Set(focus);
-
-  // Start: front-most (max z) focus node.
-  let start = focus[0]!;
-  for (const i of focus) if (V(i).z > V(start).z) start = i;
-  const startPos = V(start);
-
-  // Nearest-neighbour walk, preferring focus (project/skill) nodes, staying local.
-  const visited = new Set<number>([start]);
-  const order: number[] = [start];
-  let cur = start;
-  for (let step = 0; step < 8; step++) {
-    let best = -1;
-    let bestD = Infinity;
-    let bestFocus = false;
-    const cp = V(cur);
-    for (let i = 0; i < N; i++) {
-      if (visited.has(i)) continue;
-      const p = V(i);
-      const dc = p.distanceTo(cp);
-      if (dc > walkStep || p.distanceTo(startPos) > localR) continue;
-      const isFocus = focusSet.has(i);
-      if ((isFocus && !bestFocus) || (isFocus === bestFocus && dc < bestD)) {
-        best = i;
-        bestD = dc;
-        bestFocus = isFocus;
-      }
-    }
-    if (best < 0) break;
-    visited.add(best);
-    order.push(best);
-    cur = best;
-  }
+  // Fallback for the homogeneous scene (data.network absent — no projects to
+  // order chronologically): a short local nearest-neighbour walk across ALL
+  // nodes, preserving D-052.7 FIX 1's original behaviour for that path. The
+  // semantic (network-present) case always supplies a real orderedIdx and
+  // never reaches this branch.
+  const order = orderedIdx.length ? orderedIdx : nearestNeighbourWalk(N, V, walkStep, localR);
 
   // Nudge a point off its nearest node so the camera passes BESIDE, not through.
   const avoid = (p: THREE.Vector3, minD: number) => {
@@ -806,41 +826,61 @@ function buildFlightRail(
     if (nd < minD && nd > 1e-5) { const k = (minD - nd) / nd; p.x += nx * k; p.y += ny * k; p.z += nz * k; }
   };
 
-  // Semantic (project+skill) centroid — the settle look target.
-  const semCentroid = new THREE.Vector3();
-  for (const i of focus) semCentroid.add(V(i));
-  semCentroid.multiplyScalar(1 / Math.max(1, focus.length));
-
-  const pts: THREE.Vector3[] = [];
-  // Entry bridge: from just in front of the cluster down to the first waypoint,
-  // in ≤walkStep increments (continuous with the approach; small seam).
-  const first = V(order[0]!);
-  const entry = new THREE.Vector3(startPos.x, startPos.y, mx[2]! + 0.12);
-  const bridge = Math.max(1, Math.ceil(entry.distanceTo(first) / walkStep));
-  for (let b = 0; b < bridge; b++) pts.push(entry.clone().lerp(first, b / bridge));
-  // Waypoints: node positions with a tiny alternating weave, nudged off nodes.
-  const lastWp = new THREE.Vector3();
-  order.forEach((idx, k) => {
+  // Waypoints in caller-supplied ORDER (not distance-sorted): weave-offset +
+  // nudged off-node, same treatment D-052.7 gave every waypoint.
+  const waypoints = order.map((idx, k) => {
     const p = V(idx);
     const side = k % 2 === 0 ? -1 : 1;
     p.x += side * 0.006;
     p.y += side * 0.004;
     avoid(p, 0.02);
-    pts.push(p);
-    lastWp.copy(p);
+    return p;
   });
-  // Settle bridge: pull back to a vantage that FRAMES the cluster (so the
+
+  // Settle look target: centroid across the ordered waypoints.
+  const semCentroid = new THREE.Vector3();
+  for (const p of waypoints) semCentroid.add(p);
+  semCentroid.multiplyScalar(1 / Math.max(1, waypoints.length));
+
+  const startPos = waypoints[0]!.clone();
+  const pts: THREE.Vector3[] = [];
+
+  // Entry bridge: from just in front of the field down to the first waypoint.
+  const entry = new THREE.Vector3(startPos.x, startPos.y, mx[2]! + 0.12);
+  const bridgeIn = Math.max(1, Math.ceil(entry.distanceTo(startPos) / walkStep));
+  for (let b = 0; b < bridgeIn; b++) pts.push(entry.clone().lerp(startPos, b / bridgeIn));
+
+  // Each waypoint: a short loiter (dwell) around its own position, then a
+  // bridge — possibly several steps, since chronological neighbours are not
+  // necessarily spatial neighbours — to the next waypoint.
+  const loiterRadius = walkStep * LOITER_RADIUS_FACTOR;
+  waypoints.forEach((p, k) => {
+    for (let l = 0; l < LOITER_STEPS; l++) {
+      const a = (l / LOITER_STEPS) * Math.PI * 2;
+      pts.push(new THREE.Vector3(
+        p.x + Math.cos(a) * loiterRadius,
+        p.y + Math.sin(a) * loiterRadius * 0.6,
+        p.z,
+      ));
+    }
+    pts.push(p);
+    const next = waypoints[k + 1];
+    if (next) {
+      const segSteps = Math.max(1, Math.ceil(p.distanceTo(next) / walkStep));
+      for (let b = 1; b < segSteps; b++) pts.push(p.clone().lerp(next, b / segSteps));
+    }
+  });
+
+  // Settle bridge: pull back to a vantage that FRAMES the field (so the
   // resting view shows the project orbs ahead, not behind the camera).
+  const last = waypoints[waypoints.length - 1]!;
   const settleVantage = semCentroid.clone().add(new THREE.Vector3(0, 0.03, 0.19));
-  const sBridge = Math.max(1, Math.ceil(lastWp.distanceTo(settleVantage) / walkStep));
-  for (let b = 1; b <= sBridge; b++) pts.push(lastWp.clone().lerp(settleVantage, b / sBridge));
+  const bridgeOut = Math.max(1, Math.ceil(last.distanceTo(settleVantage) / walkStep));
+  for (let b = 1; b <= bridgeOut; b++) pts.push(last.clone().lerp(settleVantage, b / bridgeOut));
 
   const rail = new THREE.CatmullRomCurve3(pts, false, "centripetal");
 
-  // Settle look target: the semantic cluster centre.
-  const deepFocus = semCentroid.clone();
-
-  return { rail, deepFocus, maxStep: walkStep };
+  return { rail, deepFocus: semCentroid.clone(), maxStep: walkStep };
 }
 
 // ── SceneContent ──────────────────────────────────────────────────────────────
@@ -960,6 +1000,50 @@ function SceneContent({
       : buildHomogeneousInner(data, pos);
   }, [data]);
 
+  // D-058 Phase B: chronological project order + skill bookends, computed once
+  // and shared by both the flight rail (below) and the label pool (next memo).
+  // Real, owner-provided skill vocabulary (docs/30 Open Question 3, answered
+  // 2026-08-13) — FOUNDATIONAL_SKILLS in enrich-hero-network.ts, specifically
+  // "Data Structures & Algorithms" and "Operating Systems", are the "low-level
+  // skills at the start and end of the scroll" the owner asked for. Looked up
+  // by NAME (not just most-connected) so the bookends are always these two
+  // specific concepts. Falls back to most-connected only if a dataset predates
+  // this vocabulary (e.g. a stale local build not yet re-enriched).
+  const ordering = useMemo(() => {
+    if (!data.network) return { orderedProjectIdx: [] as number[], startSkill: undefined, endSkill: undefined };
+    const { projectNodes, skillNodes } = data.network;
+
+    const orderedProjects = [...projectNodes].sort((a, b) =>
+      a.publishedAt && b.publishedAt ? a.publishedAt.localeCompare(b.publishedAt) : 0,
+    );
+
+    const byName = (name: string) => skillNodes.find((s) => s.skillName === name);
+    const bySkillReach = [...skillNodes].sort(
+      (a, b) => b.connectedProjectIds.length - a.connectedProjectIds.length,
+    );
+    const startSkill = byName("Data Structures & Algorithms") ?? bySkillReach[0];
+    const endSkill = byName("Operating Systems") ?? bySkillReach[1] ?? startSkill;
+
+    return { orderedProjectIdx: orderedProjects.map((n) => n.posIndex), startSkill, endSkill };
+  }, [data]);
+
+  // D-058 Phase B: label candidates are projects, plus specifically the two
+  // bookend skill nodes (they need to be readable by name — "you should see
+  // the low-level skills" — not just visually present). Every OTHER skill
+  // node stays unlabelled: the fix for skills outcompeting projects for the
+  // label slot is that only path-relevant nodes are eligible at all. Memoized
+  // so this filter runs once per dataset, not every frame.
+  const projectLabelNodes = useMemo(() => {
+    const bookendNames = new Set(
+      [ordering.startSkill?.skillName, ordering.endSkill?.skillName].filter(
+        (n): n is string => !!n,
+      ),
+    );
+    return inner.labelNodes.filter(
+      (n) => n.kind === "project" || bookendNames.has(n.name),
+    );
+  }, [inner, ordering]);
+
   // ── Camera rail (D-052.2 FIX 2): settles at z=+CAM_END_Z just in front
   //    of the face surface so Beat 3 network is seen as a field at depth.
   const rail = useMemo(
@@ -976,17 +1060,18 @@ function SceneContent({
       ]),
     [],
   );
-  // ── Flight rail (D-052.6/.7): the short, local through-the-graph journey ──
+  // ── Flight rail (D-058 Phase B): chronological through-the-projects journey,
+  //    bookended by the two named foundational skills from `ordering` above ──
   const flight = useMemo(() => {
     const p = decodeInnerPositions(data);
-    const focus = data.network
-      ? [
-          ...data.network.projectNodes.map((n) => n.posIndex),
-          ...data.network.skillNodes.map((n) => n.posIndex),
-        ]
-      : [];
-    return buildFlightRail(p, focus);
-  }, [data]);
+    const { orderedProjectIdx, startSkill, endSkill } = ordering;
+    const orderedIdx = [
+      ...(startSkill ? [startSkill.posIndex] : []),
+      ...orderedProjectIdx,
+      ...(endSkill && endSkill !== startSkill ? [endSkill.posIndex] : []),
+    ];
+    return buildFlightRail(p, orderedIdx);
+  }, [data, ordering]);
 
   const camPos = useMemo(() => new THREE.Vector3(), []);
   const lookTarget = useMemo(() => new THREE.Vector3(), []);
@@ -1144,10 +1229,20 @@ function SceneContent({
     updateLabels(off, innerOpacity);
   });
 
-  // Project/skill proximity: brighten the nearest ≤3 nodes and drive their DOM
-  // labels (projected from 3D). Stable slot assignment avoids label flicker.
+  // Project proximity: brighten the nearest ≤3 PROJECT nodes and drive their
+  // DOM labels (projected from 3D). Stable slot assignment avoids flicker.
+  //
+  // D-058 Phase B: filtered to kind === "project" only. Previously this
+  // ranked project AND skill nodes together by raw distance, so a skill
+  // could — and often did — outcompete a project for a label slot ("the
+  // guided neurons... showing some different stuff", docs/30 Phase B). Skill
+  // bulbs are still rendered and still visible in the periphery; they just
+  // never claim a label, which is what "guided through the projects" means.
+  // Skill nodes are excluded from the reset loop too — since they can no
+  // longer be selected, nothing else ever touches their brightness, so they
+  // simply stay at their natural default (bulbAttribs' initial 1.0).
   function updateLabels(off: number, innerOpacity: number) {
-    const nodes = inner.labelNodes;
+    const nodes = projectLabelNodes;
     const slots = slotNodes.current;
     const els = labelSlots?.current;
 

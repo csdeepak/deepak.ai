@@ -17,6 +17,10 @@ export interface NetworkProjectNode {
   /** Real project title (D-052.7) — used for the proximity label. Optional so
    *  older datasets without it still validate. */
   title?: string;
+  /** ISO date (content_items.publishedAt), used to order the D-058 Phase B
+   *  guided flight rail chronologically. Optional so older datasets without
+   *  it still validate — the rail falls back to array order. */
+  publishedAt?: string;
   /** Index into inner.x/y/z arrays for position lookup. */
   posIndex: number;
   /** Visual scale relative to the base bulb size (1.4 for project nodes). */

@@ -66,6 +66,8 @@ interface ProjectRecord {
   slug: string;
   title: string;
   tags: string[];
+  /** ISO date, threaded through for D-058 Phase B chronological rail ordering. */
+  publishedAt?: string;
 }
 
 // ── Deterministic PRNG ───────────────────────────────────────────────────────
@@ -96,7 +98,7 @@ async function loadProjects(): Promise<{ list: ProjectRecord[]; total: number; p
         ? eq(contentItems.contentType, "project")
         : and(eq(contentItems.contentType, "project"), eq(contentItems.status, "published"));
       const rows = await db
-        .select({ slug: contentItems.slug, title: contentItems.title, tags: projectsTable.tags, status: contentItems.status })
+        .select({ slug: contentItems.slug, title: contentItems.title, tags: projectsTable.tags, status: contentItems.status, publishedAt: contentItems.publishedAt })
         .from(contentItems)
         .innerJoin(projectsTable, eq(contentItems.id, projectsTable.id))
         .where(where);
@@ -105,7 +107,7 @@ async function loadProjects(): Promise<{ list: ProjectRecord[]; total: number; p
         const publishedRows = await db.select({ id: contentItems.id }).from(contentItems).where(and(eq(contentItems.contentType, "project"), eq(contentItems.status, "published")));
         console.log(`  source: DB (${rows.length} ${includeDrafts ? "projects incl. drafts" : "published"})`);
         return {
-          list: rows.map((r: { slug: string; title: string; tags: unknown }) => ({ slug: r.slug, title: r.title, tags: Array.isArray(r.tags) ? (r.tags as string[]) : [] })),
+          list: rows.map((r: { slug: string; title: string; tags: unknown; publishedAt: Date | null }) => ({ slug: r.slug, title: r.title, tags: Array.isArray(r.tags) ? (r.tags as string[]) : [], publishedAt: r.publishedAt?.toISOString() })),
           total: totalRows.length,
           published: publishedRows.length,
           includeDrafts,
@@ -117,12 +119,12 @@ async function loadProjects(): Promise<{ list: ProjectRecord[]; total: number; p
   }
 
   const { projects } = await import("../content/site.js");
-  const all = projects as Array<{ slug: string; title: string; status: string; tags?: string[] }>;
+  const all = projects as Array<{ slug: string; title: string; status: string; tags?: string[]; publishedAt?: string }>;
   const published = all.filter((p) => p.status === "published");
   const chosen = includeDrafts ? all : published;
   console.log(`  source: content/site.ts (${chosen.length} ${includeDrafts ? "projects incl. drafts" : "published"})`);
   return {
-    list: chosen.map((p) => ({ slug: p.slug, title: p.title, tags: p.tags ?? [] })),
+    list: chosen.map((p) => ({ slug: p.slug, title: p.title, tags: p.tags ?? [], publishedAt: p.publishedAt })),
     total: all.length,
     published: published.length,
     includeDrafts,
@@ -145,6 +147,43 @@ function fib(i: number, n: number): Vec3 {
 }
 
 /**
+ * D-058 Phase B — real, owner-provided skill vocabulary for the hero graph
+ * (docs/30 Open Question 3, answered 2026-08-13 by the owner directly).
+ *
+ * HERO_SKILL_ADDITIONS — skills a project genuinely uses, evidenced by the
+ *   2026-08-04 direct code audit (the same evidence backing the Dex
+ *   knowledge cards), that never made it into content/site.ts's own `tags`
+ *   field. Hero-graph only: does not touch the stored project tags, which
+ *   also drive the /projects listing and shouldn't be silently rewritten by
+ *   a hero-specific decision.
+ *
+ * FOUNDATIONAL_SKILLS / GENERAL_AI_SKILLS — general skills the owner
+ *   self-reported, not tied to one specific project. This is the same
+ *   legitimacy as a resume skills section: LAW-008 is about not inventing
+ *   claims, not about requiring per-line code evidence for a person's own
+ *   first-person self-report. Rendered as unconnected skill nodes.
+ *   FOUNDATIONAL_SKILLS are specifically the "low-level skills at the start
+ *   and end of the scroll" the owner asked for — see the flight-rail bookend
+ *   selection in NeuralFace3DScene.tsx, which looks these two up by name.
+ */
+const HERO_SKILL_ADDITIONS: Record<string, string[]> = {
+  "pesu-vault": ["REST APIs"],
+  "turb-detr": ["PyTorch", "Computer Vision", "Deep Learning", "Transformers"],
+  "docksmith-engine": ["Systems Programming"],
+  "shortcutscore": ["Explainable AI", "Deep Learning"],
+  "dental-ai-pipeline": ["Computer Vision", "Deep Learning"],
+  asmos: ["Agentic AI", "Multi-Agent Systems", "AI Agents"],
+};
+/** Bookend-eligible — kept small and specific, not the owner's full CS list. */
+const FOUNDATIONAL_SKILLS = ["Data Structures & Algorithms", "Operating Systems"];
+/** General AI/automation vocabulary the owner's original ask named directly. */
+const GENERAL_AI_SKILLS = ["Prompt Engineering", "RAG concepts", "AI Workflows", "GenAI Tools"];
+
+function effectiveTags(proj: ProjectRecord): string[] {
+  return [...proj.tags, ...(HERO_SKILL_ADDITIONS[proj.slug] ?? [])];
+}
+
+/**
  * Build the inner graph geometry + typed network from the real project↔skill
  * topology. Returns fresh inner arrays (quantised) + the network layer.
  */
@@ -156,9 +195,16 @@ function buildGraph(
   const rng = makeRng(0xd052_7000 ^ (projects.length * 0x1337));
   const P = projects.length;
 
-  // Unique skills across the chosen projects (source = project tags — D-048
-  // skillsLearned is empty everywhere; reported to the owner).
-  const skillList = Array.from(new Set(projects.flatMap((p) => p.tags)));
+  // Unique skills across the chosen projects (source = effectiveTags, i.e.
+  // real content/site.ts tags + the hero-only additions above), plus the
+  // unconnected foundational/general-AI nodes.
+  const skillList = Array.from(
+    new Set([
+      ...projects.flatMap((p) => effectiveTags(p)),
+      ...FOUNDATIONAL_SKILLS,
+      ...GENERAL_AI_SKILLS,
+    ]),
+  );
   const S = skillList.length;
   const A = Math.max(0, N - P - S);
 
@@ -174,7 +220,7 @@ function buildGraph(
   // 2. Projects at the centroid of their skills (→ shared-skill clustering).
   const skillIdx = (name: string) => skillList.indexOf(name);
   for (let i = 0; i < P; i++) {
-    const sk = projects[i]!.tags.map(skillIdx).filter((k) => k >= 0);
+    const sk = effectiveTags(projects[i]!).map(skillIdx).filter((k) => k >= 0);
     let c: Vec3 = [0, 0, 0];
     if (sk.length) {
       for (const si of sk) { const s = pos[P + si]!; c = [c[0] + s[0], c[1] + s[1], c[2] + s[2]]; }
@@ -189,7 +235,7 @@ function buildGraph(
   const semN = P + S;
   const edgePairs: Array<[number, number]> = [];
   for (let i = 0; i < P; i++) {
-    for (const si of projects[i]!.tags.map(skillIdx).filter((k) => k >= 0)) edgePairs.push([i, P + si]);
+    for (const si of effectiveTags(projects[i]!).map(skillIdx).filter((k) => k >= 0)) edgePairs.push([i, P + si]);
   }
   const SPRING = 0.6, K_REP = 0.02, GRAV = 0.03;
   for (let iter = 0; iter < 160; iter++) {
@@ -261,12 +307,15 @@ function buildGraph(
   }
 
   // 6. Typed network + wireframe edges (flat index pairs) + pulse paths.
-  const projectNodes = projects.map((proj, i) => ({ id: `pn-${i}`, projectSlug: proj.slug, title: proj.title, posIndex: i, size: 1.4, glowIntensity: 1.0 }));
+  // publishedAt threaded through for D-058 Phase B: the guided flight rail
+  // orders waypoints chronologically rather than by spatial proximity, so it
+  // tells the same story as the Timeline section (docs/30 Phase E).
+  const projectNodes = projects.map((proj, i) => ({ id: `pn-${i}`, projectSlug: proj.slug, title: proj.title, publishedAt: proj.publishedAt, posIndex: i, size: 1.4, glowIntensity: 1.0 }));
   const skillNodes = skillList.map((skill, i) => ({
     id: `sn-${i}`,
     skillName: skill,
     posIndex: P + i,
-    connectedProjectIds: projects.filter((p) => p.tags.includes(skill)).map((p) => p.slug),
+    connectedProjectIds: projects.filter((p) => effectiveTags(p).includes(skill)).map((p) => p.slug),
   }));
   const ambientNodes = Array.from({ length: A }, (_, i) => ({ id: `an-${i}`, posIndex: P + S + i }));
 
@@ -277,14 +326,14 @@ function buildGraph(
 
   // project-skill (typed + wireframe)
   for (let i = 0; i < P; i++) {
-    for (const si of projects[i]!.tags.map(skillIdx).filter((k) => k >= 0)) {
+    for (const si of effectiveTags(projects[i]!).map(skillIdx).filter((k) => k >= 0)) {
       networkEdges.push({ fromId: `pn-${i}`, toId: `sn-${si}`, kind: "project-skill" });
       addWire(i, P + si);
     }
   }
   // skill-skill co-occurrence
   for (let i = 0; i < S; i++) for (let j = i + 1; j < S; j++) {
-    const co = projects.some((p) => p.tags.includes(skillList[i]!) && p.tags.includes(skillList[j]!));
+    const co = projects.some((p) => effectiveTags(p).includes(skillList[i]!) && effectiveTags(p).includes(skillList[j]!));
     if (co) { networkEdges.push({ fromId: `sn-${i}`, toId: `sn-${j}`, kind: "skill-skill" }); addWire(P + i, P + j); }
   }
   // ambient kNN backbone: connect each ambient to its 2 nearest nodes.
@@ -299,7 +348,7 @@ function buildGraph(
   // Pulse paths: project → its skills → another project; + ambient walks.
   const pulsePaths: HeroNetwork["pulsePaths"] = [];
   for (let i = 0; i < P; i++) {
-    const sk = projects[i]!.tags.map(skillIdx).filter((k) => k >= 0);
+    const sk = effectiveTags(projects[i]!).map(skillIdx).filter((k) => k >= 0);
     if (!sk.length) continue;
     const seq = [`pn-${i}`, `sn-${sk[Math.floor(rng() * sk.length)]!}`];
     const other = P > 1 ? (i + 1) % P : i;
@@ -365,7 +414,7 @@ async function main() {
   if (includeDrafts) console.warn("  ⚠ HERO_GRAPH_INCLUDE_DRAFTS is set — do NOT commit this artifact (LAW-003).");
   if (projects.length === 0) console.warn("  ⚠ No projects to graph — publish at least one in content/site.ts.");
 
-  const S = new Set(projects.flatMap((p) => p.tags)).size;
+  const S = new Set([...projects.flatMap((p) => effectiveTags(p)), ...FOUNDATIONAL_SKILLS, ...GENERAL_AI_SKILLS]).size;
   if (projects.length + S >= N) { console.error(`✗ P(${projects.length}) + S(${S}) ≥ inner nodes (${N}).`); process.exit(1); }
 
   const built = buildGraph(N, quant, projects);
