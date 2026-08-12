@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { DexTrigger } from "@/features/dex/dex-trigger";
-import { decideTier } from "../gate";
+import { decideTier, diagnoseTier, type TierDiagnostics } from "../gate";
 import { REGION_VH, BEAT, SCROLL_START } from "./constants";
 import { isHeroFace3D, type HeroFace3D } from "./types";
 import { siteContent } from "../../../../content/site";
@@ -57,9 +57,16 @@ export default function NeuralFace3DClient() {
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<HeroFace3D | null>(null);
   const [tier, setTier] = useState<0 | 1 | 2>(0);
+  // D-058 Phase A: ?herodebug=1 self-report overlay, so a visitor's own phone
+  // can report exactly why it landed on a given tier without remote debugging.
+  const [debugInfo, setDebugInfo] = useState<TierDiagnostics | null>(null);
 
   // Gate: decide tier, then (if eligible) idle+intersection → fetch → mount.
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("herodebug")) {
+      setDebugInfo(diagnoseTier());
+    }
+
     const { tier: t, reducedMotion } = decideTier();
     setTier(t);
     if (reducedMotion || t === 0) return; // poster stays, permanently
@@ -245,6 +252,31 @@ export default function NeuralFace3DClient() {
             {SUBLINES[0]}
           </p>
         </Container>
+
+        {/* D-058 Phase A diagnostic — only present when ?herodebug=1 is in the
+            URL. Reports the raw signals behind the tier decision so a real
+            device can self-report why the hero did or didn't animate. */}
+        {debugInfo && (
+          <pre
+            className="absolute left-2 top-2 z-20 max-w-[92vw] overflow-auto rounded-md bg-black/85 p-3 font-mono text-[10px] leading-relaxed text-lime-300"
+            aria-hidden
+          >
+            {`herodebug
+tier decided:     ${debugInfo.decidedTier}
+mounted (3D live): ${mounted}
+reducedMotion:    ${debugInfo.reducedMotion}
+saveData:         ${debugInfo.saveData}
+deviceMemory:     ${debugInfo.deviceMemory}
+webgl2:           ${debugInfo.webgl2}
+webgl2 caveat would reject: ${debugInfo.webgl2CaveatWouldReject}
+pointerCoarse:    ${debugInfo.pointerCoarse}
+viewportNarrow:   ${debugInfo.viewportNarrow}
+innerWidth:       ${debugInfo.innerWidth}
+innerHeight:      ${debugInfo.innerHeight}
+dpr:              ${debugInfo.dpr}
+UA: ${debugInfo.userAgent}`}
+          </pre>
+        )}
       </div>
     </section>
   );
