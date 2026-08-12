@@ -70,3 +70,6 @@ photos/*
 # Cloudflare credential reference — never committed (secrets live in .env.local
 # and the Render env store). gitignored so `git add .` can never catch it.
 cloudflare.txt
+
+.vercel
+.env*
