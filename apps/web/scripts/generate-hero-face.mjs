@@ -80,7 +80,13 @@ const OUT_3D_PATH = join(__dirname, "..", "public", "hero-face-3d.json");
 const POSTER_PATH = join(__dirname, "..", "public", "hero-face-poster.webp");
 const POSTER_SM_PATH = join(__dirname, "..", "public", "hero-face-poster-sm.webp");
 const SURFACE_MAX = 8000; // desktop tier node cap
-const SURFACE_MOBILE = 2500; // mobile tier (first N by score)
+// D-058 Phase A: real-device testing (?herodebug=1) showed 2500 combined with
+// the mobile uSize/DPR reductions made the face barely visible (~10% of
+// desktop's point coverage). Doubled — still meaningfully lighter than
+// desktop's 8000, but no longer arithmetically invisible. If a future
+// regeneration is run, this keeps that regeneration consistent with the
+// hand-patched value already live in public/hero-face-3d.json.
+const SURFACE_MOBILE = 5000; // mobile tier (first N by score)
 const SURFACE_RELIEF = 0.16; // z relief depth in normalized units (subtle)
 const INNER_NODES = 280; // "inside the head" network
 const INNER_KNN = 3;
