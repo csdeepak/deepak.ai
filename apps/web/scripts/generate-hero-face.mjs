@@ -80,13 +80,18 @@ const OUT_3D_PATH = join(__dirname, "..", "public", "hero-face-3d.json");
 const POSTER_PATH = join(__dirname, "..", "public", "hero-face-poster.webp");
 const POSTER_SM_PATH = join(__dirname, "..", "public", "hero-face-poster-sm.webp");
 const SURFACE_MAX = 8000; // desktop tier node cap
-// D-058 Phase A: real-device testing (?herodebug=1) showed 2500 combined with
-// the mobile uSize/DPR reductions made the face barely visible (~10% of
-// desktop's point coverage). Doubled — still meaningfully lighter than
-// desktop's 8000, but no longer arithmetically invisible. If a future
-// regeneration is run, this keeps that regeneration consistent with the
-// hand-patched value already live in public/hero-face-3d.json.
-const SURFACE_MOBILE = 5000; // mobile tier (first N by score)
+// D-058 Phase A: real-device testing (?herodebug=1) showed 2500, then 5000,
+// still read as too faint even after uSize was matched to desktop — the
+// DPR_MOBILE cap (gate.ts) alone was still costing ~44% of per-point area.
+// Raised to full parity with SURFACE_MAX on real-device evidence the tested
+// phone (deviceMemory:8, clean WebGL2, current Chrome) is not weak hardware.
+// The remaining mobile/desktop differentiators are now just the DPR_MOBILE
+// cap and bloom being disabled on mobile — if a genuinely low-end device
+// (that still passes deviceMemory>=4) reports jank, that needs a real
+// frame-rate-based downgrade, not a point-count guess; not built yet.
+// Keeps a future regeneration consistent with the hand-patched value already
+// live in public/hero-face-3d.json.
+const SURFACE_MOBILE = 8000; // mobile tier (first N by score) — matches SURFACE_MAX
 const SURFACE_RELIEF = 0.16; // z relief depth in normalized units (subtle)
 const INNER_NODES = 280; // "inside the head" network
 const INNER_KNN = 3;
