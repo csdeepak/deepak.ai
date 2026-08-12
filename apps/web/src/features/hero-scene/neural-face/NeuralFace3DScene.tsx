@@ -779,13 +779,23 @@ function nearestNeighbourWalk(
 // force-directed layout, so every consecutive pair is now BRIDGED with the
 // same interpolation technique the entry/settle transitions always used —
 // each sub-step ≤ 9 % of the bbox diagonal (D-052.7 FIX 1's smoothness
-// ceiling) still holds regardless of that distance. A short loiter cluster
-// at each real waypoint gives the camera a dwell beat there — arc-length
-// parametrization (getPointAt) means more points near a waypoint = more
-// scroll-normalized time spent close to it — which is the fix for "the
-// guide moves too fast," without touching REGION_VH or scroll semantics.
-const LOITER_STEPS = 3;
-const LOITER_RADIUS_FACTOR = 0.18; // × walkStep
+// ceiling) still holds regardless of that distance. A loiter loop at each
+// real waypoint gives the camera a dwell beat there — arc-length
+// parametrization (getPointAt) means more ARC LENGTH near a waypoint = more
+// scroll-normalized time spent close to it.
+//
+// First attempt (3 points tracing roughly one lap at radius 0.18×walkStep)
+// was still reported too fast — the math shows why: a 3-point lap at that
+// radius adds only ~0.9×walkStep of arc length per waypoint, small next to
+// the several-walkStep transit hops between chronologically-ordered but
+// spatially-distant projects, so the "dwell" barely registered against the
+// rest of the journey. Raised to LOITER_LAPS full revolutions at a larger
+// radius — arc length scales with radius AND lap count, so this is a
+// deliberate, predictable slowdown, not a guess: at the values below it adds
+// roughly 4-5× the arc length the first attempt did, per waypoint.
+const LOITER_LAPS = 2;
+const LOITER_STEPS_PER_LAP = 5;
+const LOITER_RADIUS_FACTOR = 0.32; // × walkStep
 
 function buildFlightRail(
   pos: Float32Array,
@@ -854,9 +864,21 @@ function buildFlightRail(
   // bridge — possibly several steps, since chronological neighbours are not
   // necessarily spatial neighbours — to the next waypoint.
   const loiterRadius = walkStep * LOITER_RADIUS_FACTOR;
+  const loiterPoints = LOITER_LAPS * LOITER_STEPS_PER_LAP;
   waypoints.forEach((p, k) => {
-    for (let l = 0; l < LOITER_STEPS; l++) {
-      const a = (l / LOITER_STEPS) * Math.PI * 2;
+    // Visit the bare centre BEFORE entering the loop, not just after. Without
+    // this, the incoming bridge lands at the centre and the very next point
+    // jumps straight to a loiter point already offset sideways by the radius
+    // — two distances compounding into one step, caught in review exceeding
+    // the walkStep ceiling by ~9% (measured against the real dataset). Every
+    // step is now either a normal bridge hop or a small centre<->loiter-point
+    // radius, never both combined.
+    pts.push(p);
+    // `l` runs past LOITER_STEPS_PER_LAP for LOITER_LAPS > 1, so the angle
+    // wraps back through 0..2π that many times — genuinely multiple full
+    // revolutions, not one lap sampled more densely.
+    for (let l = 0; l < loiterPoints; l++) {
+      const a = (l / LOITER_STEPS_PER_LAP) * Math.PI * 2;
       pts.push(new THREE.Vector3(
         p.x + Math.cos(a) * loiterRadius,
         p.y + Math.sin(a) * loiterRadius * 0.6,
@@ -943,7 +965,10 @@ function SceneContent({
 
   // ── Ambient background glow — the "bulb behind the face" (D-052.3 P2) ──
   // A large, heavily-blurred accent-gradient radial: a light source that
-  // illuminates the whole body, ~12–15% peak, breathing on a 10s cycle.
+  // illuminates the whole body, breathing on a 10s cycle. Peak raised from
+  // ~12-15% to ~20-25% (owner: "reduced, increase it") — still a soft wash,
+  // not a fill; the heavy r^1.7 falloff and additive blend keep it reading
+  // as ambient light rather than a bold shape.
   const glow = useMemo(() => {
     const geo = new THREE.PlaneGeometry(2.6, 3.2);
     const uniforms = {
@@ -976,8 +1001,8 @@ function SceneContent({
           vec3 col = t < 0.5
             ? mix(blue, violet, t * 2.0)
             : mix(violet, pink, (t - 0.5) * 2.0);
-          // Peak ~12–15%, breathing ±1.5% over the cycle.
-          float a = r * (0.12 + uBreath * 0.03) * uOpacity;
+          // Peak ~20–25%, breathing ±2.5% over the cycle.
+          float a = r * (0.20 + uBreath * 0.05) * uOpacity;
           gl_FragColor = vec4(col, a);
         }
       `,
