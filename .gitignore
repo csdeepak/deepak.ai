@@ -13,6 +13,10 @@ out/
 .svelte-kit/
 .turbo/
 .cache/
+# TypeScript incremental-build cache. Generated, machine-specific, and
+# rewritten by every `tsc`/`next build` — tracking it produced a permanently
+# dirty working tree and pointless merge conflicts (untracked 2026-08-14).
+*.tsbuildinfo
 
 # Environment & secrets
 .env
