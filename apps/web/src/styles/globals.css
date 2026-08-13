@@ -663,16 +663,29 @@
     position: relative;
     padding-left: 1.75rem;
   }
+  /* A glowing sphere, not a hollow dot — echoes the hero neural-network's
+     bulb nodes (same --grad-1/2/3 accent gradient, docs/DESIGN_SYSTEM's
+     "one accent gradient used as energy only"), reproduced in pure CSS
+     (radial-gradient core + box-shadow bloom) since three.js/postprocessing
+     stay banned from `/`'s bundle — this gets the look, not the engine. */
   .timeline-dot {
     position: absolute;
     left: 0.3125rem;
-    top: 0.4rem;
+    top: 0.3rem;
     translate: -50% 0;
-    width: 0.625rem;
-    height: 0.625rem;
+    width: 0.875rem;
+    height: 0.875rem;
     border-radius: var(--radius-pill);
-    background: var(--canvas);
-    border: 1px solid var(--border-emphasis);
+    background: radial-gradient(
+      circle at 35% 30%,
+      #fff 0%,
+      var(--grad-1) 35%,
+      var(--grad-2) 70%,
+      var(--grad-3) 100%
+    );
+    box-shadow:
+      0 0 6px 1px color-mix(in srgb, var(--grad-1) 70%, transparent),
+      0 0 16px 4px color-mix(in srgb, var(--grad-2) 45%, transparent);
   }
   .timeline-card {
     display: block;

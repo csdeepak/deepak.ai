@@ -130,6 +130,15 @@ export function ProjectEditor({
           <input type="hidden" name="featured" value={String(featured)} />
           <input type="hidden" name="timelineOrder" value={timelineOrder} />
           <input type="hidden" name="verified" value={String(verified)} />
+          {/* The metadata aside below sits outside this <form> (pre-existing
+              layout bug, D-058 Phase C — flagged, not fixed at the source).
+              slug/year/projectStatus/tags live there and are otherwise
+              silently dropped from every save; these proxies are the same
+              working pattern featured/verified/timelineOrder already use. */}
+          <input type="hidden" name="slug" value={slug} />
+          <input type="hidden" name="year" value={year} />
+          <input type="hidden" name="projectStatus" value={projectStatus} />
+          <input type="hidden" name="tags" value={tags} />
           <input type="hidden" name="collaborators" value={JSON.stringify(cleanList(collaborators))} />
           <input type="hidden" name="outcomes" value={JSON.stringify(cleanList(outcomes))} />
           <input type="hidden" name="skillsLearned" value={JSON.stringify(cleanList(skillsLearned))} />
@@ -312,7 +321,7 @@ export function ProjectEditor({
         <aside className="w-72 flex-shrink-0 overflow-y-auto border-l border-border px-5 py-6 text-small">
           <MetaField label="Slug">
             <input
-              name="slug"
+              name="slugDisplay"
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               className={cn(inputCls, "font-mono text-micro")}
@@ -321,7 +330,7 @@ export function ProjectEditor({
 
           <MetaField label="Year">
             <input
-              name="year"
+              name="yearDisplay"
               type="number"
               value={year}
               onChange={(e) => setYear(e.target.value)}
@@ -333,7 +342,7 @@ export function ProjectEditor({
 
           <MetaField label="Status">
             <select
-              name="projectStatus"
+              name="projectStatusDisplay"
               value={projectStatus}
               onChange={(e) => setProjectStatus(e.target.value as "active" | "archived")}
               className={inputCls}
@@ -345,7 +354,7 @@ export function ProjectEditor({
 
           <MetaField label="Tags" hint="Technologies · comma-separated">
             <input
-              name="tags"
+              name="tagsDisplay"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               className={inputCls}
