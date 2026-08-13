@@ -2,7 +2,42 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-08-13 (D-058 complete — V2 Phases A–G all live)
+**Last updated:** 2026-08-14 (D-060 Phase 2 — Dex v2 guardrails hardened + natural-prose rewrite, credentials in place, live verification still owner-side)
+
+## Dex v2 (D-059/D-060) — built, credentialed, awaiting real-network verification
+
+The owner reported Dex answering the same question differently when phrased
+differently, and returning generic hand-offs to direct questions. **Diagnosed
+as a retrieval failure, not a content failure** — `search.ts` matches by
+lexical token overlap, so "Why should we hire Deepak?" scored 5 against a
+threshold of 8 and fell through to the contact card while a good answer sat
+unreached in the corpus; "Tell me about the memory system he built" matched
+*Smart Door Lock*. Measured by porting the real scoring against the real JSON.
+
+Dex v2 replaces the matcher with grounded generation: all 43 public knowledge
+cards (~8.2k tokens) go into every prompt, a free-tier Gemini model writes a
+free-form, natural answer (not a fixed template — D-060 revised this after the
+owner asked for Claude/ChatGPT-like responses), and validation runs
+server-side before display. **v1 remains live as the fallback** — every
+failure path returns to it, so the worst case is today's behaviour.
+
+**D-060 added real abuse guardrails**, at the owner's explicit request ("no
+one can bypass and drain the free quota"): a durable Upstash Redis rate
+limiter (8 LLM questions/10min per IP, checked before a shared 300/day
+ceiling — see `guard.ts` for why that ordering matters) and Cloudflare
+Turnstile human verification gating the LLM path. Both fail *closed* — if
+Redis or Turnstile can't be reached, the LLM path is denied and Dex falls
+back to v1, never fails open to unlimited access.
+
+- **Plan + research + knowledge-gap analysis + Phase 2 detail:** [`../docs/31-DEX-V2-LLM-AGENT.md`](../docs/31-DEX-V2-LLM-AGENT.md)
+- **Full reasoning, provider comparison, guardrail design:** `DECISIONS.md` → `D-059`, `D-060`
+- **Owner's real credentials are already in `.env.local`** (gitignored, local-only) — Gemini key, Upstash Redis, Turnstile site+secret keys. Not yet in Vercel's production environment variables.
+- **Verified:** 18/18 offline + fail-closed checks (`npm run check:dex-v2 --workspace=web`), typecheck clean. The fail-closed behaviour was proven under a **genuine** network failure (real `EAI_AGAIN`/Redis-unreachable errors), not simulated — see below.
+- **Live-verified 2026-08-14 by the owner, from their own machine: 50/50 checks pass.** Real Upstash round-trips succeed; real Gemini answers ground correctly, including under an adversarial battery added specifically to stress-test this — twisted/skeptical phrasings of real facts, disguised injection dressed as being about Deepak, and (highest-stakes) direct questions hitting real corpus gaps (notice period, relocation, certifications, open source, hackathons, salary, visa) that correctly came back `unknown` instead of fabricated. One real bug found and fixed along the way: the first live run hit Gemini's free-tier RPM cap partway through (the ~30-call battery, unpaced, not a guardrail issue) — fixed by pacing the test script itself, not the production code.
+- **⚠️ Still open, needs a real browser, not just the CLI:** whether the Turnstile widget actually renders and completes for a real visitor — only the server-side verification call has been proven so far. Then: `npm run check:dex --workspace=web` (v1 regression guard), `CONTENT_SOURCE=file npm run build`, `npm run check:bundle --workspace=web`, ten questions read in-browser by the owner, `/admin/dex` showing the `generated` outcome, and adding the same five env vars to Vercel → Project Settings → Environment Variables. Full list: `docs/31` §5. Until Vercel has the env vars, production still behaves exactly as v1 — inert, not broken.
+- **Known gap, biggest remaining:** the knowledge corpus is frozen at 2026-08-04 while the owner keeps publishing. Threading published projects/posts from Postgres into the prompt is Phase 4 (`docs/31` §7.1).
+
+---
 
 ## Current Phase
 

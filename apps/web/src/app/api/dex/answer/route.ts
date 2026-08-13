@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { answerDexQuestion } from "@/lib/dex/search";
+import { generateDexAnswer } from "@/lib/dex/llm/generate";
 import { logDexQuestion } from "@/lib/dex/log";
+import { isDexVisitorRole } from "@/lib/dex/intake-shared";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 // Hard input cap for the request body — distinct from search.ts's own
@@ -24,11 +26,17 @@ export async function POST(request: Request) {
 
   let question = "";
   let visitorRole: unknown = "";
+  let turnstileToken = "";
 
   try {
-    const body = (await request.json()) as { question?: unknown; role?: unknown };
+    const body = (await request.json()) as {
+      question?: unknown;
+      role?: unknown;
+      turnstileToken?: unknown;
+    };
     question = typeof body.question === "string" ? body.question : "";
     visitorRole = body.role;
+    turnstileToken = typeof body.turnstileToken === "string" ? body.turnstileToken : "";
   } catch {
     question = "";
   }
@@ -40,7 +48,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const answer = answerDexQuestion(question);
+  // Dex v2 (D-059): grounded generation first, v1 cached matcher as the
+  // fallback. `generateDexAnswer` returns null — never throws — when the LLM
+  // is disabled, out of free-tier quota, slow, or produced something that
+  // failed validation. The visitor always gets a real answer; the only
+  // difference is which layer produced it.
+  //
+  // The role is validated against the closed enum before it goes anywhere near
+  // the prompt. It arrives in the request body, so an unvalidated pass-through
+  // would be a second, unrate-limited injection surface alongside the question
+  // itself — a free-text "role" could carry instructions.
+  const safeRole = isDexVisitorRole(visitorRole) ? visitorRole : "";
+  const generated = await generateDexAnswer(question, safeRole, ip, turnstileToken);
+  if (generated.reason && generated.reason !== "disabled") {
+    console.warn("Dex v2 fell back to cached recall:", generated.reason);
+  }
+  const answer = generated.answer ?? answerDexQuestion(question);
 
   // Analytics only (D-054) — logDexQuestion swallows its own failures so a
   // logging or DB outage can never cost the visitor their answer.

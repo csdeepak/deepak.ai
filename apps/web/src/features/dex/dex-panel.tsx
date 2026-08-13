@@ -1,8 +1,9 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
+import Script from "next/script";
 import { MessageCircle, Send, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
 import { DexIntakeForm } from "./dex-intake-form";
@@ -20,6 +21,25 @@ import type {
 
 const DEX_INTAKE_STORAGE_KEY = "dex-intake-status";
 const DEX_ROLE_STORAGE_KEY = "dex-intake-role";
+
+/**
+ * D-060 — public sitekey only; safe to inline in client code. The matching
+ * secret key stays server-only (`llm/turnstile.ts`) and never reaches the
+ * browser. Empty when unconfigured, which degrades safely: `ask()` sends an
+ * empty token, the server treats that as "not human-verified" and falls back
+ * to the v1 cached matcher — never a broken panel.
+ */
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: Record<string, unknown>) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
 
 type Message =
   | { role: "visitor"; text: string }
@@ -68,6 +88,39 @@ export function DexPanel() {
       setVisitorRole(role);
     }
   };
+
+  // D-060 — Turnstile human check. A ref, not state: the token changes on
+  // every render/reset cycle and doesn't need to trigger a re-render itself,
+  // it's only read at submit time. `widgetIdRef` guards against rendering the
+  // widget twice if the panel is closed and reopened within one page load.
+  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
+  const turnstileTokenRef = useRef<string>("");
+
+  const renderTurnstileWidget = useCallback(() => {
+    if (!TURNSTILE_SITE_KEY || !window.turnstile || !turnstileContainerRef.current) return;
+    if (turnstileWidgetIdRef.current) return;
+    turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      // Stays visually absent unless Cloudflare decides an interactive
+      // challenge is actually needed — this is a chat panel, not a login
+      // form, and shouldn't show a checkbox box by default.
+      appearance: "interaction-only",
+      callback: (token: string) => {
+        turnstileTokenRef.current = token;
+      },
+      "expired-callback": () => {
+        turnstileTokenRef.current = "";
+      },
+      "error-callback": () => {
+        turnstileTokenRef.current = "";
+      },
+    });
+  }, []);
+
+  useEffect(() => {
+    if (open && window.turnstile) renderTurnstileWidget();
+  }, [open, renderTurnstileWidget]);
 
   useEffect(() => {
     if (!open) return;
@@ -122,7 +175,14 @@ export function DexPanel() {
       const response = await fetch("/api/dex/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text, role: visitorRole ?? undefined }),
+        body: JSON.stringify({
+          question: text,
+          role: visitorRole ?? undefined,
+          // D-060 — sent whether or not the widget managed to load; an empty
+          // string just means the server treats this as not-human-verified
+          // and answers from the v1 cached matcher instead of the LLM.
+          turnstileToken: turnstileTokenRef.current,
+        }),
       });
       if (!response.ok) throw new Error("Dex answer request failed");
       const answer = (await response.json()) as DexAnswer;
@@ -147,6 +207,14 @@ export function DexPanel() {
       ]);
     } finally {
       setLoading(false);
+      // Tokens are single-use and expire after 5 minutes (Cloudflare's
+      // limits, not a choice made here) — reset immediately so the next
+      // question always has a fresh one ready rather than failing on a
+      // spent token from this one.
+      if (turnstileWidgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(turnstileWidgetIdRef.current);
+      }
+      turnstileTokenRef.current = "";
     }
   };
 
@@ -306,6 +374,20 @@ export function DexPanel() {
               </div>
             </form>
           )}
+
+          {/* D-060 — loaded only while the panel is open (privacy/perf: a
+              visitor who never opens Dex never fetches Cloudflare's script).
+              `render=explicit` means nothing happens until renderTurnstileWidget
+              calls turnstile.render() ourselves, either from onLoad here or
+              from the useEffect above if the script was already cached. */}
+          {open && TURNSTILE_SITE_KEY && (
+            <Script
+              src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+              strategy="afterInteractive"
+              onLoad={renderTurnstileWidget}
+            />
+          )}
+          <div ref={turnstileContainerRef} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

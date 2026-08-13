@@ -17,6 +17,7 @@
     "hero:enrich": "tsx scripts/enrich-hero-network.ts",
     "og:generate": "node scripts/generate-og-image.mjs",
     "check:dex": "tsx scripts/check-dex-matcher.ts",
+    "check:dex-v2": "tsx --tsconfig scripts/tsconfig.json scripts/check-dex-v2.ts",
     "gallery:process": "node scripts/process-gallery.mjs",
     "gallery:migrate-r2": "tsx scripts/gallery-r2-migrate.ts",
     "admin:password": "tsx scripts/set-admin-password.ts",
@@ -24,6 +25,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1085.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.2",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@react-three/drei": "^10.7.7",

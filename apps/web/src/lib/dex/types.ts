@@ -43,7 +43,18 @@ export interface DexSuggestedQuestion {
   faqId: string;
 }
 
-export type DexAnswerKind = "cached" | "knowledge" | "unknown" | "refusal";
+/**
+ * `generated` is Dex v2 (D-059): grounded, model-written, cited back to public
+ * knowledge cards. The other four are v1's cached-recall outcomes and remain
+ * live — v2 falls back to them whenever the provider is unavailable, so both
+ * generations of answer coexist in the log and in `/admin/dex`.
+ */
+export type DexAnswerKind =
+  | "generated"
+  | "cached"
+  | "knowledge"
+  | "unknown"
+  | "refusal";
 
 export interface DexAnswer {
   kind: DexAnswerKind;
