@@ -34,6 +34,17 @@ export const localContent: ContentService = {
   async getPublication(slug) {
     return publications.find((p) => p.slug === slug) ?? null;
   },
+  async getFeaturedPosts(limit = 1) {
+    return posts
+      .filter((p) => p.featured && p.status === "published")
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, limit);
+  },
+  async getPosts() {
+    return posts
+      .filter((p) => p.status === "published")
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  },
   async getLatestPosts(limit = 3) {
     return posts
       .filter((p) => p.status === "published")

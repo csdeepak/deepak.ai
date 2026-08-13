@@ -23,6 +23,8 @@ export interface ContentService {
   getPublications(): Promise<Publication[]>;
   getPublication(slug: string): Promise<Publication | null>;
 
+  getFeaturedPosts(limit?: number): Promise<Post[]>;
+  getPosts(): Promise<Post[]>;
   getLatestPosts(limit?: number): Promise<Post[]>;
   getPost(slug: string): Promise<Post | null>;
 

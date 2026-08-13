@@ -493,6 +493,111 @@ export const dbContent: ContentService = {
 
   // ── Posts ─────────────────────────────────────────────────────────────────
 
+  async getPosts(): Promise<Post[]> {
+    const db = getDb();
+
+    const rows = await db
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        status: contentItems.status,
+        publishedAt: contentItems.publishedAt,
+        updatedAt: contentItems.updatedAt,
+        question: contentItems.question,
+        dek: postsTable.dek,
+        bodyMarkdown: postsTable.bodyMarkdown,
+        readingMinutes: postsTable.readingMinutes,
+        tags: postsTable.tags,
+        featured: postsTable.featured,
+      })
+      .from(contentItems)
+      .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
+      .where(
+        and(
+          eq(contentItems.contentType, "post"),
+          eq(contentItems.status, "published")
+        )
+      )
+      .orderBy(desc(contentItems.publishedAt));
+
+    if (rows.length === 0) return [];
+
+    const ids = rows.map((r) => r.id);
+    const rels = await db
+      .select()
+      .from(relationsTable)
+      .where(inArray(relationsTable.fromId, ids));
+
+    return rows.map((row) => ({
+      type: "post" as const,
+      slug: row.slug,
+      title: row.title,
+      status: row.status as ContentStatus,
+      publishedAt: toIso(row.publishedAt),
+      updatedAt: toIso(row.updatedAt),
+      relations: mapRelations(rels.filter((r) => r.fromId === row.id)),
+      dek: row.dek,
+      bodyMarkdown: row.bodyMarkdown,
+      readingMinutes: row.readingMinutes ?? 0,
+      tags: row.tags ?? [],
+      featured: row.featured,
+    }));
+  },
+
+  async getFeaturedPosts(limit = 1): Promise<Post[]> {
+    const db = getDb();
+
+    const rows = await db
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        status: contentItems.status,
+        publishedAt: contentItems.publishedAt,
+        updatedAt: contentItems.updatedAt,
+        question: contentItems.question,
+        dek: postsTable.dek,
+        bodyMarkdown: postsTable.bodyMarkdown,
+        readingMinutes: postsTable.readingMinutes,
+        tags: postsTable.tags,
+        featured: postsTable.featured,
+      })
+      .from(contentItems)
+      .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
+      .where(
+        and(
+          eq(contentItems.contentType, "post"),
+          eq(contentItems.status, "published"),
+          eq(postsTable.featured, true)
+        )
+      )
+      .orderBy(desc(contentItems.publishedAt))
+      .limit(limit);
+
+    if (rows.length === 0) return [];
+    const ids = rows.map((r) => r.id);
+    const rels = await db
+      .select()
+      .from(relationsTable)
+      .where(inArray(relationsTable.fromId, ids));
+
+    return rows.map((row) => ({
+      type: "post" as const,
+      slug: row.slug,
+      title: row.title,
+      status: row.status as ContentStatus,
+      publishedAt: toIso(row.publishedAt),
+      updatedAt: toIso(row.updatedAt),
+      relations: mapRelations(rels.filter((r) => r.fromId === row.id)),
+      dek: row.dek,
+      bodyMarkdown: row.bodyMarkdown,
+      readingMinutes: row.readingMinutes ?? 0,
+      tags: row.tags ?? [],
+      featured: row.featured,
+    }));
+  },
+
   async getLatestPosts(limit = 3): Promise<Post[]> {
     const db = getDb();
 
@@ -506,8 +611,10 @@ export const dbContent: ContentService = {
         updatedAt: contentItems.updatedAt,
         question: contentItems.question,
         dek: postsTable.dek,
+        bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
+        featured: postsTable.featured,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -536,8 +643,10 @@ export const dbContent: ContentService = {
       updatedAt: toIso(row.updatedAt),
       relations: mapRelations(rels.filter((r) => r.fromId === row.id)),
       dek: row.dek,
+      bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
+      featured: row.featured,
     }));
   },
 
@@ -554,8 +663,10 @@ export const dbContent: ContentService = {
         updatedAt: contentItems.updatedAt,
         question: contentItems.question,
         dek: postsTable.dek,
+        bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
+        featured: postsTable.featured,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -577,8 +688,10 @@ export const dbContent: ContentService = {
       updatedAt: toIso(row.updatedAt),
       relations: mapRelations(rels),
       dek: row.dek,
+      bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
+      featured: row.featured,
     };
   },
 

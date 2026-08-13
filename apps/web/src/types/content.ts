@@ -139,8 +139,10 @@ export interface Publication extends ContentBase {
 export interface Post extends ContentBase {
   type: "post";
   dek: string;
+  bodyMarkdown: string;
   readingMinutes: number;
   tags: string[];
+  featured: boolean;
   // Rich metadata (D-048)
   coverImage?: MediaAsset;
   attachments?: MediaAsset[];
