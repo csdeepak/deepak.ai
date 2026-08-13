@@ -55,7 +55,11 @@ export async function getDexStats(): Promise<DexStats> {
   const [questionRow] = await db
     .select({
       total: askCount,
-      answered: sql<number>`count(*) filter (where ${dexQuestionLog.answerKind} in ('cached','knowledge'))`.mapWith(
+      // 'generated' is Dex v2's LLM-backed answer (D-059) and counts as
+      // answered. Without it here a generated reply fell through every
+      // bucket — not answered, not unanswered, not refused — so the
+      // answer-rate stat silently undercounted once v2 went live.
+      answered: sql<number>`count(*) filter (where ${dexQuestionLog.answerKind} in ('generated','cached','knowledge'))`.mapWith(
         Number,
       ),
       unanswered: sql<number>`count(*) filter (where ${dexQuestionLog.answerKind} = 'unknown')`.mapWith(
