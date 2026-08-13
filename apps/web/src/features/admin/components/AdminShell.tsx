@@ -17,6 +17,7 @@ const NAV = [
 
 const SECONDARY = [
   { href: "/admin/media", label: "Media" },
+  { href: "/admin/gallery", label: "Gallery" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/dex", label: "Dex" },
 ] as const;

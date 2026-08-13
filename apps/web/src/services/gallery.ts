@@ -10,7 +10,7 @@
  */
 
 import "server-only";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db/index";
 import { galleryItems } from "@/db/schema";
 import { mediaPublicUrl } from "@/lib/media/url";
@@ -23,9 +23,13 @@ export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
   }
 
   const db = getDb();
+  // Published-only. Without this the admin's Published toggle would be
+  // decorative and unpublished drafts would render on the public site the
+  // moment they were added (D-058 Phase F).
   const rows = await db
     .select()
     .from(galleryItems)
+    .where(eq(galleryItems.published, true))
     .orderBy(asc(galleryItems.sortOrder));
 
   return rows.map((row) => ({

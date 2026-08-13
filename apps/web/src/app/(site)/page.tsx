@@ -4,6 +4,7 @@ import { Collaborate } from "@/features/landing/sections/collaborate";
 import { FeaturedPosts } from "@/features/posts/featured-posts";
 import { RecentPosts } from "@/features/posts/recent-posts";
 import { ProjectTimeline } from "@/features/timeline/project-timeline";
+import { GalleryStrip } from "@/features/gallery/gallery-strip";
 
 /**
  * Landing — the Landing Experience (D-052 Track 2, extended D-056/D-058
@@ -19,7 +20,10 @@ import { ProjectTimeline } from "@/features/timeline/project-timeline";
  *   5. Timeline     — zig-zag project spine, owner-ordered (self-hides
  *                      when no project has a timeline position — D-058
  *                      Phase E)
- *   6. Collaborate  — the quiet close
+ *   6. Gallery      — photo cluster, curated in /admin/gallery (self-hides
+ *                      until a photo is both published and featured —
+ *                      D-058 Phase F)
+ *   7. Collaborate  — the quiet close
  *
  * Evidence (the domains list + trust seeds) was removed 2026-08-13 —
  * owner asked explicitly, after leaving it up as a standing question
@@ -41,6 +45,7 @@ export default function LandingPage() {
       <FeaturedPosts />
       <RecentPosts />
       <ProjectTimeline />
+      <GalleryStrip />
       <Collaborate />
     </>
   );

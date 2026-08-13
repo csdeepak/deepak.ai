@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/container";
+import { EmptyState } from "@/components/content/empty-state";
 import { GalleryBrowser } from "@/features/gallery/gallery-browser";
 import { getGalleryPhotos } from "@/services/gallery";
 
@@ -17,13 +17,11 @@ export const metadata: Metadata = {
  * and appear only when one is selected.
  */
 export default async function GalleryPage() {
-  // Deferred pending an owner alt-text/caption pass and a live review — all
-  // 11 photos still ship with empty alt text (a release gate, not cosmetic;
-  // see specs/gallery.md §9 Known Gaps #1) and the page has never been
-  // reviewed live (§9 #6). Production 404s until that happens; dev stays
-  // open so it's easy to review and re-enable.
-  if (process.env.NODE_ENV === "production") notFound();
-
+  // The production 404 guard is gone (D-058 Phase F): photos are now curated
+  // in /admin/gallery, where alt text is a required field — the release gate
+  // that kept this page hidden. Only published items are returned, so an
+  // un-curated photo can't reach here; zero of them is an honest empty state,
+  // not a 404, matching /posts and /projects (LAW-008).
   const galleryPhotos = await getGalleryPhotos();
 
   return (
@@ -33,14 +31,25 @@ export default async function GalleryPage() {
           The record
         </p>
         <h1 className="mt-3 max-w-2xl text-section text-ink">Moments from the work.</h1>
-        <p className="mt-4 max-w-xl text-body text-muted">
-          {galleryPhotos.length} photographs. Select any one for its caption, date and
-          place.
-        </p>
 
-        <div className="mt-16">
-          <GalleryBrowser photos={galleryPhotos} />
-        </div>
+        {galleryPhotos.length > 0 ? (
+          <>
+            <p className="mt-4 max-w-xl text-body text-muted">
+              {galleryPhotos.length}{" "}
+              {galleryPhotos.length === 1 ? "photograph" : "photographs"}. Select any one
+              for its caption, date and place.
+            </p>
+            <div className="mt-16">
+              <GalleryBrowser photos={galleryPhotos} />
+            </div>
+          </>
+        ) : (
+          <EmptyState
+            className="mt-12"
+            title="No photographs are published here yet."
+            body="This shelf is honestly empty. When there is something worth showing, it will appear here."
+          />
+        )}
       </div>
     </Container>
   );

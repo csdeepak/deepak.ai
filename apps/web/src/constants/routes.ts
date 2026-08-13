@@ -46,6 +46,7 @@ export const BUILT_ROUTES: ReadonlySet<string> = new Set<string>([
   ROUTES.home,
   ROUTES.projects, // the "Work" lane (D-021 label, D-024 vocabulary)
   ROUTES.posts, // D-058 Phase D
+  ROUTES.gallery, // D-058 Phase F
 ]);
 
 /** True when `href` points at a page that actually exists. */
