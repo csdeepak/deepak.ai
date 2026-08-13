@@ -45,6 +45,7 @@ const COLUMNS: ReadonlyArray<{
     heading: "Meta",
     links: [
       { label: "About", href: ROUTES.about },
+      { label: "Gallery", href: ROUTES.gallery },
       { label: "Timeline", href: ROUTES.timeline },
       { label: "Contact", href: ROUTES.contact },
       { label: "Search", href: ROUTES.search },
