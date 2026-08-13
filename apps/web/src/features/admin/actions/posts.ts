@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, desc, ne, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { getDb } from "@/db/index";
 import { contentItems, postsTable, contentVersions, contentMedia } from "@/db/schema";
 import { ROUTES } from "@/constants/routes";
@@ -128,7 +128,7 @@ export async function createPost(
     dek: "",
     bodyMarkdown: "",
     tags: [],
-    featured: false,
+    featuredOrder: null,
   });
 
   const snapshot = await buildSnapshot(db, item.id);
@@ -171,25 +171,36 @@ export async function savePost(
     if (existing.length > 0) return { error: `Slug "${slug}" is already in use.` };
   }
 
+  const currentFeaturedOrder = (prevSnapshot.post as { featuredOrder?: number | null }).featuredOrder ?? null;
+
   await db.transaction(async (tx) => {
     await tx.update(contentItems).set({
       title, slug, question, verified,
       updatedAt: new Date(),
     }).where(eq(contentItems.id, id));
 
+    // Several posts can be featured, ordered by when they were featured.
+    // Unchecking clears the order; checking an already-featured post keeps
+    // its existing position; newly featuring one appends it to the end.
+    let featuredOrder: number | null;
+    if (!featured) {
+      featuredOrder = null;
+    } else if (currentFeaturedOrder !== null) {
+      featuredOrder = currentFeaturedOrder;
+    } else {
+      const [maxRow] = await tx
+        .select({ max: sql<number | null>`max(${postsTable.featuredOrder})` })
+        .from(postsTable);
+      featuredOrder = (maxRow?.max ?? -1) + 1;
+    }
+
     await tx.update(postsTable).set({
       dek,
       bodyMarkdown,
       readingMinutes: readingMinutes === null || isNaN(readingMinutes) ? null : readingMinutes,
       tags,
-      featured,
+      featuredOrder,
     }).where(eq(postsTable.id, id));
-
-    // Featured is single-boolean, one-at-a-time — unset every other post in
-    // the same transaction so at most one post is ever featured.
-    if (featured) {
-      await tx.update(postsTable).set({ featured: false }).where(ne(postsTable.id, id));
-    }
 
     await writeCoverMedia(tx, id, coverMediaId);
   });
@@ -317,17 +328,19 @@ export async function restorePostVersion(
       updatedAt: new Date(),
     }).where(eq(contentItems.id, itemId));
 
+    // Older snapshots (pre-carousel) only have the boolean `featured` field
+    // and no order info — restoring one degrades to "not featured" rather
+    // than guessing a position.
+    const restoredFeaturedOrder =
+      (post as unknown as { featuredOrder?: number | null }).featuredOrder ?? null;
+
     await tx.update(postsTable).set({
       dek: post.dek ?? "",
       bodyMarkdown: post.bodyMarkdown ?? "",
       readingMinutes: (post.readingMinutes as number | null) ?? null,
       tags: (post.tags as string[]) ?? [],
-      featured: post.featured ?? false,
+      featuredOrder: restoredFeaturedOrder,
     }).where(eq(postsTable.id, itemId));
-
-    if (post.featured) {
-      await tx.update(postsTable).set({ featured: false }).where(ne(postsTable.id, itemId));
-    }
 
     await tx.delete(contentMedia).where(eq(contentMedia.itemId, itemId));
     if (mediaRows.length > 0) {

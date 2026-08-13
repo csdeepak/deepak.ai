@@ -2,7 +2,7 @@ import NeuralFace3DClient from "@/features/hero-scene/neural-face/NeuralFace3DCl
 import { Mission } from "@/features/landing/sections/mission";
 import { Evidence } from "@/features/landing/sections/evidence";
 import { Collaborate } from "@/features/landing/sections/collaborate";
-import { FeaturedPost } from "@/features/posts/featured-post";
+import { FeaturedPosts } from "@/features/posts/featured-posts";
 import { RecentPosts } from "@/features/posts/recent-posts";
 
 /**
@@ -11,10 +11,13 @@ import { RecentPosts } from "@/features/posts/recent-posts";
  *
  *   1. Hero         — the 3D neural-face: face → dive → inner network
  *   2. Mission      — what he's building, why he's different
- *   3. Posts        — Featured, then Recent (5) + "More posts" (self-hide
- *                      entirely when empty, LAW-008 — docs/30 Phase D)
- *   4. Evidence     — the domains of work + honest trust seeds
- *   5. Collaborate  — the quiet close
+ *   3. Featured Posts — horizontal carousel, ordered, ends in "See all
+ *                        posts" (self-hides when nothing is featured)
+ *   4. Posts        — horizontal carousel, newest first, "More posts" link
+ *                      (self-hides entirely when empty — LAW-008,
+ *                      docs/30 Phase D, carousel redesign)
+ *   5. Evidence     — the domains of work + honest trust seeds
+ *   6. Collaborate  — the quiet close
  *
  * D-052 (supersedes D-050 Track 1): the Canvas2D hero is retired from `/`
  * (its renderer stays in the repo for poster generation + emergency
@@ -27,7 +30,7 @@ export default function LandingPage() {
     <>
       <NeuralFace3DClient />
       <Mission />
-      <FeaturedPost />
+      <FeaturedPosts />
       <RecentPosts />
       <Evidence />
       <Collaborate />

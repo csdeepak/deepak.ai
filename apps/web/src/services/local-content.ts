@@ -34,11 +34,11 @@ export const localContent: ContentService = {
   async getPublication(slug) {
     return publications.find((p) => p.slug === slug) ?? null;
   },
-  async getFeaturedPosts(limit = 1) {
-    return posts
-      .filter((p) => p.featured && p.status === "published")
-      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-      .slice(0, limit);
+  async getFeaturedPosts(limit?: number) {
+    const featured = posts
+      .filter((p) => p.featuredOrder !== null && p.status === "published")
+      .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0));
+    return limit !== undefined ? featured.slice(0, limit) : featured;
   },
   async getPosts() {
     return posts

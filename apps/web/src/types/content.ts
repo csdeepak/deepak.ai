@@ -142,7 +142,9 @@ export interface Post extends ContentBase {
   bodyMarkdown: string;
   readingMinutes: number;
   tags: string[];
-  featured: boolean;
+  // null = not featured; an integer = position in the Featured Posts
+  // carousel, ascending.
+  featuredOrder: number | null;
   // Rich metadata (D-048)
   coverImage?: MediaAsset;
   attachments?: MediaAsset[];

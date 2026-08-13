@@ -17,7 +17,7 @@
  *   3. relations WHERE from_id IN (ids)
  */
 
-import { eq, and, desc, inArray, asc } from "drizzle-orm";
+import { eq, and, desc, inArray, asc, isNotNull } from "drizzle-orm";
 import { getDb } from "@/db/index";
 import {
   contentItems,
@@ -525,7 +525,7 @@ export const dbContent: ContentService = {
         bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
-        featured: postsTable.featured,
+        featuredOrder: postsTable.featuredOrder,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -557,15 +557,15 @@ export const dbContent: ContentService = {
       bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
-      featured: row.featured,
+      featuredOrder: row.featuredOrder,
       coverImage: covers.get(row.id),
     }));
   },
 
-  async getFeaturedPosts(limit = 1): Promise<Post[]> {
+  async getFeaturedPosts(limit?: number): Promise<Post[]> {
     const db = getDb();
 
-    const rows = await db
+    const query = db
       .select({
         id: contentItems.id,
         slug: contentItems.slug,
@@ -578,7 +578,7 @@ export const dbContent: ContentService = {
         bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
-        featured: postsTable.featured,
+        featuredOrder: postsTable.featuredOrder,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -586,11 +586,12 @@ export const dbContent: ContentService = {
         and(
           eq(contentItems.contentType, "post"),
           eq(contentItems.status, "published"),
-          eq(postsTable.featured, true)
+          isNotNull(postsTable.featuredOrder)
         )
       )
-      .orderBy(desc(contentItems.publishedAt))
-      .limit(limit);
+      .orderBy(asc(postsTable.featuredOrder));
+
+    const rows = limit !== undefined ? await query.limit(limit) : await query;
 
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
@@ -611,7 +612,7 @@ export const dbContent: ContentService = {
       bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
-      featured: row.featured,
+      featuredOrder: row.featuredOrder,
       coverImage: covers.get(row.id),
     }));
   },
@@ -632,7 +633,7 @@ export const dbContent: ContentService = {
         bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
-        featured: postsTable.featured,
+        featuredOrder: postsTable.featuredOrder,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -664,7 +665,7 @@ export const dbContent: ContentService = {
       bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
-      featured: row.featured,
+      featuredOrder: row.featuredOrder,
       coverImage: covers.get(row.id),
     }));
   },
@@ -685,7 +686,7 @@ export const dbContent: ContentService = {
         bodyMarkdown: postsTable.bodyMarkdown,
         readingMinutes: postsTable.readingMinutes,
         tags: postsTable.tags,
-        featured: postsTable.featured,
+        featuredOrder: postsTable.featuredOrder,
       })
       .from(contentItems)
       .innerJoin(postsTable, eq(contentItems.id, postsTable.id))
@@ -710,7 +711,7 @@ export const dbContent: ContentService = {
       bodyMarkdown: row.bodyMarkdown,
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
-      featured: row.featured,
+      featuredOrder: row.featuredOrder,
       coverImage: itemMedia.cover,
     };
   },

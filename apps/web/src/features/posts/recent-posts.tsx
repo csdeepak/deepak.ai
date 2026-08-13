@@ -2,16 +2,18 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { ScrollReveal } from "@/animations/scroll-reveal";
-import { PostRow } from "@/components/content/post-row";
+import { Carousel } from "@/components/content/carousel";
+import { PostCard } from "@/components/content/post-card";
 import { ROUTES } from "@/constants/routes";
 import { contentService } from "@/services";
 
 /**
- * Recent posts — up to 5, newest first (docs/30 Phase D). Self-hides
- * entirely when there are zero published posts (LAW-008).
+ * Posts — horizontal carousel, newest first (D-058 Phase D carousel
+ * redesign). Self-hides entirely when there are zero published posts
+ * (LAW-008).
  */
 export async function RecentPosts() {
-  const posts = await contentService.getLatestPosts(5);
+  const posts = await contentService.getLatestPosts(10);
   if (posts.length === 0) return null;
 
   return (
@@ -23,7 +25,7 @@ export async function RecentPosts() {
               id="recent-posts-heading"
               className="text-h4 font-display font-medium text-ink"
             >
-              Recent posts
+              Posts
             </h2>
             <Link
               href={ROUTES.posts}
@@ -32,12 +34,15 @@ export async function RecentPosts() {
               More posts
             </Link>
           </div>
-          <div className="mt-6">
-            {posts.map((post) => (
-              <PostRow key={post.slug} post={post} />
-            ))}
-          </div>
         </ScrollReveal>
+
+        <div className="mt-8">
+          <Carousel ariaLabel="Recent posts">
+            {posts.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </Carousel>
+        </div>
       </Container>
     </Section>
   );

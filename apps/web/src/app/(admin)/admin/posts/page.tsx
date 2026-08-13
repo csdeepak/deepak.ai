@@ -24,7 +24,7 @@ export default async function PostsPage({ searchParams }: Props) {
       slug: contentItems.slug,
       title: contentItems.title,
       status: contentItems.status,
-      featured: postsTable.featured,
+      featuredOrder: postsTable.featuredOrder,
       readingMinutes: postsTable.readingMinutes,
       updatedAt: contentItems.updatedAt,
     })
@@ -93,9 +93,9 @@ export default async function PostsPage({ searchParams }: Props) {
                   <StatusBadge status={r.status as ContentStatus} />
                 </td>
                 <td className="py-3 pr-4 text-muted">
-                  {r.featured ? (
+                  {r.featuredOrder !== null ? (
                     <span className="rounded bg-accent-weak px-1.5 py-0.5 text-micro font-medium text-ink">
-                      ★ Featured
+                      ★ {r.featuredOrder + 1}
                     </span>
                   ) : (
                     "—"

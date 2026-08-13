@@ -615,6 +615,23 @@
     }
   }
 
+  /* Horizontal carousel scroller (Featured Posts / Posts). Snap-scrolling,
+     hidden scrollbar; native swipe on touch needs no JS at all. Smooth
+     scroll (for the arrow buttons) only when reduced motion isn't requested
+     — the arrows still work under reduced motion, they just jump. */
+  .carousel-scroller {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .carousel-scroller::-webkit-scrollbar {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .carousel-scroller {
+      scroll-behavior: smooth;
+    }
+  }
+
   /* Hero beat sub-line warm accent tint (D-052.1 §Accent use #2).
      Blends the Gemini accent gradient at 40% strength over dark-mode ink,
      yielding pastel warm hues that remain ≥ 4.5:1 against the dark stage.

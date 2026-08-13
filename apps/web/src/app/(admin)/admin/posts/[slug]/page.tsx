@@ -35,7 +35,7 @@ export default async function PostEditorPage({ params }: Props) {
       bodyMarkdown: postsTable.bodyMarkdown,
       readingMinutes: postsTable.readingMinutes,
       tags: postsTable.tags,
-      featured: postsTable.featured,
+      featuredOrder: postsTable.featuredOrder,
     })
     .from(contentItems)
     .innerJoin(postsTable, eq(postsTable.id, contentItems.id))
@@ -67,7 +67,8 @@ export default async function PostEditorPage({ params }: Props) {
         bodyMarkdown: row.bodyMarkdown,
         readingMinutes: row.readingMinutes,
         tags: row.tags,
-        featured: row.featured,
+        featured: row.featuredOrder !== null,
+        featuredOrder: row.featuredOrder,
         verified: row.verified,
         status: row.status as ContentStatus,
         publishedAt: row.publishedAt?.toISOString() ?? null,

@@ -19,6 +19,7 @@ export interface PostEditorData {
   readingMinutes: number | null;
   tags: string[];
   featured: boolean;
+  featuredOrder: number | null;
   verified: boolean;
   status: ContentStatus;
   publishedAt: string | null;
@@ -69,7 +70,7 @@ export function PostEditor({
         <StatusBadge status={data.status} />
         {featured && (
           <span className="rounded bg-accent-weak px-1.5 py-0.5 text-micro font-medium text-ink">
-            ★ Featured
+            ★ {data.featuredOrder !== null ? data.featuredOrder + 1 : "Featured"}
           </span>
         )}
         {state.error && (
@@ -200,7 +201,7 @@ export function PostEditor({
               label="Featured"
               checked={featured}
               onChange={setFeatured}
-              hint="Only one post can be featured — setting this un-features any other."
+              hint="Adds this post to the Featured Posts carousel. New posts are appended to the end; existing position is kept until un-featured."
             />
             <Toggle label="Verified" checked={verified} onChange={setVerified} />
           </div>

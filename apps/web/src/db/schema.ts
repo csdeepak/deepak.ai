@@ -169,7 +169,11 @@ export const postsTable = pgTable("posts", {
     .array()
     .notNull()
     .default(sql`'{}'::text[]`),
-  featured: boolean("featured").notNull().default(false),
+  // null = not featured; an integer = position in the Featured Posts
+  // carousel (ascending, assigned by append-to-end when a post is
+  // featured — D-058 Phase D carousel redesign, supersedes an earlier
+  // single-boolean "one at a time" featured column).
+  featuredOrder: integer("featured_order"),
 });
 
 export const timelineEntriesTable = pgTable("timeline_entries", {
