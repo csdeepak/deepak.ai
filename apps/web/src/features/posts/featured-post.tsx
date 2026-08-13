@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { ScrollReveal } from "@/animations/scroll-reveal";
@@ -43,6 +44,23 @@ export async function FeaturedPost() {
               </span>
               {post.readingMinutes > 0 && <span>{post.readingMinutes} min read</span>}
             </div>
+
+            {post.coverImage && (
+              <Link
+                href={`/posts/${post.slug}`}
+                className="relative mt-8 block aspect-[16/10] overflow-hidden rounded-md border border-border"
+              >
+                <Image
+                  src={post.coverImage.url}
+                  alt={post.coverImage.alt}
+                  fill
+                  sizes="(min-width: 768px) 900px, 100vw"
+                  priority
+                  className="object-cover"
+                />
+              </Link>
+            )}
+
             <Link
               href={`/posts/${post.slug}`}
               className="mt-8 inline-flex h-11 items-center justify-center rounded-md bg-accent px-5 text-small font-medium text-on-accent transition-colors duration-(--duration-fast) hover:bg-accent-hover"

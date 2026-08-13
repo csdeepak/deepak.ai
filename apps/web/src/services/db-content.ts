@@ -107,6 +107,22 @@ async function loadItemMedia(
   return { cover, gallery, attachments };
 }
 
+/** Batch-load cover images for a set of items in one query (no N+1). */
+async function loadCoverImages(
+  db: ReturnType<typeof getDb>,
+  itemIds: string[],
+): Promise<Map<string, MediaAsset>> {
+  if (itemIds.length === 0) return new Map();
+  const rows = await db
+    .select({ itemId: contentMedia.itemId, media })
+    .from(contentMedia)
+    .innerJoin(media, eq(contentMedia.mediaId, media.id))
+    .where(and(inArray(contentMedia.itemId, itemIds), eq(contentMedia.role, "cover")));
+  const map = new Map<string, MediaAsset>();
+  for (const row of rows) map.set(row.itemId, toMediaAsset(row.media));
+  return map;
+}
+
 function mapRelations(
   rows: Array<{
     kind: string;
@@ -524,10 +540,10 @@ export const dbContent: ContentService = {
     if (rows.length === 0) return [];
 
     const ids = rows.map((r) => r.id);
-    const rels = await db
-      .select()
-      .from(relationsTable)
-      .where(inArray(relationsTable.fromId, ids));
+    const [rels, covers] = await Promise.all([
+      db.select().from(relationsTable).where(inArray(relationsTable.fromId, ids)),
+      loadCoverImages(db, ids),
+    ]);
 
     return rows.map((row) => ({
       type: "post" as const,
@@ -542,6 +558,7 @@ export const dbContent: ContentService = {
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
       featured: row.featured,
+      coverImage: covers.get(row.id),
     }));
   },
 
@@ -577,10 +594,10 @@ export const dbContent: ContentService = {
 
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
-    const rels = await db
-      .select()
-      .from(relationsTable)
-      .where(inArray(relationsTable.fromId, ids));
+    const [rels, covers] = await Promise.all([
+      db.select().from(relationsTable).where(inArray(relationsTable.fromId, ids)),
+      loadCoverImages(db, ids),
+    ]);
 
     return rows.map((row) => ({
       type: "post" as const,
@@ -595,6 +612,7 @@ export const dbContent: ContentService = {
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
       featured: row.featured,
+      coverImage: covers.get(row.id),
     }));
   },
 
@@ -629,10 +647,10 @@ export const dbContent: ContentService = {
 
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
-    const rels = await db
-      .select()
-      .from(relationsTable)
-      .where(inArray(relationsTable.fromId, ids));
+    const [rels, covers] = await Promise.all([
+      db.select().from(relationsTable).where(inArray(relationsTable.fromId, ids)),
+      loadCoverImages(db, ids),
+    ]);
 
     return rows.map((row) => ({
       type: "post" as const,
@@ -647,6 +665,7 @@ export const dbContent: ContentService = {
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
       featured: row.featured,
+      coverImage: covers.get(row.id),
     }));
   },
 
@@ -674,10 +693,10 @@ export const dbContent: ContentService = {
       .limit(1);
 
     if (!row) return null;
-    const rels = await db
-      .select()
-      .from(relationsTable)
-      .where(eq(relationsTable.fromId, row.id));
+    const [rels, itemMedia] = await Promise.all([
+      db.select().from(relationsTable).where(eq(relationsTable.fromId, row.id)),
+      loadItemMedia(db, row.id),
+    ]);
 
     return {
       type: "post" as const,
@@ -692,6 +711,7 @@ export const dbContent: ContentService = {
       readingMinutes: row.readingMinutes ?? 0,
       tags: row.tags ?? [],
       featured: row.featured,
+      coverImage: itemMedia.cover,
     };
   },
 

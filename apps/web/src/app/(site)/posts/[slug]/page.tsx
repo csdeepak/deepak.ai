@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Tag } from "@/components/ui/badge";
@@ -50,6 +51,25 @@ export default async function PostDetailPage({
   return (
     <Section>
       <Container width="reading">
+        {/* Cover image (self-hides when absent). */}
+        {post.coverImage && (
+          <figure className="mb-10 overflow-hidden rounded-lg border border-border">
+            <Image
+              src={post.coverImage.url}
+              alt={post.coverImage.alt}
+              width={post.coverImage.width ?? 1280}
+              height={post.coverImage.height ?? 720}
+              priority
+              className="h-auto w-full"
+            />
+            {post.coverImage.caption && (
+              <figcaption className="border-t border-border bg-surface px-4 py-2 text-small text-muted">
+                {post.coverImage.caption}
+              </figcaption>
+            )}
+          </figure>
+        )}
+
         <header>
           <div className="flex items-center gap-3 text-micro text-faint">
             <Link href={ROUTES.posts} className="hover:text-ink">
