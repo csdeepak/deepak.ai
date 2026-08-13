@@ -169,6 +169,7 @@ export const postsTable = pgTable("posts", {
     .array()
     .notNull()
     .default(sql`'{}'::text[]`),
+  featured: boolean("featured").notNull().default(false),
 });
 
 export const timelineEntriesTable = pgTable("timeline_entries", {
