@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
-import { Badge } from "@/components/ui/badge";
 import { contentService } from "@/services";
 
 /**
@@ -9,6 +8,12 @@ import { contentService } from "@/services";
  * from `components/content/timeline.tsx`, which renders the unrelated
  * career `timeline_entries` (org/role/dates) — this one walks published
  * projects in owner-assigned `timelineOrder`, alternating left/right.
+ *
+ * Each node is a glowing sphere (echoing the hero neural-network's bulbs)
+ * plus the project name — nothing else. The problem/status detail that
+ * lived here initially was a wall of text at real content length; the
+ * spine is a map, not a summary. Detail belongs on `/projects/[slug]`,
+ * one click away.
  *
  * No dates are rendered: real start/end dates aren't populated yet
  * (owner call, D-058 Phase E) — showing a fabricated month would violate
@@ -37,22 +42,17 @@ export async function ProjectTimeline() {
 
         <ol className="timeline-list mt-16 md:mt-20">
           {projects.map((project) => (
-            <li key={project.slug} className="timeline-node">
+            <li key={project.slug} className="timeline-node group">
               <span className="timeline-dot" aria-hidden />
-              <Link href={`/projects/${project.slug}`} className="timeline-card group">
-                <h3 className="text-card-title font-display font-semibold text-ink">
-                  <span className="gradient-underline-hover">{project.title}</span>
-                </h3>
-                {project.problem && (
-                  <p className="mt-2 text-small text-muted">{project.problem}</p>
-                )}
-                <div className="mt-3">
-                  {project.projectStatus === "active" ? (
-                    <Badge tone="info">active</Badge>
-                  ) : (
-                    <Badge tone="neutral">archived</Badge>
-                  )}
-                </div>
+              {/* The link's ::after covers the whole node, so the sphere is
+                  clickable too — not just the name. The underline sweep lives
+                  on the inner span because `.gradient-underline-hover` also
+                  uses ::after and the two would collide on one element. */}
+              <Link
+                href={`/projects/${project.slug}`}
+                className="timeline-card text-card-title font-display font-semibold text-ink after:absolute after:inset-0"
+              >
+                <span className="gradient-underline-hover">{project.title}</span>
               </Link>
             </li>
           ))}

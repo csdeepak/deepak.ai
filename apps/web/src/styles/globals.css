@@ -646,7 +646,7 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 2.75rem;
     padding: 0;
     margin: 0;
   }
@@ -655,46 +655,82 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0.3125rem;
+    left: 0.875rem;
     width: 1px;
-    background: var(--border);
+    background: var(--border-default);
   }
   .timeline-node {
     position: relative;
-    padding-left: 1.75rem;
+    display: flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding-left: 3rem;
   }
   /* A glowing sphere, not a hollow dot — echoes the hero neural-network's
      bulb nodes (same --grad-1/2/3 accent gradient, docs/DESIGN_SYSTEM's
      "one accent gradient used as energy only"), reproduced in pure CSS
      (radial-gradient core + box-shadow bloom) since three.js/postprocessing
-     stay banned from `/`'s bundle — this gets the look, not the engine. */
+     stay banned from `/`'s bundle — this gets the look, not the engine.
+     The off-centre highlight is what reads as "sphere" rather than "disc". */
   .timeline-dot {
     position: absolute;
-    left: 0.3125rem;
-    top: 0.3rem;
-    translate: -50% 0;
-    width: 0.875rem;
-    height: 0.875rem;
+    left: 0.875rem;
+    top: 50%;
+    translate: -50% -50%;
+    width: 1.75rem;
+    height: 1.75rem;
     border-radius: var(--radius-pill);
     background: radial-gradient(
-      circle at 35% 30%,
+      circle at 34% 28%,
       #fff 0%,
-      var(--grad-1) 35%,
-      var(--grad-2) 70%,
+      var(--grad-1) 32%,
+      var(--grad-2) 68%,
       var(--grad-3) 100%
     );
     box-shadow:
-      0 0 6px 1px color-mix(in srgb, var(--grad-1) 70%, transparent),
-      0 0 16px 4px color-mix(in srgb, var(--grad-2) 45%, transparent);
+      0 0 10px 2px color-mix(in srgb, var(--grad-1) 65%, transparent),
+      0 0 26px 7px color-mix(in srgb, var(--grad-2) 40%, transparent);
+    transition:
+      scale var(--duration-hover) var(--ease-instrument),
+      box-shadow var(--duration-hover) var(--ease-instrument);
   }
+  /* Typography lives on the element as Tailwind utilities (matching the
+     rest of the codebase) — this only owns layout. */
   .timeline-card {
     display: block;
     max-width: 26rem;
   }
 
+  /* Mouse-reactive: the sphere swells and its bloom intensifies on hover,
+     and presses back in on click. Driven from the whole node (`.group`),
+     so pointing anywhere on the row lights its sphere — the link's ::after
+     overlay makes that same area clickable, sphere included. Keyboard
+     parity via :focus-visible so this isn't mouse-only. */
+  .timeline-node:hover .timeline-dot,
+  .timeline-node:has(.timeline-card:focus-visible) .timeline-dot {
+    scale: 1.32;
+    box-shadow:
+      0 0 14px 3px color-mix(in srgb, var(--grad-1) 85%, transparent),
+      0 0 40px 12px color-mix(in srgb, var(--grad-2) 55%, transparent);
+  }
+  .timeline-node:active .timeline-dot {
+    scale: 1.1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Keep the brightening (a colour change, not motion); drop the swell. */
+    .timeline-dot {
+      transition: box-shadow var(--duration-hover) var(--ease-instrument);
+    }
+    .timeline-node:hover .timeline-dot,
+    .timeline-node:has(.timeline-card:focus-visible) .timeline-dot,
+    .timeline-node:active .timeline-dot {
+      scale: 1;
+    }
+  }
+
   @media (min-width: 48rem) {
     .timeline-list {
-      gap: 3rem;
+      gap: 3.25rem;
     }
     .timeline-list::before {
       left: 50%;
@@ -702,6 +738,7 @@
     .timeline-node {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      align-items: center;
       padding-left: 0;
     }
     .timeline-dot {
@@ -711,14 +748,14 @@
       grid-column: 1;
       justify-self: end;
       text-align: right;
-      padding-right: 2.5rem;
+      padding-right: 3rem;
     }
     .timeline-node:nth-child(even) .timeline-card {
       grid-column: 2;
       justify-self: start;
       text-align: left;
       padding-right: 0;
-      padding-left: 2.5rem;
+      padding-left: 3rem;
     }
   }
 
