@@ -139,6 +139,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Android Studio", "Dart"],
     featured: false,
+    timelineOrder: null,
   },
   {
     type: "project",
@@ -154,6 +155,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Android Studio", "Dart"],
     featured: false,
+    timelineOrder: null,
   },
   {
     type: "project",
@@ -169,6 +171,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Android Studio", "Dart"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/weaher_app",
   },
   {
@@ -185,6 +188,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Android Studio", "Dart"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/Flightbooking_app",
   },
   {
@@ -201,6 +205,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["HTML", "Tailwind CSS", "JavaScript", "React", "Node.js"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/Amplify",
   },
   {
@@ -217,6 +222,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Arduino", "ESP32", "RFID"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/smart_door_lock",
   },
   {
@@ -233,6 +239,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Java", "HTML", "CSS", "JavaScript"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/GUNADEEP19/GYM-MANAGEMENT-SYSTEM",
   },
   {
@@ -249,6 +256,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "scikit-learn", "Jupyter"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/ML_mini_project",
   },
   {
@@ -265,6 +273,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python"],
     featured: false,
+    timelineOrder: null,
     repoUrl:
       "https://github.com/pestechnology/PESU_RR_CSE_C_P38_Recipe_Ingredient_Optimizer_RIO",
   },
@@ -283,6 +292,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "ML"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/dhritij27/Machine_Learning_Hangman_Game",
   },
   {
@@ -299,6 +309,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "Claude", "Markdown"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/Humanizer_tii",
   },
   {
@@ -315,6 +326,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Next.js", "Vercel"],
     featured: false,
+    timelineOrder: null,
     repoUrl: "https://github.com/SahayAI-PESU/sahayai-website",
   },
   {
@@ -333,6 +345,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "FastAPI", "Playwright"],
     featured: true,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/Pesu_academy_content_downloader",
   },
   {
@@ -352,6 +365,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "scikit-learn", "Jupyter"],
     featured: true,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/turb-detr-underwater-detection",
   },
   {
@@ -370,6 +384,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Go"],
     featured: true,
+    timelineOrder: null,
     repoUrl: "https://github.com/GUNADEEP19/docksmith-engine",
   },
   {
@@ -388,6 +403,7 @@ export const projects: Project[] = [
     projectStatus: "archived",
     tags: ["Python", "scikit-learn", "Jupyter"],
     featured: true,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/tdl-project",
   },
   {
@@ -406,6 +422,7 @@ export const projects: Project[] = [
     projectStatus: "active",
     tags: ["Python", "PyTorch"],
     featured: true,
+    timelineOrder: null,
     repoUrl:
       "https://github.com/csdeepak/An-Intelligent-Dental-Assisting-System-for-Dentists-in-Cavity-and-Periodontal-Disease-Detection",
   },
@@ -425,6 +442,7 @@ export const projects: Project[] = [
     projectStatus: "active",
     tags: ["Python"],
     featured: true,
+    timelineOrder: null,
     repoUrl: "https://github.com/csdeepak/ASMOS",
   },
 ];

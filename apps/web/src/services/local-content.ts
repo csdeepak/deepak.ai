@@ -28,6 +28,11 @@ export const localContent: ContentService = {
   async getProject(slug) {
     return projects.find((p) => p.slug === slug) ?? null;
   },
+  async getTimelineProjects() {
+    return projects
+      .filter((p) => p.timelineOrder !== null && p.status === "published")
+      .sort((a, b) => (a.timelineOrder ?? 0) - (b.timelineOrder ?? 0));
+  },
   async getPublications() {
     return publications.filter((p) => p.status === "published");
   },

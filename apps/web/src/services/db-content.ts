@@ -216,6 +216,7 @@ export const dbContent: ContentService = {
         projectStatus: projectsTable.projectStatus,
         tags: projectsTable.tags,
         featured: projectsTable.featured,
+        timelineOrder: projectsTable.timelineOrder,
         repoUrl: projectsTable.repoUrl,
         ...projectRichCols,
       })
@@ -258,6 +259,78 @@ export const dbContent: ContentService = {
       projectStatus: row.projectStatus as "active" | "archived",
       tags: row.tags ?? [],
       featured: row.featured,
+      timelineOrder: row.timelineOrder,
+      repoUrl: row.repoUrl ?? undefined,
+      ...mapProjectRich(row),
+      abandonedBranches: mapBranches(
+        branches.filter((b) => b.itemId === row.id)
+      ),
+      relations: mapRelations(rels.filter((r) => r.fromId === row.id)),
+    }));
+  },
+
+  async getTimelineProjects(): Promise<Project[]> {
+    const db = getDb();
+
+    const rows = await db
+      .select({
+        id: contentItems.id,
+        slug: contentItems.slug,
+        title: contentItems.title,
+        status: contentItems.status,
+        publishedAt: contentItems.publishedAt,
+        updatedAt: contentItems.updatedAt,
+        question: contentItems.question,
+        problem: projectsTable.problem,
+        year: projectsTable.year,
+        projectStatus: projectsTable.projectStatus,
+        tags: projectsTable.tags,
+        featured: projectsTable.featured,
+        timelineOrder: projectsTable.timelineOrder,
+        repoUrl: projectsTable.repoUrl,
+        ...projectRichCols,
+      })
+      .from(contentItems)
+      .innerJoin(projectsTable, eq(contentItems.id, projectsTable.id))
+      .where(
+        and(
+          eq(contentItems.contentType, "project"),
+          eq(contentItems.status, "published"),
+          isNotNull(projectsTable.timelineOrder)
+        )
+      )
+      .orderBy(asc(projectsTable.timelineOrder));
+
+    if (rows.length === 0) return [];
+
+    const ids = rows.map((r) => r.id);
+
+    const [branches, rels] = await Promise.all([
+      db
+        .select()
+        .from(abandonedBranches)
+        .where(inArray(abandonedBranches.itemId, ids))
+        .orderBy(abandonedBranches.itemId, abandonedBranches.sortOrder),
+      db
+        .select()
+        .from(relationsTable)
+        .where(inArray(relationsTable.fromId, ids)),
+    ]);
+
+    return rows.map((row) => ({
+      type: "project" as const,
+      slug: row.slug,
+      title: row.title,
+      status: row.status as ContentStatus,
+      publishedAt: toIso(row.publishedAt),
+      updatedAt: toIso(row.updatedAt),
+      question: row.question,
+      problem: row.problem,
+      year: row.year,
+      projectStatus: row.projectStatus as "active" | "archived",
+      tags: row.tags ?? [],
+      featured: row.featured,
+      timelineOrder: row.timelineOrder,
       repoUrl: row.repoUrl ?? undefined,
       ...mapProjectRich(row),
       abandonedBranches: mapBranches(
@@ -284,6 +357,7 @@ export const dbContent: ContentService = {
         projectStatus: projectsTable.projectStatus,
         tags: projectsTable.tags,
         featured: projectsTable.featured,
+        timelineOrder: projectsTable.timelineOrder,
         repoUrl: projectsTable.repoUrl,
         ...projectRichCols,
       })
@@ -328,6 +402,7 @@ export const dbContent: ContentService = {
       projectStatus: row.projectStatus as "active" | "archived",
       tags: row.tags ?? [],
       featured: row.featured,
+      timelineOrder: row.timelineOrder,
       repoUrl: row.repoUrl ?? undefined,
       ...mapProjectRich(row),
       abandonedBranches: mapBranches(
@@ -354,6 +429,7 @@ export const dbContent: ContentService = {
         projectStatus: projectsTable.projectStatus,
         tags: projectsTable.tags,
         featured: projectsTable.featured,
+        timelineOrder: projectsTable.timelineOrder,
         repoUrl: projectsTable.repoUrl,
         ...projectRichCols,
       })
@@ -390,6 +466,7 @@ export const dbContent: ContentService = {
       projectStatus: row.projectStatus as "active" | "archived",
       tags: row.tags ?? [],
       featured: row.featured,
+      timelineOrder: row.timelineOrder,
       repoUrl: row.repoUrl ?? undefined,
       ...mapProjectRich(row),
       coverImage: mediaAssets.cover,

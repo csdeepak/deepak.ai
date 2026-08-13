@@ -107,6 +107,10 @@ export const projectsTable = pgTable("projects", {
     .default(sql`'{}'::text[]`),
   featured: boolean("featured").notNull().default(false),
   repoUrl: text("repo_url"),
+  // null = not on the landing Timeline; an integer = position on the
+  // zig-zag spine, ascending. Owner-assigned manually in admin (D-058
+  // Phase E) — dates aren't reliable enough yet to order by (see D-058).
+  timelineOrder: integer("timeline_order"),
 
   // ── Rich metadata (D-048) — all optional, all self-hiding ────────────────
   // Long-form "Decisions & trade-offs" body (markdown). Renders as the

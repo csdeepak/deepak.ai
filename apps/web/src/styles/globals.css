@@ -632,6 +632,132 @@
     }
   }
 
+  /* ── Project Timeline — zig-zag spine (D-058 Phase E) ───────────────────
+   * Mobile-first: single column, spine on the left. At md+, each node
+   * becomes a 2-col grid (card | card) and alternates which column it
+   * occupies via :nth-child, so the card always hugs the centered spine —
+   * no `display: contents`, <li> keeps a normal exposed box for AT.
+   * Motion is scroll-driven CSS only (animation-timeline: view()),
+   * mirroring the gallery cluster; final state is the base style, so
+   * reduced-motion and unsupported browsers both get it with no extra
+   * override needed. */
+  .timeline-list {
+    position: relative;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding: 0;
+    margin: 0;
+  }
+  .timeline-list::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0.3125rem;
+    width: 1px;
+    background: var(--border);
+  }
+  .timeline-node {
+    position: relative;
+    padding-left: 1.75rem;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: 0.3125rem;
+    top: 0.4rem;
+    translate: -50% 0;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    border: 1px solid var(--border-emphasis);
+  }
+  .timeline-card {
+    display: block;
+    max-width: 26rem;
+  }
+
+  @media (min-width: 48rem) {
+    .timeline-list {
+      gap: 3rem;
+    }
+    .timeline-list::before {
+      left: 50%;
+    }
+    .timeline-node {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-left: 0;
+    }
+    .timeline-dot {
+      left: 50%;
+    }
+    .timeline-card {
+      grid-column: 1;
+      justify-self: end;
+      text-align: right;
+      padding-right: 2.5rem;
+    }
+    .timeline-node:nth-child(even) .timeline-card {
+      grid-column: 2;
+      justify-self: start;
+      text-align: left;
+      padding-right: 0;
+      padding-left: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      @keyframes timeline-card-in {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 1rem, 0);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .timeline-card {
+        animation: timeline-card-in linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 45%;
+      }
+
+      @media (min-width: 48rem) {
+        @keyframes timeline-card-in-left {
+          from {
+            opacity: 0;
+            transform: translate3d(-1.25rem, 0, 0);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
+        }
+        @keyframes timeline-card-in-right {
+          from {
+            opacity: 0;
+            transform: translate3d(1.25rem, 0, 0);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
+        }
+        .timeline-card {
+          animation-name: timeline-card-in-left;
+        }
+        .timeline-node:nth-child(even) .timeline-card {
+          animation-name: timeline-card-in-right;
+        }
+      }
+    }
+  }
+
   /* Hero beat sub-line warm accent tint (D-052.1 §Accent use #2).
      Blends the Gemini accent gradient at 40% strength over dark-mode ink,
      yielding pastel warm hues that remain ≥ 4.5:1 against the dark stage.

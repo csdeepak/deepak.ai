@@ -29,6 +29,7 @@ export interface ProjectEditorData {
   year: number;
   projectStatus: "active" | "archived";
   featured: boolean;
+  timelineOrder: number | null;
   repoUrl: string | null;
   tags: string[];
   verified: boolean;
@@ -69,6 +70,9 @@ export function ProjectEditor({
   const [year, setYear] = useState(String(data.year));
   const [projectStatus, setProjectStatus] = useState(data.projectStatus);
   const [featured, setFeatured] = useState(data.featured);
+  const [timelineOrder, setTimelineOrder] = useState(
+    data.timelineOrder !== null ? String(data.timelineOrder) : "",
+  );
   const [verified, setVerified] = useState(data.verified);
   const [repoUrl, setRepoUrl] = useState(data.repoUrl ?? "");
   const [tags, setTags] = useState(data.tags.join(", "));
@@ -124,6 +128,7 @@ export function ProjectEditor({
           <input type="hidden" name="id" value={data.id} />
           <input type="hidden" name="abandonedBranches" value={JSON.stringify(branches)} />
           <input type="hidden" name="featured" value={String(featured)} />
+          <input type="hidden" name="timelineOrder" value={timelineOrder} />
           <input type="hidden" name="verified" value={String(verified)} />
           <input type="hidden" name="collaborators" value={JSON.stringify(cleanList(collaborators))} />
           <input type="hidden" name="outcomes" value={JSON.stringify(cleanList(outcomes))} />
@@ -345,6 +350,21 @@ export function ProjectEditor({
               onChange={(e) => setTags(e.target.value)}
               className={inputCls}
               placeholder="Python, PyTorch, systems"
+            />
+          </MetaField>
+
+          <MetaField
+            label="Timeline position"
+            hint="Blank = not on the landing Timeline. Lower numbers appear first."
+          >
+            <input
+              type="number"
+              inputMode="numeric"
+              name="timelineOrderDisplay"
+              value={timelineOrder}
+              onChange={(e) => setTimelineOrder(e.target.value)}
+              className={inputCls}
+              placeholder="e.g. 1"
             />
           </MetaField>
 

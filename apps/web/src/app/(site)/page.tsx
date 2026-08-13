@@ -4,10 +4,11 @@ import { Evidence } from "@/features/landing/sections/evidence";
 import { Collaborate } from "@/features/landing/sections/collaborate";
 import { FeaturedPosts } from "@/features/posts/featured-posts";
 import { RecentPosts } from "@/features/posts/recent-posts";
+import { ProjectTimeline } from "@/features/timeline/project-timeline";
 
 /**
  * Landing — the Landing Experience (D-052 Track 2, extended D-056/D-058
- * Phase D).
+ * Phase D/E).
  *
  *   1. Hero         — the 3D neural-face: face → dive → inner network
  *   2. Mission      — what he's building, why he's different
@@ -16,8 +17,12 @@ import { RecentPosts } from "@/features/posts/recent-posts";
  *   4. Posts        — horizontal carousel, newest first, "More posts" link
  *                      (self-hides entirely when empty — LAW-008,
  *                      docs/30 Phase D, carousel redesign)
- *   5. Evidence     — the domains of work + honest trust seeds
- *   6. Collaborate  — the quiet close
+ *   5. Timeline     — zig-zag project spine, owner-ordered (self-hides
+ *                      when no project has a timeline position — D-058
+ *                      Phase E). Mounted alongside Evidence, not replacing
+ *                      it — that deletion is still an open owner decision.
+ *   6. Evidence     — the domains of work + honest trust seeds
+ *   7. Collaborate  — the quiet close
  *
  * D-052 (supersedes D-050 Track 1): the Canvas2D hero is retired from `/`
  * (its renderer stays in the repo for poster generation + emergency
@@ -32,6 +37,7 @@ export default function LandingPage() {
       <Mission />
       <FeaturedPosts />
       <RecentPosts />
+      <ProjectTimeline />
       <Evidence />
       <Collaborate />
     </>

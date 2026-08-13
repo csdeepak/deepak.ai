@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "timeline_order" integer;

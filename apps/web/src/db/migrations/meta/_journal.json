@@ -64,6 +64,13 @@
       "when": 1786606731454,
       "tag": "0008_jazzy_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786617177870,
+      "tag": "0009_light_logan",
+      "breakpoints": true
     }
   ]
 }

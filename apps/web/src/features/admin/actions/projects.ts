@@ -187,6 +187,7 @@ export async function createProject(
     problem: "",
     tags: [],
     featured: false,
+    timelineOrder: null,
   });
 
   const snapshot = await buildSnapshot(db, item.id);
@@ -214,6 +215,8 @@ export async function saveProject(
   const year = parseInt(formData.get("year") as string, 10);
   const projectStatus = (formData.get("projectStatus") as string) === "active" ? "active" : "archived";
   const featured = formData.get("featured") === "true";
+  const timelineOrderRaw = (formData.get("timelineOrder") as string)?.trim();
+  const timelineOrder = timelineOrderRaw ? parseInt(timelineOrderRaw, 10) : null;
   const verified = formData.get("verified") === "true";
   const repoUrl = (formData.get("repoUrl") as string)?.trim() || null;
   const tags = ((formData.get("tags") as string) ?? "")
@@ -255,6 +258,7 @@ export async function saveProject(
 
     await tx.update(projectsTable).set({
       problem, year: isNaN(year) ? 0 : year, projectStatus, featured, repoUrl, tags,
+      timelineOrder: timelineOrder === null || isNaN(timelineOrder) ? null : timelineOrder,
       overview, startDate, endDate, context, role, collaborators,
       liveUrl, videoUrl, outcomes, skillsLearned,
     }).where(eq(projectsTable.id, id));
@@ -283,6 +287,7 @@ export async function saveProject(
   revalidatePath(`/admin/projects/${slug}`);
   revalidatePath("/projects");
   revalidatePath(`/projects/${slug}`);
+  revalidatePath("/");
 
   return { error: null };
 }
@@ -318,6 +323,7 @@ export async function publishProject(
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   revalidatePath("/projects");
   if (item) revalidatePath(`/projects/${item.slug}`);
+  revalidatePath("/");
 
   return { error: null };
 }
@@ -339,6 +345,7 @@ export async function unpublishProject(id: string): Promise<void> {
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   revalidatePath("/projects");
   if (item) revalidatePath(`/projects/${item.slug}`);
+  revalidatePath("/");
 }
 
 // ── Schedule ──────────────────────────────────────────────────────────────────
@@ -393,6 +400,7 @@ export async function archiveProject(id: string): Promise<void> {
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   revalidatePath("/projects");
   if (item) revalidatePath(`/projects/${item.slug}`);
+  revalidatePath("/");
 }
 
 // ── Restore version ───────────────────────────────────────────────────────────
@@ -438,6 +446,7 @@ export async function restoreVersion(
       year: (project.year as number) ?? 0,
       projectStatus: project.projectStatus ?? "archived",
       featured: project.featured ?? false,
+      timelineOrder: (project as unknown as { timelineOrder?: number | null }).timelineOrder ?? null,
       repoUrl: project.repoUrl ?? null,
       tags: (project.tags as string[]) ?? [],
       // Rich metadata (D-048)
@@ -487,4 +496,7 @@ export async function restoreVersion(
   await writeVersion(db, itemId, nextSnapshot, changedFields, "restore");
 
   if (current) revalidatePath(`/admin/projects/${current.slug}`);
+  revalidatePath("/projects");
+  if (current) revalidatePath(`/projects/${current.slug}`);
+  revalidatePath("/");
 }

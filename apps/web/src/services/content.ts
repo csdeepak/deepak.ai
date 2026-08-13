@@ -19,6 +19,10 @@ export interface ContentService {
   getFeaturedProjects(limit?: number): Promise<Project[]>;
   getProjects(): Promise<Project[]>;
   getProject(slug: string): Promise<Project | null>;
+  /** Published projects with a `timelineOrder`, ascending — the landing
+   * Timeline section (D-058 Phase E). Distinct from `getTimeline()` below,
+   * which is the unrelated career timeline_entries table. */
+  getTimelineProjects(): Promise<Project[]>;
 
   getPublications(): Promise<Publication[]>;
   getPublication(slug: string): Promise<Publication | null>;

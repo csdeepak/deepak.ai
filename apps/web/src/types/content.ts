@@ -86,6 +86,9 @@ export interface Project extends ContentBase {
   projectStatus: "active" | "archived";
   tags: string[];
   featured: boolean;
+  // null = not on the landing Timeline; an integer = position on the
+  // zig-zag spine, ascending, owner-assigned manually in admin.
+  timelineOrder: number | null;
   repoUrl?: string;
   /**
    * Abandoned branches — pruned reasoning, honestly kept (LAW-004).

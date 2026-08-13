@@ -18,6 +18,7 @@ export default async function ProjectsListPage() {
       title: contentItems.title,
       status: contentItems.status,
       featured: projectsTable.featured,
+      timelineOrder: projectsTable.timelineOrder,
       year: projectsTable.year,
       updatedAt: contentItems.updatedAt,
     })
@@ -47,6 +48,7 @@ export default async function ProjectsListPage() {
               <th className="pb-2 pr-4">Year</th>
               <th className="pb-2 pr-4">Status</th>
               <th className="pb-2 pr-4">Featured</th>
+              <th className="pb-2 pr-4">Timeline</th>
               <th className="pb-2">Last updated</th>
             </tr>
           </thead>
@@ -69,6 +71,9 @@ export default async function ProjectsListPage() {
                   <StatusBadge status={r.status as ContentStatus} />
                 </td>
                 <td className="py-3 pr-4 text-muted">{r.featured ? "★" : "—"}</td>
+                <td className="py-3 pr-4 text-muted">
+                  {r.timelineOrder !== null ? r.timelineOrder : "—"}
+                </td>
                 <td className="py-3 text-muted">
                   {new Date(r.updatedAt).toLocaleDateString()}
                 </td>
