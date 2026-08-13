@@ -308,11 +308,12 @@ export async function publishProject(
     status: "published",
     publishedAt: new Date(),
     scheduledFor: null,
+    question,
     updatedAt: new Date(),
   }).where(eq(contentItems.id, id));
 
   const snapshot = await buildSnapshot(db, id);
-  await writeVersion(db, id, snapshot, ["status", "publishedAt"], "publish");
+  await writeVersion(db, id, snapshot, ["status", "publishedAt", "question"], "publish");
 
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   revalidatePath("/projects");

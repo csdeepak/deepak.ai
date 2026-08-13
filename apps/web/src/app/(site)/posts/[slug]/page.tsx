@@ -12,9 +12,12 @@ import { renderMarkdown } from "@/lib/markdown";
  * /posts/[slug] — the Post detail (Detail archetype, docs/24 Part 10).
  * `bodyMarkdown` renders server-side only (docs/30 §5 — never ship a
  * markdown parser to the browser).
+ *
+ * dynamicParams is left at its default (true), unlike /projects/[slug] —
+ * a post published through admin must be reachable immediately, not only
+ * after the next deploy regenerates generateStaticParams. A slug not yet
+ * in the static list renders on demand and is cached from then on.
  */
-export const dynamicParams = false;
-
 type Params = { slug: string };
 
 export async function generateStaticParams() {

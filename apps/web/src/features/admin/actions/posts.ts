@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { eq, desc, ne, and } from "drizzle-orm";
 import { getDb } from "@/db/index";
 import { contentItems, postsTable, contentVersions, contentMedia } from "@/db/schema";
+import { ROUTES } from "@/constants/routes";
 
 export interface PostFormState {
   error: string | null;
@@ -199,6 +200,9 @@ export async function savePost(
 
   revalidatePath(`/admin/posts/${slug}`);
   revalidatePath("/admin/posts");
+  revalidatePath("/");
+  revalidatePath(ROUTES.posts);
+  revalidatePath(`${ROUTES.posts}/${slug}`);
 
   return { error: null };
 }
@@ -234,6 +238,9 @@ export async function publishPost(
   revalidatePath("/admin/posts");
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   if (item) revalidatePath(`/admin/posts/${item.slug}`);
+  revalidatePath("/");
+  revalidatePath(ROUTES.posts);
+  if (item) revalidatePath(`${ROUTES.posts}/${item.slug}`);
 
   return { error: null };
 }
@@ -255,6 +262,9 @@ export async function unpublishPost(id: string): Promise<void> {
   revalidatePath("/admin/posts");
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   if (item) revalidatePath(`/admin/posts/${item.slug}`);
+  revalidatePath("/");
+  revalidatePath(ROUTES.posts);
+  if (item) revalidatePath(`${ROUTES.posts}/${item.slug}`);
 }
 
 // ── Archive (soft delete) ──────────────────────────────────────────────────────
@@ -267,6 +277,9 @@ export async function archivePost(id: string): Promise<void> {
   revalidatePath("/admin/posts");
   const [item] = await db.select({ slug: contentItems.slug }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
   if (item) revalidatePath(`/admin/posts/${item.slug}`);
+  revalidatePath("/");
+  revalidatePath(ROUTES.posts);
+  if (item) revalidatePath(`${ROUTES.posts}/${item.slug}`);
 }
 
 // ── Restore version ───────────────────────────────────────────────────────────
@@ -335,4 +348,7 @@ export async function restorePostVersion(
   await writeVersion(db, itemId, nextSnapshot, changedFields, "restore");
 
   if (current) revalidatePath(`/admin/posts/${current.slug}`);
+  revalidatePath("/");
+  revalidatePath(ROUTES.posts);
+  if (current) revalidatePath(`${ROUTES.posts}/${current.slug}`);
 }
