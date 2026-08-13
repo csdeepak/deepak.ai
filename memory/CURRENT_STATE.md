@@ -2,27 +2,37 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-08-13 (D-058 Phase A + B live on Vercel)
+**Last updated:** 2026-08-13 (D-058 complete — V2 Phases A–G all live)
 
 ## Current Phase
 
 **DEPLOYED AND LIVE — Vercel + Neon + Cloudflare R2, not Render.**
 
-The Render-based plan below this line (D-057 era) is **superseded by reality**:
-the owner completed Cloudflare R2 + Neon Postgres setup and deployed to
-**Vercel** instead. `render.yaml` / `docs/DEPLOY_RUNBOOK.md` / this file's own
-older entries still describe Render — treat those as historical unless a
-future session reconciles them (tracked as V2 Phase G, not started).
+**V2 (D-058) is complete.** All seven phases shipped 2026-08-13:
 
-Two real Vercel deploy bugs were found and fixed this session (see D-058
-below): a doubled `outputDirectory` path (`apps/web/apps/web/.next`), and an
-unreachable-DB-at-build-time failure in `generateStaticParams`. Both fixed
-and confirmed via the actual failing build reproduced locally, not guessed.
+| Phase | What shipped |
+| --- | --- |
+| A | Hero renders on mobile (WebGL probe + point-density fixes) |
+| B | Guided rail walks projects chronologically, real skill vocabulary |
+| C | Posts data model + full admin CRUD (`/admin/posts`) |
+| D | Posts on the landing page + `/posts`, later rebuilt as LinkedIn-style carousels |
+| E | Timeline — zig-zag project spine, owner-ordered via `timelineOrder` |
+| F | Gallery — curated from media in `/admin/gallery`, and live |
+| G | Docs reconciliation (this pass) |
 
-**Full context for continuing this work:**
-[`memory/V2_LANDING_SESSION_HANDOFF_2026-08-13.md`](V2_LANDING_SESSION_HANDOFF_2026-08-13.md)
-is a self-contained pickup brief. [`docs/30-V2-LANDING-REDESIGN.md`](../docs/30-V2-LANDING-REDESIGN.md)
-is the full plan, phase-by-phase, with its own progress log (§7).
+Landing page order today: hero → Mission → Featured Posts → Posts → Timeline
+→ Gallery → Collaborate. **`Evidence` was removed** at the owner's request.
+Posts, Timeline and Gallery each self-hide when they have no content.
+
+**Deploy docs are now reconciled (Phase G).** `render.yaml` is deleted;
+[`docs/DEPLOY_RUNBOOK.md`](../docs/DEPLOY_RUNBOOK.md) is the current
+operational doc (deploys, migrations, env vars, incidents, rollback).
+`docs/10-DEPLOYMENT.md` and `docs/27` are kept as design history behind
+correction banners. `CHANGELOG.md`, `DECISIONS.md`, `AI_HANDOFF.md` and dated
+handoffs still mention Render **on purpose** — they are logs of what was true
+when written.
+
+Everything below this line predates V2 and is historical.
 
 ---
 

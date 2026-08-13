@@ -1,5 +1,13 @@
 # 27 — Admin CMS Architecture
 
+> **Host correction (2026-08-13, D-058 Phase G):** this document says "Render"
+> in a few places (one deployed service, env vars in the dashboard, a
+> `render.yaml` cron block). The site runs on **Vercel**, with **Neon**
+> Postgres; `render.yaml` was deleted. The architecture is unaffected — env
+> vars live in Vercel → Settings → Environment Variables instead of a Render
+> dashboard — but see §Scheduled publishing: **no cron is wired on Vercel**,
+> so scheduled publishing does not currently fire on its own.
+>
 > **Status:** Phase 1 ratified — D-047 (Option A: iron-session) and D-046
 > (collocation) accepted. Phase 2 implementation active.
 >

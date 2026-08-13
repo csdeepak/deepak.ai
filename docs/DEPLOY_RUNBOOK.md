@@ -1,166 +1,180 @@
-# Deploy Runbook - Deepak Labs First Production Deploy
+# Deploy Runbook — Deepak Labs
 
-> Owner-executed steps for the first Render deploy. Repo-side prep happens on
-> `codex/ai-development-process`; the owner controls merge, Render secrets,
-> deploy clicks, production migrations, and DNS.
+> Operational runbook for the **current** deploy. Rewritten 2026-08-13 (D-058
+> Phase G): this file previously described a first-time Render deploy that has
+> since been superseded — the site has run on Vercel + Neon + R2 for some time,
+> and the old runbook would have actively misled anyone reaching for it during
+> an incident.
 
 ## Current Deploy Shape
 
-- Host: Render Blueprint from `render.yaml`.
-- First public URL: `https://deepak-labs-web.onrender.com`.
-- Database: Render Postgres is provisioned with the first deploy.
-- First boot: `CONTENT_SOURCE=file`, so the public site builds before the new
-  production database has schema/content.
-- DB flip: after migrations + ingest, change `CONTENT_SOURCE=db` in Render and
-  redeploy.
-- R2 media: deferred until the owner finishes Cloudflare setup and smoke-tests
-  upload/read-back.
-- Gallery: deferred from v1; `/gallery` is dev-review only and 404s in
-  production until the owner writes alt text/captions and reviews it live.
+- **Host:** Vercel. Project `deepak-ai-web` (org `c-s-deepaks-projects`).
+- **Public URL:** `https://deepak-ai-web.vercel.app`.
+- **Config:** `vercel.json` at the repo root — `buildCommand:
+  npm run build --workspace=web`, `outputDirectory: .next`, `installCommand:
+  npm ci`, `framework: nextjs`. `outputDirectory` is relative to the project's
+  **Root Directory** setting (`apps/web`), which is why it is `.next` and not
+  `apps/web/.next`.
+- **Database:** Neon Postgres (serverless; can be cold). `CONTENT_SOURCE=db`.
+- **Media:** Cloudflare R2, public bucket. Keys are stored; public URLs are
+  derived at read time from `MEDIA_PUBLIC_BASE_URL` (D-049) — the bucket or CDN
+  can move with one env change and no data migration.
+- **Deploys:** automatic on push to `main`. There is no manual gate.
 
-## 1. Before Merge
+## 1. Routine Deploy
 
-Run the repo checks locally on `codex/ai-development-process`:
+Push to `main`. Vercel builds and promotes to production automatically.
+
+Before pushing, run the same gates CI runs:
 
 ```bash
 npm run typecheck
-cd apps/web
-npx cross-env CONTENT_SOURCE=file npm run build
-npm run check:bundle
-npm run check:dex
+```
+```bash
+CONTENT_SOURCE=file npm run build
+```
+```bash
+npm run check:bundle --workspace=web
+```
+```bash
+npm run check:dex --workspace=web
 ```
 
-Expected result: typecheck, build, bundle guard, and Dex matcher guard all pass
-with no build warnings. `/` First Load JS stays under the 170 kB D-052 ceiling.
+`/` First Load JS must stay under the 170 kB D-052 ceiling, and
+`check:bundle` also asserts three/gsap/lenis/sharp never reach `/`'s client
+bundle.
 
-## 2. PR and CI
+**Never run a production build while a dev server is running** — it corrupts
+`.next` and produces confusing stale-state failures. Check first:
 
-Push `codex/ai-development-process`, open a PR into `main`, and wait for CI.
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+```
 
-Expected result: GitHub Actions passes typecheck, build, public bundle guards,
-and `check:dex`. Do not proceed to Render while CI is red.
+Watch the deploy:
 
-## 3. Owner Secrets
+```bash
+vercel ls
+```
 
-Before creating or redeploying the Render service, generate:
+## 2. Database Migrations
+
+Migrations are **not** run by the build. Generate locally, apply deliberately.
+
+```bash
+npm run db:generate --workspace=web
+```
+```bash
+npm run db:migrate --workspace=web
+```
+
+`db:generate` needs a TTY when a change is ambiguous (e.g. an add + drop on the
+same table, which it asks you to disambiguate as rename-vs-recreate). In a
+non-interactive shell, split the change into two unambiguous migrations rather
+than fighting the prompt — see migrations `0007`/`0008`.
+
+Against production, pass the Neon connection string explicitly:
+
+```bash
+DATABASE_URL=<neon-connection-string> npm run db:migrate --workspace=web
+```
+
+Apply to local first, verify, then production. A schema change that reaches
+production before the code that reads it will break the public site — the DB
+service is used **unwrapped at runtime** (see §5).
+
+## 3. Environment Variables
+
+Set in Vercel → project → Settings → Environment Variables.
+
+| Variable | Notes |
+| --- | --- |
+| `DATABASE_URL` | Neon connection string. Sensitive. |
+| `CONTENT_SOURCE` | `db` in production. |
+| `SESSION_SECRET` | ≥32 random chars. `instrumentation.ts` refuses to boot on the dev fallback. |
+| `ADMIN_PASSWORD_HASH` | bcrypt hash. Paste **raw/unescaped**; `.env.local` is the only place `$` needs escaping. |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` | Media storage. |
+| `MEDIA_PUBLIC_BASE_URL` | Public origin for the R2 bucket. Public value, not a secret. |
+| `NEXT_PUBLIC_SITE_URL` | Drives `metadataBase`, sitemap, robots. |
+
+Regenerate the two auth values with:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+```
+```bash
 npm run admin:password --workspace=web
 ```
 
-Use the first value for `SESSION_SECRET`. Use the bcrypt hash printed by the
-script for `ADMIN_PASSWORD_HASH`.
+**Note for agents/scripts:** `vercel env pull` returns **masked placeholders**
+for variables marked Sensitive — an 11-character stub, not the real value. Code
+that reads a pulled `.env` and tries to connect will fail with a confusing
+`ENOTFOUND base`. Use the real connection string directly when you need one.
 
-Render value rule: paste bcrypt hashes raw/unescaped. `.env.local` is the only
-place where `$` must be escaped.
+## 4. Smoke Test
 
-## 4. Create the Render Blueprint
-
-1. Render dashboard -> New -> Blueprint.
-2. Select the `deepak.ai` repository.
-3. Render reads `render.yaml`.
-4. Confirm it plans:
-   - web service `deepak-labs-web`
-   - Postgres `deepak-labs-db`
-   - `CONTENT_SOURCE=file`
-   - `NEXT_PUBLIC_SITE_URL=https://deepak-labs-web.onrender.com`
-   - `autoDeploy: false`
-5. Enter `SESSION_SECRET` and `ADMIN_PASSWORD_HASH` when Render prompts.
-6. Apply/deploy.
-
-Expected result: the first build completes and the service boots on the Render
-subdomain. If auth env vars are missing, `instrumentation.ts` refuses to serve
-with a named startup error.
-
-## 5. Production DB Setup
-
-After the first service deploy is live, run migrations against the Render
-Postgres connection string from the owner machine:
-
-```bash
-DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web
-```
-
-Then seed the production DB from the file-backed source of truth:
-
-```bash
-DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web
-```
-
-Verify the DB has the expected tables, including:
-
-- `content_items`
-- `projects`
-- `dex_visitor_intake`
-- `dex_question_log`
-
-Expected result: migrations `0000` through `0004` are applied and the 18 project
-records exist in production Postgres.
-
-## 6. Flip to DB Mode
-
-In Render, change:
-
-```text
-CONTENT_SOURCE=db
-```
-
-Redeploy the service.
-
-Known limitation: landing hero/site copy still reads from
-`apps/web/content/site.ts`; admin settings writes to `site_settings`, but public
-hero copy does not consume that table yet. This is a known pre-existing gap,
-not a deploy blocker.
-
-## 7. Production Smoke Test
-
-Run these against `https://deepak-labs-web.onrender.com`:
+Against `https://deepak-ai-web.vercel.app`:
 
 | Check | Expected result |
 | --- | --- |
-| `/` | Hero and landing render; no Gallery strip; no console errors. |
-| `/projects` | Published projects render from DB after ingest. |
-| `/projects/asmos` | ASMOS project detail renders. |
-| `/memory` | ASMOS memory page renders real content. |
-| `/gallery` | 404s in production. |
+| `/` | Hero renders; Posts carousels, Timeline and Gallery strip each appear **only** if they have content, and self-hide cleanly otherwise. |
+| `/projects` · `/projects/asmos` | Published projects render from the DB. |
+| `/posts` · a post detail | Published posts render; a draft slug 404s. |
+| `/gallery` | Renders published photos, or an honest empty state. Never 404s. |
+| `/memory` | Real content renders. |
 | `/dev/hero` | 404s in production. |
-| `/sitemap.xml` | Lists only built public routes. |
-| `/robots.txt` | References the production sitemap and blocks `/admin`. |
-| `/admin/login` | Owner passphrase logs in and redirects to `/admin/overview`. |
-| `/admin/dex` | Dex analytics page renders without DB errors. |
-| Dex panel | Suggested question returns a cached answer; overlong/rate-limited errors degrade gracefully. |
-| Theme/reduced motion | Light/dark and reduced-motion paths stay readable. |
+| `/sitemap.xml` | Lists only routes in `BUILT_ROUTES`. |
+| `/robots.txt` | References the production sitemap, blocks `/admin`. |
+| `/admin/login` | Passphrase logs in and redirects to `/admin/overview`. |
+| `/admin/gallery` | Media picker lists images; adding one succeeds (this exercises the credentialed R2 read + sharp blur path). |
+| Dex panel | Suggested question returns a cached answer; overlong/rate-limited input degrades gracefully. |
+| Theme / reduced motion | Light/dark and reduced-motion paths stay readable. |
 
-Expected result: all smoke checks pass before sharing the URL externally.
+## 5. Incident: "The database isn't reachable"
 
-## 8. R2 Media Follow-Up
+The admin surfaces this directly. What it means:
 
-When Cloudflare R2 setup is complete, add these Render env vars and redeploy:
+- **The admin is down, the public site usually is not.** Public pages are
+  prerendered at build time, so visitors keep seeing the last good build.
+  Newly published content will not appear until the DB is reachable.
+- The build-time file fallback (`services/index.ts`) is **build-only and
+  deliberately narrow**. At runtime the DB service is unwrapped, so a real
+  outage surfaces as an error rather than silently serving stale content that
+  looks fine.
+- Check `DATABASE_URL` in Vercel, and that the Neon database is awake — Neon
+  can scale to zero and be briefly unreachable exactly when a deploy runs.
 
-- `R2_ACCOUNT_ID`
-- `R2_ACCESS_KEY_ID`
-- `R2_SECRET_ACCESS_KEY`
-- `R2_BUCKET`
-- `MEDIA_PUBLIC_BASE_URL`
+Read production logs with:
 
-Smoke-test Admin -> Media upload and public read-back before treating media as
-active. Do not make R2 a blocker for the first deploy unless the owner chooses.
+```bash
+vercel logs https://deepak-ai-web.vercel.app
+```
 
-## 9. Later Custom Domain
+Next.js hides server error detail in production builds; the real stack and the
+Postgres error (constraint name, failing row) are in these logs, not the
+browser.
 
-After the Render subdomain is healthy:
+## 6. Rollback
 
-1. Add the custom domain in Render.
-2. Create the DNS record Render provides.
+Vercel keeps every previous deployment. Promote a known-good one from the
+dashboard (Deployments → ⋯ → Promote to Production) rather than reverting and
+re-pushing, which is slower and rebuilds from scratch.
+
+A rollback does **not** roll back the database. If the bad deploy included a
+migration, decide explicitly whether the schema change is
+backward-compatible with the older code before promoting.
+
+## 7. Custom Domain
+
+1. Add the domain in Vercel → Settings → Domains.
+2. Create the DNS record Vercel provides.
 3. Wait for TLS.
-4. Change `NEXT_PUBLIC_SITE_URL` to the custom domain.
-5. Redeploy.
-6. Re-check OG tags, `/sitemap.xml`, and `/robots.txt`.
+4. Update `NEXT_PUBLIC_SITE_URL`, then redeploy.
+5. Re-check OG tags, `/sitemap.xml`, `/robots.txt`.
 
-## 10. Maintenance Notes
+## 8. Maintenance Notes
 
-Dex question logs are intentionally not joined to visitor identity. Until a
+Dex question logs are deliberately not joined to visitor identity. Until a
 retention job exists, prune manually if needed:
 
 ```sql
@@ -168,6 +182,6 @@ DELETE FROM dex_question_log
 WHERE created_at < now() - interval '180 days';
 ```
 
-Keep `autoDeploy: false` until the first production smoke test passes. Enable
-auto-deploy in a later commit only after the owner is comfortable with main
-deploying automatically.
+Scheduled publishing (`db:publish-scheduled`) has no cron wired on Vercel.
+Scheduled posts stay scheduled until something runs it — either add a Vercel
+Cron Job or run it manually. This is a known gap, not a bug.

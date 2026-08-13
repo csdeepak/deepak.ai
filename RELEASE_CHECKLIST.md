@@ -1,8 +1,16 @@
 # Release Checklist - First Production Deploy
 
-> Human gates and engineering checks before Deepak Labs goes live on Render.
-> The first deploy provisions Postgres, starts public reads in file mode, then
-> flips to DB mode after production migrations and ingest.
+> **Historical — this checklist is complete.** It records the gates for the
+> first production deploy, which has happened. The site is live on **Vercel +
+> Neon + Cloudflare R2**, not the Render setup the original text described
+> (corrected 2026-08-13, D-058 Phase G).
+>
+> **For ongoing deploys, migrations, incidents and rollback, use
+> [`docs/DEPLOY_RUNBOOK.md`](docs/DEPLOY_RUNBOOK.md)** — not this file.
+>
+> Kept because the Owner gates below (content fill, copy tests, visual
+> sign-off) are the reusable part, and because the engineering gates are still
+> the right pre-merge checks.
 
 ## Gate 1 - Content Fill (Owner)
 
@@ -29,34 +37,42 @@ Source: `specs/landing.md` section 6.5 and D-027.
 - [x] `draft: false` is set.
 - [x] `/memory` is allowed into the production smoke test.
 
-## Gate 4 - Gallery Deferred
+## Gate 4 - Gallery Deferred ~~(superseded 2026-08-13 — gallery is live)~~
 
-- [x] Gallery is deferred from v1 until owner alt text/captions/place copy and
-      live review are complete.
-- [x] Landing does not include `GalleryStrip`.
-- [x] Footer has no Gallery link.
-- [x] `/gallery` 404s in production and remains available in dev for review.
+This gate held for v1 and has since been lifted by D-058 Phase F. Photos are
+now curated in `/admin/gallery` from the media library, where alt text is a
+required field — which is what the deferral was waiting on. `/gallery` is
+reachable, `GalleryStrip` is mounted on the landing page, and the footer link
+is present. All three self-hide while there is nothing published.
 
-## Gate 5 - Production Environment
+- [x] ~~Gallery is deferred from v1~~ — lifted; alt text is enforced at the
+      point of entry instead of being a manual pre-launch pass.
+- [x] ~~Landing does not include `GalleryStrip`~~ — now mounted, self-hiding.
+- [x] ~~Footer has no Gallery link~~ — now present via `BUILT_ROUTES`.
+- [x] ~~`/gallery` 404s in production~~ — now renders, with an honest empty
+      state at zero published photos.
 
-- [ ] Owner generated and entered `SESSION_SECRET` in Render.
-- [ ] Owner generated and entered `ADMIN_PASSWORD_HASH` in Render using
-      `npm run admin:password --workspace=web`.
-- [ ] Render Blueprint provisions `deepak-labs-web` and `deepak-labs-db`.
-- [ ] First Render deploy starts with `CONTENT_SOURCE=file`.
-- [ ] `NEXT_PUBLIC_SITE_URL` is set to `https://deepak-labs-web.onrender.com`
-      until a custom domain is live.
-- [ ] Cloudflare R2 variables are deferred until the owner finishes object
-      storage setup and smoke-tests upload/read-back.
+## Gate 5 - Production Environment ✅ done (on Vercel, not Render)
 
-## Gate 6 - Production Database
+- [x] `SESSION_SECRET` and `ADMIN_PASSWORD_HASH` set in Vercel → Settings →
+      Environment Variables (`npm run admin:password --workspace=web` for the
+      hash; paste it raw/unescaped).
+- [x] Hosted on Vercel — project `deepak-ai-web`, config in `vercel.json`.
+      Database is **Neon** Postgres, not a host-provisioned one.
+- [x] `NEXT_PUBLIC_SITE_URL` set to the live URL
+      (`https://deepak-ai-web.vercel.app`) until a custom domain is live.
+- [x] Cloudflare R2 variables set and smoke-tested — media upload and public
+      read-back both work.
 
-- [ ] Run migrations against Render Postgres:
-      `DATABASE_URL=<Render connection string> npm run db:migrate --workspace=web`.
-- [ ] Run ingest:
-      `DATABASE_URL=<Render connection string> npm run db:ingest --workspace=web`.
-- [ ] Verify tables include `dex_visitor_intake` and `dex_question_log`.
-- [ ] Flip `CONTENT_SOURCE=db` in Render and redeploy.
+## Gate 6 - Production Database ✅ done (Neon)
+
+- [x] Migrations applied against Neon:
+      `DATABASE_URL=<neon-connection-string> npm run db:migrate --workspace=web`.
+- [x] Content ingested.
+- [x] Tables include `dex_visitor_intake` and `dex_question_log`.
+- [x] `CONTENT_SOURCE=db` set in Vercel.
+
+Ongoing migration practice now lives in `docs/DEPLOY_RUNBOOK.md` §2.
 
 ## Gate 7 - Visual / Spacing Sign-Off (Owner)
 
@@ -89,11 +105,13 @@ npm run check:dex
 
 After DB mode is enabled:
 
-- [ ] `/` renders; no gallery strip; no console errors.
+- [ ] `/` renders; no console errors. Posts, Timeline and Gallery sections
+      each appear only with content and self-hide otherwise.
 - [ ] `/projects` renders published projects from DB.
 - [ ] `/projects/asmos` renders.
+- [ ] `/posts` renders published posts; a draft slug 404s.
 - [ ] `/memory` renders ASMOS memory.
-- [ ] `/gallery` returns 404.
+- [ ] `/gallery` renders (published photos, or an honest empty state).
 - [ ] `/dev/hero` returns 404.
 - [ ] `/sitemap.xml` lists only built public routes.
 - [ ] `/robots.txt` references the production sitemap and blocks `/admin`.

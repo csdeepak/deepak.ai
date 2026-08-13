@@ -120,36 +120,36 @@ images**. Deleting media in use is blocked with an honest message.
 
 ## Deployment
 
-Hosting is a managed PaaS — **Render** (primary recommendation, pending
-owner ratification: D-041). The full plan, vendor comparison, environments,
-CI, caching, and rollback story live in
-[`docs/10-DEPLOYMENT.md`](docs/10-DEPLOYMENT.md). Infrastructure is declared
-as code in [`render.yaml`](render.yaml); CI (typecheck + build + a three.js
-First-Load guard) is [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+The site is live on **Vercel**, with **Neon** Postgres and **Cloudflare R2**
+for media. Deploys are automatic on push to `main`.
 
-**Before the first deploy**, clear every gate in
-[`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) (content fill, R4 copy tests,
-the real ASMOS memory, and look-dev sign-off).
+Operational detail — routine deploys, migrations, environment variables,
+incidents and rollback — lives in
+[`docs/DEPLOY_RUNBOOK.md`](docs/DEPLOY_RUNBOOK.md). Build config is
+[`vercel.json`](vercel.json); CI (typecheck + build + a three.js First-Load
+guard) is [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-**First deploy — the exact steps the owner runs (once the gates pass):**
+Run the same gates CI runs before pushing:
 
-1. Confirm CI is green on `main` (typecheck + build + three.js guard).
-2. In Render: **New → Blueprint**, select this repository. Render reads
-   `render.yaml` and shows the planned `deepak-labs-web` service — review it.
-3. **Apply / Deploy** — this manual click is the first production deploy
-   (nothing deploys on your behalf before this).
-4. Add the custom domain and DNS records per `docs/10-DEPLOYMENT.md` §2;
-   wait for TLS to be issued.
-5. Smoke-test production: `/` renders with the headline as LCP, nav/footer
-   have no dead links, `/memory` reconstructs, the theme toggle works, and
-   `/dev/hero` returns 404.
-6. Flip `autoDeploy: false → true` in `render.yaml` (and enable the CI
-   status check as a required branch-protection gate) to turn on
-   deploy-on-`main`.
+```bash
+npm run typecheck
+```
+```bash
+CONTENT_SOURCE=file npm run build
+```
+```bash
+npm run check:bundle --workspace=web
+```
 
-The database, background workers, and secrets are **not** part of this
-deploy — they are added to the same `render.yaml` when the database sprint
-(docs/09) lands, without changing hosts (docs/10 §7).
+`/` First Load JS must stay under the 170 kB D-052 ceiling, and the bundle
+guard also asserts three/gsap/lenis/sharp never reach `/`'s client bundle.
+
+> **Note on older deployment docs.** This project was originally planned for
+> Render (D-041), and `docs/10-DEPLOYMENT.md` still carries that vendor
+> comparison and the first-deploy narrative. It is kept as design history;
+> where it disagrees with the runbook about how this site is deployed today,
+> the runbook is right. The `render.yaml` Blueprint was deleted in D-058
+> Phase G.
 
 ## How to Approach This Project
 

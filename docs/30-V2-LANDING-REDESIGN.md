@@ -1,11 +1,20 @@
 # V2 — Landing Redesign & Deploy
 
-> **Status:** Planning ratified, implementation not started.
+> **Status: V2 complete.** Phases A–G all shipped 2026-08-13. See §7 for what
+> each one actually did — several diverged from the plan below, and the
+> divergences are the interesting part.
 > **Created:** 2026-08-12 · **Owner:** Deepak · **Supersedes:** nothing (extends D-052/D-054/D-056)
 >
-> This is the single reference for the V2 development process. Every phase below
-> is written to be picked up cold by a future session with no other context.
-> Read §1 and §2 before touching any code.
+> ⚠️ **§2 (Ground Truth) is now stale — it is a snapshot of 2026-08-12, before
+> any of this was built.** It still says the landing page has four beats, that
+> `postsTable` has no `featured` column, that `/admin/posts` is a stub, and
+> that gallery is disabled. All four were true then and are false now. The same
+> applies to the "Status today" column in §1. Read §7 (Progress Log) for the
+> current state; treat §2 as the historical baseline the work started from.
+>
+> This was the single reference for the V2 development process. Every phase
+> below was written to be picked up cold by a future session with no other
+> context.
 
 ---
 
@@ -456,13 +465,48 @@ it is a proven dependency here, not a new risk.
 The repo still documents a Render deploy (§2.6). Leaving it is exactly the kind
 of stale-doc trap that has already cost this project time.
 
-- [ ] `render.yaml` — delete, or mark clearly as superseded.
-- [ ] `docs/DEPLOY_RUNBOOK.md` / `docs/10-DEPLOYMENT.md` — rewrite for Vercel +
-      Neon + R2.
-- [ ] `RELEASE_CHECKLIST.md` Gate 5 — Vercel env vars, not Render.
-- [ ] `admin/error.tsx` production copy — says "Render dashboard".
-- [ ] `memory/FEATURE_STATUS.md` — correct the Projects/Posts/Timeline rows.
-- [ ] `memory/CURRENT_STATE.md` + `DECISIONS.md` — record V2 as D-058.
+**Scope was larger than this list.** A grep found **14** files carrying Render
+references, not the 6 below. They split cleanly into three kinds, and the
+distinction mattered more than the count:
+
+- **Live guidance that actively misleads** — fixed or deleted.
+- **Design history** (`docs/10`, `docs/27`, `docs/09`) — kept, with a
+  correction banner. Rewriting a vendor comparison to pretend the losing
+  vendor was never considered destroys the reasoning that makes the decision
+  legible later.
+- **Historical record** (`CHANGELOG.md`, `memory/DECISIONS.md`,
+  `memory/AI_HANDOFF.md`, dated handoffs) — **left alone**. These are logs of
+  what was true when written; editing them would be falsifying history, not
+  reconciling docs.
+
+- [x] `render.yaml` — **deleted.** Nothing referenced it (CI included), and a
+      valid-looking Blueprint pointing `DATABASE_URL` at a non-existent Render
+      Postgres is an active hazard, not just clutter. Git history retains it.
+- [x] `docs/DEPLOY_RUNBOOK.md` — **rewritten** as a current operational
+      runbook (routine deploy, migrations, env vars, incident, rollback).
+      The old one documented a first-deploy that had already happened, on a
+      dead host — the doc you'd reach for in an incident was the wrong one.
+- [x] `docs/10-DEPLOYMENT.md` — superseded banner, design content kept.
+- [x] `RELEASE_CHECKLIST.md` — marked historical/complete, Gates 4–6 corrected
+      (Gate 4's gallery deferral is lifted by Phase F), smoke test updated.
+- [x] `admin/error.tsx` — **two** errors, not one: it named the Render
+      dashboard, *and* claimed "the public site is unaffected — it reads
+      content from files." The file fallback is build-only; at runtime the DB
+      service is unwrapped. The public site survives an outage because its
+      pages are **prerendered**, which is a different fact with different
+      implications (new content won't appear until the DB is back).
+- [x] `README.md` — deploy section rewritten for Vercel/Neon/R2.
+- [x] `docs/09-DATABASE.md` — Render Postgres provisioning replaced with how
+      Neon actually landed, including why migrations are deliberately not run
+      by the build.
+- [x] `docs/27-ADMIN_CMS_ARCHITECTURE.md` — correction banner; flags that
+      **no cron is wired on Vercel**, so scheduled publishing does not fire.
+- [x] `memory/FEATURE_STATUS.md` — Projects/Posts/Timeline/Gallery/Landing
+      rows corrected; they had been sitting at "Planned — template only" while
+      live.
+- [x] `docs/30` (this file) — §2 and §1's status column marked stale; header
+      no longer claims implementation hasn't started.
+- [x] `memory/CURRENT_STATE.md` + `DECISIONS.md` — V2 recorded as D-058.
 
 ---
 

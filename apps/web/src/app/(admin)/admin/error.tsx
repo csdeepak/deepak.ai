@@ -56,13 +56,15 @@ export default function AdminError({
                 <code className="rounded bg-recessed px-1.5 py-0.5 font-mono text-micro text-ink">
                   DATABASE_URL
                 </code>{" "}
-                environment variable is set correctly for this service in the
-                Render dashboard.
+                environment variable is set correctly for this project in
+                Vercel (Settings → Environment Variables), and that the Neon
+                database is awake and reachable from it.
               </p>
 
               <p className="mt-5 text-micro text-faint">
-                The public site is unaffected — it reads content from files, so
-                only the admin needs the database.
+                The public site keeps serving: its pages were prerendered at
+                build time, so visitors see the last good build. Newly published
+                content won&apos;t appear until the database is reachable again.
               </p>
             </>
           ) : (

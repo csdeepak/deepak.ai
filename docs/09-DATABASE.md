@@ -828,17 +828,28 @@ statically rendered; the DB client (`drizzle-orm` + `pg`) runs server-only
 and is never in any route's client bundle. The three.js First Load JS guard
 (CI workflow) is unaffected.
 
-### Render deployment implications (D-041)
+### Deployment implications
 
-The `render.yaml` already has a commented Postgres stub. When the DB sprint
-ships:
-1. Uncomment the `databases:` block in `render.yaml`
-2. Add `DATABASE_URL` to Render's environment group
-3. Add a pre-deploy hook: `npm run db:migrate`
-4. Set `CONTENT_SOURCE=db` in the Render web service environment
+> **Corrected 2026-08-13 (D-058 Phase G).** This section originally described
+> provisioning Postgres through `render.yaml`. The site runs on **Vercel with
+> Neon Postgres**; `render.yaml` has been deleted. The shape of the work was
+> right, the vendor was not.
 
-No host migration. No runtime model change. This is the documented path in
-`docs/10` §7.
+How it actually landed:
+
+1. Postgres is **Neon**, provisioned independently of the host — not a
+   host-managed database wired in through an IaC block.
+2. `DATABASE_URL` and `CONTENT_SOURCE=db` are set in Vercel → Settings →
+   Environment Variables.
+3. **Migrations are not run by the build.** There is no pre-deploy hook;
+   `npm run db:migrate` is run deliberately against Neon from a trusted
+   machine. See `docs/DEPLOY_RUNBOOK.md` §2 for why, and for the ordering
+   rule when a migration and the code that reads it ship together.
+4. Because Neon can scale to zero, an unreachable database at *build* time
+   falls back to file content (`services/index.ts`) so a cold database cannot
+   fail a deploy. That fallback is build-only — at runtime the DB service is
+   unwrapped, so a real outage surfaces as an error instead of silently
+   serving stale content.
 
 ---
 

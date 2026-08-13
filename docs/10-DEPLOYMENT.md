@@ -1,7 +1,26 @@
 # 10 — Deployment
 
+> ## ⚠️ Superseded on the vendor question (2026-08-13, D-058 Phase G)
+>
+> **This document recommends Render. The site actually runs on Vercel + Neon
+> Postgres + Cloudflare R2, and has for some time.** Everything below that
+> names Render, `render.yaml`, a Render Blueprint, Render Postgres, or an
+> `onrender.com` URL describes a plan that was not the one executed.
+>
+> **For how this site is deployed and operated today, read
+> [`DEPLOY_RUNBOOK.md`](DEPLOY_RUNBOOK.md).** Where the two disagree, the
+> runbook is right.
+>
+> This file is kept deliberately: §1's vendor comparison, the environment
+> model, the caching/rollback reasoning and the constraints in §0 are real
+> design work that still explains *why* the shape is what it is. It is design
+> history, not operational instruction. `render.yaml` itself was deleted.
+>
+> ---
+>
 > **Status:** Approved draft — v1.0 of the deployment plan. Vendor
-> recommendation is **pending owner ratification** (D-041).
+> recommendation was **pending owner ratification** (D-041); the owner
+> subsequently deployed on Vercel instead.
 > **Owner:** Deepak · Authored in the role of Lead Engineer / Release Manager.
 > **Binding rule:** [`11-SYSTEM_ARCHITECTURE.md`](11-SYSTEM_ARCHITECTURE.md)
 > §0 delegates the *hosting vendor* selection to this document; D-012
