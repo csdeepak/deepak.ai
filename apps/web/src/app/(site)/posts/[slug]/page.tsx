@@ -8,6 +8,8 @@ import { Tag } from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
 import { contentService } from "@/services";
 import { renderMarkdown } from "@/lib/markdown";
+import { JsonLd } from "@/components/seo/json-ld";
+import { postJsonLd } from "@/lib/structured-data";
 
 /**
  * /posts/[slug] — the Post detail (Detail archetype, docs/24 Part 10).
@@ -50,6 +52,7 @@ export default async function PostDetailPage({
 
   return (
     <Section>
+      <JsonLd data={postJsonLd(post)} />
       <Container width="reading">
         {/* Cover image (self-hides when absent). */}
         {post.coverImage && (

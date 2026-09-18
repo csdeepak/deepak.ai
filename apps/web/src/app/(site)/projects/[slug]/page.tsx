@@ -14,8 +14,10 @@ import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Badge, Tag } from "@/components/ui/badge";
 import { DexContextChip } from "@/features/dex/dex-context-chip";
+import { JsonLd } from "@/components/seo/json-ld";
 import { ROUTES, isRouteBuilt } from "@/constants/routes";
 import { contentService } from "@/services";
+import { projectJsonLd } from "@/lib/structured-data";
 import type { ContentType, Project, Relation } from "@/types/content";
 
 /**
@@ -141,6 +143,7 @@ export default async function ProjectDetailPage({
 
   return (
     <Section>
+      <JsonLd data={projectJsonLd(project)} />
       <Container width="reading">
         {/* Cover image (self-hides when absent). */}
         {project.coverImage && (
