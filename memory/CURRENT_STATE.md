@@ -2,6 +2,37 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-09-19 (D-065 — Publications and Skills CRUD; every
+stubbed content type is now enterable)
+
+## D-065 — the last two stubs are gone (latest)
+
+D-063 named the blocker: three content types had schema, an admin stub, and no
+content. D-064 fixed timeline; D-065 fixes publications and skills.
+
+`/admin/publications` was 21 lines reading "ships in the next sprint";
+`/admin/skills` was 13. For a site whose thesis is the researcher-engineer dual
+identity, the research half could not be entered at all.
+
+**Public result:** `/publications` ships (visible while empty, per
+`docs/SESSION_START` section 6), the Research nav lane finally points somewhere,
+and `/skills` merges owner enrichment on top of the derived taxonomy. **Nav is
+now five lanes**: Work, Skills, Posts, Research, About.
+
+Full reasoning: `DECISIONS.md` -> `D-065`.
+
+**Owner action:** create one row of each type end to end. The admin editors'
+rendering is unverified for all four content types — the auth middleware
+correctly blocks an AI from logging in, so only queries and compilation were
+exercised.
+
+- **Gates:** typecheck clean, build exit 0, `/` 157.5 kB <= 170 kB,
+  `check:dex` 34/34, `check:typography` 22/22, `check:dex-v2` 48/52 — the four
+  failures all `provider_error` in the live Gemini battery (it ran 52/52 earlier
+  the same day; nothing on this branch touches the Dex path).
+
+---
+
 **Last updated:** 2026-09-19 (D-064 — Timeline CRUD, closing the stub that
 blocked a whole content type)
 

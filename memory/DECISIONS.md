@@ -889,3 +889,40 @@ typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings · `/` Fi
 - **Verification:** typecheck clean · `CONTENT_SOURCE=file` build exit 0 · `/` First Load 157.5 kB ≤ 170 kB · `/timeline` 111 kB static, three admin routes dynamic · `check:dex` 34/34 · `check:typography` 22/22 · `check:dex-v2` **52/52 including the live Gemini battery**, which passed this run — the free tier has recovered from the `503`s that blocked verification earlier in the session. In-browser: `/timeline` renders its empty state honestly, nav correctly excludes Experience, footer and sitemap include it.
 - **Not verified:** the admin editor's rendering. The auth middleware correctly blocks an AI from logging in, so only its queries and compilation were exercised — the same honest limit D-054 recorded for `/admin/dex`. The owner should create one entry end to end before trusting it.
 - **Still stubs, deliberately:** `/admin/publications` (21 lines) and `/admin/skills` (13 lines). Same pattern, same fix, lower value until there is content to enter.
+
+---
+
+## D-065 — Publications and Skills CRUD: the last two stubs
+
+- **Date:** 2026-09-19.
+- **Status:** Implemented, gate-green. Stacked on D-064.
+- **Context:** D-063 identified that three content types were dead ends — schema, an admin stub, no content — and named the admin as the real blocker. D-064 fixed timeline. This fixes the remaining two. `/admin/publications` was 21 lines reading "ships in the next sprint"; `/admin/skills` was 13. Both schemas had existed since D-043.
+- **Why publications mattered most:** `docs/01` states the product's thesis as the researcher–engineer dual identity. The engineering half had `/projects`; the research half had no way to enter a single row. The site could not express half of its own premise.
+
+### Decision — parallel implementations, shared chrome
+
+Fourth implementation of the same lifecycle (posts → timeline → publications → skills), kept deliberately parallel rather than abstracted into one content engine. The shapes diverge enough — array fields, status enums, date overrides, a boolean current/previously split — that a shared abstraction would cost more in indirection than it saves, and **version history behaving identically across types matters more than DRY**.
+
+What *is* shared, because four copies would be four places to fix the same bug: `ContentPublishBar` (parameterised by action set), `AdminField`, `NewContentForm`. `PostPublishBar` and `TimelinePublishBar` are deliberately **not** migrated — rewriting working, shipped editors is a separate change with its own risk, and bundling a refactor inside a feature PR is how both become hard to review.
+
+### Decision — skills enrichment ADDS, never replaces
+
+`/skills` (D-063) works from the owner's hand-authored taxonomy plus project tags, and needs no database. DB rows merge in **by name**: a row upgrades a taxonomy entry with context/category/current, a taxonomy-only skill is untouched, a DB-only skill is appended.
+
+Making the database authoritative was the obvious design and the wrong one — it would have blanked a working page until 22 items were re-entered by hand, trading a live surface for an empty one on the theory that it would be filled later.
+
+### Decision — `/publications` ships visible while empty; `/timeline` does not
+
+Opposite calls one commit apart, and the difference is the point. `docs/SESSION_START` §6 is explicit that an empty publications shelf should be "visibly, unashamedly empty" rather than hidden. On a student portfolio an absent publication list reads as a **stage**; an absent career history reads as a **gap**. So the research shelf ships visible and honest, and the Research nav lane — listed and self-hiding since the beginning for want of a page — finally points somewhere. `/timeline` stays out of the nav until it has rows.
+
+### Service-layer change
+
+`getSkills()` added to `ContentService`, both implementations and the normalize wrapper. `getCurrentSkills()` narrows to `current: true`, which is right for "currently working with" surfaces and wrong for a full listing. The db implementation parameterises the existing query rather than duplicating it.
+
+### Verification
+
+typecheck clean · `CONTENT_SOURCE=file` build exit 0 · `/` First Load 157.5 kB ≤ 170 kB · `/publications` 111 kB, `/skills` 115 kB, `/timeline` 111 kB, all static; six admin routes dynamic · `check:dex` 34/34 · `check:typography` 22/22. Server-rendered checks confirm all four public pages render with honest empty states where there is no data, and the nav is now five lanes.
+
+**`check:dex-v2` 48/52** — the four failures are all `provider_error` in the LIVE battery (Gemini free-tier flakiness; it ran 52/52 earlier the same day). Offline and infra sections pass, and one side of each failing pair returned `generated` correctly. Nothing on this branch touches the Dex path. CI has no key, so LIVE skips there.
+
+**Not verified:** the admin editors' rendering, for any of the four content types. The auth middleware correctly blocks an AI from logging in, so only queries and compilation were exercised — the same honest limit D-054 recorded for `/admin/dex`. The owner should create one row of each type end to end before trusting them.
