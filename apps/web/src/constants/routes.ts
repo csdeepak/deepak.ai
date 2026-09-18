@@ -38,6 +38,21 @@ export const NAV_LANES = [
 ] as const;
 
 /**
+ * `/timeline` is deliberately NOT a nav lane yet, even though D-064 built it
+ * and registered it below.
+ *
+ * BUILT_ROUTES is a build-time constant, so a lane cannot appear only when the
+ * table has rows — and there are no published entries yet, because the admin
+ * CRUD to create them did not exist until D-064. A nav lane that sends a
+ * recruiter to an honest empty shelf is worse than no lane: LAW-008 permits
+ * the empty shelf, it does not ask us to advertise it.
+ *
+ * It is reachable from the footer, the sitemap, and the Experience section on
+ * /about, all of which self-hide or degrade gracefully when empty. Promoting
+ * it to a lane is a one-line change once there is something to show.
+ */
+
+/**
  * Built-route registry — the single source of truth for graceful absence
  * in global navigation (nav + footer). A route appears in the nav/footer
  * only once its page actually exists; every other lane and footer link
@@ -58,6 +73,7 @@ export const BUILT_ROUTES: ReadonlySet<string> = new Set<string>([
   ROUTES.skills, // D-063 — the owner's real taxonomy, finally rendered
   ROUTES.posts, // D-058 Phase D
   ROUTES.about, // D-063 — the page an evaluator looks for by name
+  ROUTES.timeline, // D-064 — the career record, now that admin CRUD exists
   ROUTES.gallery, // D-058 Phase F
   // D-063 — /memory is IMMERSIVE, not a lane: it renders outside the (site)
   // chrome group. Listing it here gets it into the footer and the sitemap;
