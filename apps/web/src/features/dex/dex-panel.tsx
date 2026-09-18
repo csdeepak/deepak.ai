@@ -63,6 +63,8 @@ const AUDIENCE_LABEL: Record<DexAudience, string> = {
 export function DexPanel() {
   const open = useUiStore((s) => s.dexOpen);
   const closeOverlays = useUiStore((s) => s.closeOverlays);
+  const dexSeedQuestion = useUiStore((s) => s.dexSeedQuestion);
+  const consumeDexSeed = useUiStore((s) => s.consumeDexSeed);
   const [suggested, setSuggested] = useState<DexSuggestedQuestion[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [query, setQuery] = useState("");
@@ -178,6 +180,20 @@ export function DexPanel() {
       window.clearTimeout(focus);
     };
   }, [open]);
+
+  /**
+   * A context chip opened the panel with a question in hand — put it in the
+   * input and clear the seed so it can't resurface on a later, unrelated
+   * open. Deliberately not auto-submitted: see `openDex` in the UI store.
+   *
+   * Runs only while `open`, because the seed is set in the same update that
+   * opens the panel and would otherwise be consumed before the panel mounts.
+   */
+  useEffect(() => {
+    if (!open || !dexSeedQuestion) return;
+    setQuery(dexSeedQuestion);
+    consumeDexSeed();
+  }, [open, dexSeedQuestion, consumeDexSeed]);
 
   // Ordered [label, questions] pairs. When the visitor told us who they are,
   // their own audience leads — presentation order only, nothing is hidden.

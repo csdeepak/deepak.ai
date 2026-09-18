@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { NAV_LANES, isRouteBuilt } from "@/constants/routes";
+import { DexNavTrigger } from "@/features/dex/dex-nav-trigger";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
@@ -53,10 +54,10 @@ export function NavShell() {
         >
           {siteConfig.name}
         </Link>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3 sm:gap-6">
           {lanes.length > 0 && (
             <nav aria-label="Primary">
-              <ul className="flex items-center gap-8 text-micro">
+              <ul className="flex items-center gap-2 text-micro sm:gap-4">
                 {lanes.map((lane) => {
                   const active =
                     pathname === lane.href ||
@@ -66,8 +67,11 @@ export function NavShell() {
                       <Link
                         href={lane.href}
                         aria-current={active ? "page" : undefined}
+                        // px-2 py-3 turns a 16px-tall text link into a ~40px
+                        // touch target inside the 64px bar. The gap shrinks to
+                        // compensate, so the lanes sit where they always did.
                         className={cn(
-                          "transition-colors duration-(--duration-hover)",
+                          "inline-flex items-center px-2 py-3 transition-colors duration-(--duration-hover)",
                           active
                             ? "gradient-underline text-ink"
                             : "text-muted hover:text-ink",
@@ -81,6 +85,9 @@ export function NavShell() {
               </ul>
             </nav>
           )}
+          {/* The one persistent door into Dex — on every public page, not
+              just the hero (see DexNavTrigger for the full reasoning). */}
+          <DexNavTrigger />
           <ThemeToggle />
         </div>
       </Container>
