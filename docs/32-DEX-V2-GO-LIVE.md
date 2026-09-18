@@ -136,8 +136,10 @@ Confirm these, in your own browser, on the live site:
       making something up?
 - [ ] Try asking it to do something unrelated ("write me a poem") — does it
       decline?
-- [ ] `/admin/dex` (log in first) — do you see `generated` as an answer kind
-      in the list, alongside the older kinds?
+- [ ] `/admin/dex` (log in first) → **Questions CSV** — the `Outcome` column
+      should now contain `generated` rows alongside the older kinds. The page
+      itself shows totals and gaps, not a per-question outcome, so the CSV is
+      where you actually confirm this.
 
 If all four hold up, Dex v2 is live and working as designed.
 
@@ -171,6 +173,12 @@ the code actually emits:
 - Every log line the module emits is `Dex`-prefixed, so the Step 3 filter
   works.
 - `generated` is a real `DexAnswerKind` (`src/lib/dex/types.ts`).
+
+**Corrected 2026-08-17.** Step 5's `/admin/dex` line originally said the page
+lists `generated` as an answer kind. It does not — the page renders totals,
+gaps and refusals, and no view shows a per-question outcome. `answerKind` is
+carried by the Questions CSV export (`Outcome` column), so that is what the
+step now points at.
 
 **One bug was found and fixed while verifying this file:** `getDexStats()`
 counted only `('cached','knowledge')` as answered, so a `generated` reply

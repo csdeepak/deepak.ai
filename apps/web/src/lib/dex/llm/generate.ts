@@ -58,6 +58,19 @@ const ALLOWED_LINK_HOSTS = [
   "deepak.ai",
 ];
 
+/**
+ * Exact host, or a genuine subdomain of one — never a bare suffix test. A
+ * plain `endsWith("linkedin.com")` also accepts `fake-linkedin.com`, which is
+ * exactly the lookalike a deny-by-default filter exists to catch: the domain
+ * a fabricated "his profile is here" link would most plausibly wear.
+ */
+function isAllowedLinkHost(host: string): boolean {
+  const bare = host.replace(/:\d+$/, "");
+  return ALLOWED_LINK_HOSTS.some(
+    (allowed) => bare === allowed || bare.endsWith(`.${allowed}`),
+  );
+}
+
 interface RawModelAnswer {
   scope?: unknown;
   answer?: unknown;
@@ -109,7 +122,7 @@ function scrubFabrications(value: string): string {
 
   out = out.replace(/https?:\/\/\S+/gi, (match) => {
     const host = match.replace(/^https?:\/\//i, "").split(/[/?#]/)[0]?.toLowerCase() ?? "";
-    return ALLOWED_LINK_HOSTS.some((allowed) => host.endsWith(allowed)) ? match : "";
+    return isAllowedLinkHost(host) ? match : "";
   });
 
   return out
@@ -149,6 +162,14 @@ export async function generateDexAnswer(
 ): Promise<DexGenerationOutcome> {
   const config = getDexLlmConfig();
   if (!config) return { answer: null, reason: "disabled" };
+
+  // Before any gate below, because none of them can change the outcome. An
+  // empty question is unanswerable whatever the guards say, and reaching the
+  // same conclusion inside `generateGroundedAnswer` costs an IP rate-limit
+  // slot, a Turnstile round trip, and — the one that actually hurts — a unit
+  // of the *shared* daily budget, spent on a request that was never going to
+  // produce an answer for anyone.
+  if (!question.trim()) return { answer: null, reason: "empty_question" };
 
   const ipCheck = await checkIpRateLimit(ip);
   if (!ipCheck.allowed) return { answer: null, reason: ipCheck.reason ?? "ip_rate_limited" };

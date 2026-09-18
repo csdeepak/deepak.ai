@@ -32,7 +32,8 @@ export default async function DexAdminPage() {
         <div>
           <h1 className="text-h3 font-semibold text-ink">Dex</h1>
           <p className="mt-1 text-small text-muted">
-            Cached recall assistant — file-backed knowledge, zero public model calls.
+            Grounded generation over file-backed knowledge (v2), with cached recall
+            as the fallback. Per-question outcomes are in the Questions CSV.
           </p>
         </div>
         <div className="flex gap-2">
