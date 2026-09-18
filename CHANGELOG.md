@@ -9,6 +9,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **`/skills` (D-063)** — the owner's real 22-item skill taxonomy, which until now lived in a build script and was rendered only as dots in the 3D hero. Skills evidenced by shipped work link to the projects that prove them; self-reported skills sit in separate labelled groups.
+- **`/about` (D-063)** — the page an evaluator looks for by name. "The record" counts are computed from published content at build time, never hand-written.
+- **`content/skills.ts`** — one source of truth for the taxonomy, imported by both the hero pipeline and the page so they cannot drift.
+
+### Fixed
+- **`/memory` was a blank screen.** 724 lines implementing the project's north-star concept shipped broken: `AnimatePresence mode="wait"` completed its exit animation but never removed the exiting child, so the reconstruction never mounted. Only `mode="wait"` in the codebase, which is why nothing else showed symptoms.
+- **The hero's "Read the memory" CTA went to `/projects/asmos`.** Now "Enter the memory", pointing at `/memory`.
+
+### Changed
+- **Nav: two lanes → four** (Work | Skills | Posts | About). `/memory` and `/gallery` were live but effectively invisible — `/memory` was in no registry at all, reachable only by typing the URL. Both now reach the footer and the sitemap.
+
+
+### Added
 - **Dex is reachable from every public page (D-061).** `DexNavTrigger` (the presence dot, per `docs/14`) in the nav; `DexContextChip` ("Ask Dex about <project>") on project detail pages, the entry point `docs/12` specified and nobody built; ⌘K/Ctrl+K opens Dex. Previously `DexTrigger` appeared exactly once, in the hero CTA row, and that copy fades out one viewport in.
 - **"Selected work" on the landing page** — real project cards, featured-first, between Mission and the posts. The landing had shown zero project cards; the only project presence was six bare titles in the Timeline.
 - **Prev/next project navigation and an "All projects" return** at the end of each project detail page, plus a primary Source-code/Live-demo action row beside the title.

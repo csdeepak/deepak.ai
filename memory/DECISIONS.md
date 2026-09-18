@@ -828,3 +828,48 @@ Still open, and cannot be closed by any automated check: whether the Turnstile w
 - **Verification:** typecheck clean; `CONTENT_SOURCE=file` build exit 0, no new warnings (the two `<img>` warnings are pre-existing, in `admin/components/GalleryManager.tsx`); `check:bundle` green at **157.2 kB ≤ 170 kB** with three/gsap/lenis/sharp still absent from `/`; `check:dex` 34/34; `check:typography` **22/22**, proven to fail 6/12 when the normalizer is reverted and to fail again when a fixture codepoint was wrong (it caught an error in its own test data before that data could certify a bug). In-browser against a local build: nav trigger opens Dex, Esc closes, Ctrl+K opens, chip seeds `"Tell me about ShortcutScore"` without submitting, all six project cards clamp to 3 lines and render their tags, `/projects/shortcutscore` went from 2 links in `<main>` to 6, sitemap 4 → 10 URLs, sub-24px tap targets went from many to one (the `sr-only` skip link).
 - **`check:dex-v2` is NOT green and that is not from this work:** 22/22 offline and structural checks pass, including both fabrication-scrub checks; 3 live-battery cases failed with Gemini `503` and timeouts. `src/lib/dex/` never imports `contentService`, so the normalization layer cannot reach that path. This is free-tier availability on the day.
 - **Needs owner eyes, and cannot be settled from a build environment:** whether the 320vh hero still *feels* right, given the prologue is now a third shorter. The flight itself is arithmetically untouched, but "feels right" is not a measurement — `REGION_VH` is one constant to revert.
+
+---
+
+## D-063 — Reachability: the site served five pages and offered a two-lane nav
+
+- **Date:** 2026-09-19.
+- **Status:** Implemented, gate-green.
+- **Context:** The owner pushed back on D-061/D-062 — the changes were real but "more features unnoticed". They were right, and a full re-audit found the problem was a category larger than presentation: **substantial, finished work was unreachable, and one piece of it was silently broken.**
+- **The audit, measured against production:** `curl` over every specified route returned 200 for exactly five — `/`, `/memory`, `/gallery`, `/posts`, `/projects` — while the nav offered two lanes. `/about`, `/timeline`, `/skills`, `/contact`, `/research`, `/publications`, `/search` all 404.
+
+### Finding 1 — `/memory` was broken, not just hidden
+
+724 lines implementing `docs/26`'s Living Memory — the project's declared north-star metaphor — shipped and left a blank screen.
+
+Clicking a memory flipped `phase` to `"recall"` correctly (the header's Ask Dex / Exit buttons appeared at t+0.6s and stayed), but the exiting map was animated to `opacity: 0` and **never removed from the DOM**. `<main>` kept the map node forever and no `stage-*` element ever rendered. Under `motion` 11.18.2 with React 19, `AnimatePresence` completed the exit animation without completing the removal, and `mode="wait"` makes the entrance wait on exactly that removal. It is the only `mode="wait"` in the codebase, which is why nothing else showed symptoms.
+
+**Why dropping `mode="wait"` alone would not have fixed it:** the stale node still occupies `min-h-[calc(100svh-3.5rem)]`, so the reconstruction would have mounted a full viewport below the fold — the same blank screen, differently caused. The fix is a plain keyed conditional; only a 0.4s exit fade is lost, on a view being replaced anyway.
+
+**Correction to an earlier claim in this session:** black screenshots on `/memory` were dismissed as the browser pane's compositing artifact. They were the bug. `prefers-reduced-motion` was `false` and the map was genuinely at `opacity: 0` with nothing behind it.
+
+### Finding 2 — the skill taxonomy existed only as scene decoration
+
+The owner authored a real 22-item skill vocabulary in D-058 Phase B. Its only consumer was `scripts/enrich-hero-network.ts`, where each skill became a glowing dot in the 3D graph. A recruiter — the audience `docs/01` ranks first — could not read a skills list anywhere on the site, because no page rendered one.
+
+- **Decision — move the taxonomy to `content/skills.ts`,** imported by both the hero script and the new page, so the graph and the page cannot drift apart and claim different things.
+- **Decision — group by how each skill is *claimed*, and never blur the two.** Skills evidenced by shipped work are listed with the projects that prove them, each a link (LAW-006, literally). Self-reported skills sit in separate labelled groups with no implied project backing. The entire value of a skills list on a portfolio is whether a reader can check it; a page that mixes audited and self-reported claims destroys that.
+- The existing code comment already reasoned this out — LAW-008 forbids *inventing* claims, not a person's own first-person self-report — so the page encodes a distinction the repo had already made and then never surfaced.
+
+### Finding 3 — no About page, and a link that lied
+
+- `/about` did not exist. Built from content already in `site.ts`, with "The record" counted from published content at build time rather than hand-written, so the numbers cannot drift or be inflated. A zero count drops its tile rather than rendering "0 posts".
+- The `currentFocus` block self-hides past the 30-day freshness rule (specs/landing.md R5). **It is hidden right now** — the focus line is dated 2026-07-11.
+- The hero's third CTA read **"Read the memory"** and linked to `/projects/asmos`. The label was always right; the destination was not, because `/memory` was broken and unlinked. Now "Enter the memory", pointing at `/memory`.
+
+### Decision — `/memory` joins `BUILT_ROUTES` but not the nav
+
+It renders outside the `(site)` chrome group, it is immersive rather than a lane, and the five-lane cap (D-021) is real. Registry membership gets it into the footer and the sitemap automatically; the hero is its doorway. Before this it was in no registry at all.
+
+### Deliberately NOT built
+
+`/timeline`, `/publications`, `/contact`. All three have full DB schema, 13–21 line admin **stubs**, and zero content. Building public pages for them would produce three empty states and the *appearance* of progress — the owner cannot even create the data, because the admin CRUD does not exist. The honest blocker is admin, not the public page, and that is recorded in `KNOWN_LIMITATIONS.md` rather than papered over.
+
+### Verification
+
+typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings · `/` First Load 157.5 kB ≤ 170 kB · `/about` 115 kB, `/skills` 115 kB, both static · `check:dex` 34/34 · `check:typography` 22/22. In-browser: nav went Work|Posts → Work|Skills|Posts|About, footer gained Memory and Gallery, `/skills` renders three groups with working evidence links, `/about` shows real counts (6 published, 2 active), and `/memory` completes its full flow — reconstruction, 90-second brief, Dex recall.
