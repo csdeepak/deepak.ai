@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **Timeline/experience CRUD (D-064)** — `/admin/timeline` was a 13-line stub, so work experience could not be recorded at all. Full editor with version history, mirroring the Posts pattern. Publishing is gated on LAW-003 like every other content type.
+- **`/timeline`** — the public career record, plus a short Experience list on `/about`. Both self-hide when nothing is published; `/timeline` is registered in the footer and sitemap but deliberately not a nav lane until it has content.
+
+
+### Added
 - **`/skills` (D-063)** — the owner's real 22-item skill taxonomy, which until now lived in a build script and was rendered only as dots in the 3D hero. Skills evidenced by shipped work link to the projects that prove them; self-reported skills sit in separate labelled groups.
 - **`/about` (D-063)** — the page an evaluator looks for by name. "The record" counts are computed from published content at build time, never hand-written.
 - **`content/skills.ts`** — one source of truth for the taxonomy, imported by both the hero pipeline and the page so they cannot drift.
