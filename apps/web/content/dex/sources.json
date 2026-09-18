@@ -80,5 +80,35 @@
     "label": "Owner background and values, 2026-08-04",
     "kind": "interview",
     "note": "First-person owner notes on education, the full project list, personal motivation, learning philosophy, and the people who shaped his direction. Family details, date of birth, and home address in the source notes are deliberately excluded from public memory."
+  },
+  {
+    "id": "project-handcode",
+    "label": "HandCode — Effect-Safety Control Plane for LLM Agents",
+    "kind": "project",
+    "href": "/projects/handcode"
+  },
+  {
+    "id": "project-warden",
+    "label": "Warden — Trust Layer for Agentic Payments",
+    "kind": "project",
+    "href": "/projects/warden"
+  },
+  {
+    "id": "project-linkedin-writer",
+    "label": "LinkedIn Writer — Source-to-Post Pipeline",
+    "kind": "project",
+    "href": "/projects/linkedin-writer"
+  },
+  {
+    "id": "publication-dental-survey",
+    "label": "Deep Learning for Panoramic Dental Radiographs (survey)",
+    "kind": "site",
+    "href": "/publications"
+  },
+  {
+    "id": "github-audit-2026-09",
+    "label": "GitHub repository audit, September 2026",
+    "kind": "intake",
+    "note": "Direct read of all 22 repositories on github.com/csdeepak, including README metrics, CITATION metadata and CI configuration."
   }
 ]
