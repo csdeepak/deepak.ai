@@ -851,7 +851,18 @@ export const dbContent: ContentService = {
 
   // ── Skills ────────────────────────────────────────────────────────────────
 
+  async getSkills(): Promise<Skill[]> {
+    return selectSkills(false);
+  },
+
   async getCurrentSkills(): Promise<Skill[]> {
+    return selectSkills(true);
+  },
+};
+
+/** Shared skill query — `onlyCurrent` is the single difference between the
+ *  two public methods, so the query lives once. */
+async function selectSkills(onlyCurrent: boolean): Promise<Skill[]> {
     const db = getDb();
 
     const rows = await db
@@ -872,7 +883,7 @@ export const dbContent: ContentService = {
         and(
           eq(contentItems.contentType, "skill"),
           eq(contentItems.status, "published"),
-          eq(skillsTable.current, true)
+          ...(onlyCurrent ? [eq(skillsTable.current, true)] : [])
         )
       )
       .orderBy(desc(contentItems.publishedAt));
@@ -895,5 +906,4 @@ export const dbContent: ContentService = {
       context: row.context,
       current: row.current,
     }));
-  },
-};
+}

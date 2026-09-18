@@ -18,6 +18,7 @@ const ROUTE_META: Partial<
   [ROUTES.skills]: { changeFrequency: "monthly", priority: 0.7 },
   [ROUTES.timeline]: { changeFrequency: "monthly", priority: 0.7 },
   [ROUTES.about]: { changeFrequency: "monthly", priority: 0.7 },
+  [ROUTES.publications]: { changeFrequency: "monthly", priority: 0.7 },
 };
 
 const DEFAULT_META: Pick<MetadataRoute.Sitemap[number], "changeFrequency" | "priority"> = {

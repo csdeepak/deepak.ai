@@ -12,7 +12,7 @@ import {
   effectiveProjectSkills,
   type SkillEvidenceKind,
 } from "../../../../content/skills";
-import type { Project } from "@/types/content";
+import type { Project, Skill } from "@/types/content";
 
 /**
  * /skills — the skill vocabulary, with its evidence attached.
@@ -44,9 +44,13 @@ interface SkillEntry {
   kind: SkillEvidenceKind;
   /** Projects that actually use this skill — empty for self-reported ones. */
   evidence: Array<Pick<Project, "slug" | "title">>;
+  /** Owner-authored enrichment from the skills table (D-065), when present. */
+  context?: string;
+  category?: string;
+  current?: boolean;
 }
 
-function buildSkillIndex(projects: Project[]): SkillEntry[] {
+function buildSkillIndex(projects: Project[], enrichment: Skill[]): SkillEntry[] {
   // Skill → the projects using it, from stored tags plus the audited additions.
   const byProject = new Map<string, Array<Pick<Project, "slug" | "title">>>();
   for (const project of projects) {
@@ -81,12 +85,46 @@ function buildSkillIndex(projects: Project[]): SkillEntry[] {
     }
   }
 
+  // D-065 — merge in owner-authored enrichment, matched by name.
+  //
+  // Enrichment ADDS to the derived list; it never replaces it. Making the
+  // database authoritative would have blanked this page until 22 taxonomy
+  // items were re-entered by hand — trading a working page for an empty one.
+  // A skill entered in admin gains its context/category/current; a skill only
+  // in the taxonomy is untouched; a skill only in admin is appended.
+  const byName = new Map(entries.map((entry) => [entry.name.toLowerCase(), entry]));
+
+  for (const skill of enrichment) {
+    const existing = byName.get(skill.title.toLowerCase());
+    if (existing) {
+      existing.context = skill.context || undefined;
+      existing.category = skill.category || undefined;
+      existing.current = skill.current;
+      continue;
+    }
+    const added: SkillEntry = {
+      name: skill.title,
+      // No project uses it, and it is not in the self-report lists — but the
+      // owner published it deliberately, which is the same class of claim.
+      kind: "practice",
+      evidence: [],
+      context: skill.context || undefined,
+      category: skill.category || undefined,
+      current: skill.current,
+    };
+    entries.push(added);
+    byName.set(added.name.toLowerCase(), added);
+  }
+
   return entries;
 }
 
 export default async function SkillsPage() {
-  const projects = await contentService.getProjects();
-  const skills = buildSkillIndex(projects);
+  const [projects, enrichment] = await Promise.all([
+    contentService.getProjects(),
+    contentService.getSkills(),
+  ]);
+  const skills = buildSkillIndex(projects, enrichment);
 
   return (
     <Section>
@@ -138,9 +176,26 @@ export default async function SkillsPage() {
                   <ul className="mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2">
                     {inGroup.map((skill) => (
                       <li key={skill.name} className="bg-canvas p-5">
-                        <h3 className="text-body font-medium text-ink">
-                          {skill.name}
-                        </h3>
+                        <div className="flex flex-wrap items-baseline gap-x-3">
+                          <h3 className="text-body font-medium text-ink">
+                            {skill.name}
+                          </h3>
+                          {skill.category && (
+                            <span className="font-mono text-micro uppercase tracking-[0.14em] text-faint">
+                              {skill.category}
+                            </span>
+                          )}
+                          {skill.current === false && (
+                            <span className="font-mono text-micro uppercase tracking-[0.14em] text-faint">
+                              previously
+                            </span>
+                          )}
+                        </div>
+                        {skill.context && (
+                          <p className="mt-1.5 text-small text-muted">
+                            {skill.context}
+                          </p>
+                        )}
                         {skill.evidence.length > 0 && (
                           <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                             {skill.evidence.map((project) => (

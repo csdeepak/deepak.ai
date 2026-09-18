@@ -62,6 +62,9 @@ export const localContent: ContentService = {
   async getTimeline() {
     return timeline.filter((t) => t.status === "published");
   },
+  async getSkills() {
+    return skills.filter((s) => s.status === "published");
+  },
   async getCurrentSkills() {
     return skills.filter((s) => s.current && s.status === "published");
   },
