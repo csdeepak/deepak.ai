@@ -9,6 +9,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **Three projects that existed on GitHub and nowhere on the site (D-066)** — HandCode (effect-safety control plane for LLM agents; 502 tests, nine-point chaos suite, CI on Linux and Windows), Warden (agentic-payments trust layer, Razorpay AI Buildathon 2026; 131 tests, live rail), LinkedIn Writer (style from a measured 116-post corpus).
+- **The survey paper** — 47 papers reviewed 2021-2026, four authors, IEEE format. `/publications` had shipped empty the same day.
+- **Five Dex knowledge cards** closing gaps `docs/31` section 7.2 documents as standard recruiter screens: open-source work, hackathons, deployment/CI experience, plus the two new projects.
+
+### Changed
+- **Measured results now surface.** Dental AI Pipeline gains mAP@0.5 0.810, bone-loss macro F1 0.9233, 58.3% exact FDI end-to-end, four-hospital external validation, 174 tests. ASMOS gains its causal ablation, second-tokenizer re-count and honest FLAT null. Both previously showed a problem statement and nothing measurable.
+- **Ordering is now a narrative** — `timelineOrder` 1-9 from agent infrastructure to utility. `featured` narrowed from 8 of 9 to 4.
+
+### Fixed
+- **`db-ingest` silently dropped `timelineOrder`** — in the schema since D-058 Phase E, never ingested, so an ordering set in `site.ts` looked applied and was not.
+- **`db-ingest` never carried publications** — the array existed in `site.ts` and the script only imported `projects`.
+
+
+### Added
 - **Publications and Skills CRUD (D-065)** — the last two admin stubs. `/admin/publications` was 21 lines reading "ships in the next sprint"; `/admin/skills` was 13. Both schemas had existed since D-043.
 - **`/publications`** — the research shelf, each entry led by its plain-language summary rather than its abstract, with copyable BibTeX. Registered while empty on purpose: `docs/SESSION_START` section 6 asks for an empty shelf to be "visibly, unashamedly empty".
 - **The Research nav lane now points at `/publications`** — it had been listed and self-hiding since the beginning for want of a page. Nav is now five lanes.
