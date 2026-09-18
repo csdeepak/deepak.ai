@@ -21,12 +21,17 @@ export function Mission() {
     >
       <Container width="content">
         <ScrollReveal>
-          <p
+          {/* An <h2>, not a <p>. `aria-labelledby` pointed at a paragraph,
+              so this section had no heading at all: the landing page went
+              straight from the <h1> to the pillars' <h3>s, skipping a level
+              and leaving assistive tech with no landmark for the section.
+              Styling is unchanged — this is a semantics fix, not a redesign. */}
+          <h2
             id="mission-heading"
-            className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
+            className="font-mono text-micro font-normal uppercase tracking-[0.2em] text-faint"
           >
             {mission.kicker}
-          </p>
+          </h2>
           <p className="mt-8 max-w-4xl text-section font-display font-medium text-ink">
             {mission.statement}
           </p>
