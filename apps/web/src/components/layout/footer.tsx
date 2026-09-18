@@ -75,12 +75,16 @@ export function Footer() {
                   <h2 className="text-micro font-medium uppercase tracking-wide text-faint">
                     {col.heading}
                   </h2>
-                  <ul className="mt-3 space-y-2">
+                  {/* -my-1.5 cancels the padding visually, so the links keep
+                      their existing rhythm while becoming real touch targets:
+                      they measured 17px tall, well under the 24px WCAG 2.5.8
+                      minimum and nowhere near a comfortable thumb. */}
+                  <ul className="mt-3 space-y-1">
                     {col.links.map((link) => (
-                      <li key={link.href}>
+                      <li key={link.href} className="-my-1.5">
                         <Link
                           href={link.href}
-                          className="text-small text-muted hover:text-ink"
+                          className="inline-block py-1.5 text-small text-muted hover:text-ink"
                         >
                           {link.label}
                         </Link>
@@ -101,32 +105,42 @@ export function Footer() {
           <span className="text-small text-muted">{siteConfig.name}</span>
           <div className="flex items-center gap-4 text-small text-muted">
             {siteContent.outbound.github && (
-              <a href={siteContent.outbound.github} className="hover:text-ink">
+              <a href={siteContent.outbound.github} target="_blank"
+                rel="me noopener noreferrer"
+                className="inline-block py-2 hover:text-ink">
                 GitHub
               </a>
             )}
             {siteContent.outbound.scholar && (
-              <a href={siteContent.outbound.scholar} className="hover:text-ink">
+              <a href={siteContent.outbound.scholar} target="_blank"
+                rel="me noopener noreferrer"
+                className="inline-block py-2 hover:text-ink">
                 Scholar
               </a>
             )}
             {siteContent.outbound.linkedin && (
               <a
                 href={siteContent.outbound.linkedin}
-                className="hover:text-ink"
+                target="_blank"
+                rel="me noopener noreferrer"
+                className="inline-block py-2 hover:text-ink"
               >
                 LinkedIn
               </a>
             )}
             {siteContent.outbound.x && (
-              <a href={siteContent.outbound.x} className="hover:text-ink">
+              <a href={siteContent.outbound.x} target="_blank"
+                rel="me noopener noreferrer"
+                className="inline-block py-2 hover:text-ink">
                 X
               </a>
             )}
             {siteContent.outbound.instagram && (
               <a
                 href={siteContent.outbound.instagram}
-                className="hover:text-ink"
+                target="_blank"
+                rel="me noopener noreferrer"
+                className="inline-block py-2 hover:text-ink"
               >
                 Instagram
               </a>

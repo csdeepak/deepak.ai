@@ -184,6 +184,29 @@ check(
   fabricatedContact.answer?.answer ?? "null",
 );
 
+// The lookalike case, which a plain `endsWith` allowlist test lets through:
+// `fake-linkedin.com` does end with `linkedin.com`. It is also the exact
+// domain shape a fabricated "his profile is here" link would wear, so the
+// scrub has to reject it while leaving the genuine profile link intact.
+const lookalikeHost = interpretModelResponse(
+  JSON.stringify({
+    scope: "answer",
+    answer:
+      "Profile: https://fake-linkedin.com/in/deepak — real one: https://linkedin.com/in/c-s-deepak-b1b41228b",
+    cardIds: [realCardId],
+  }),
+);
+check(
+  "lookalike host that merely ends with an allowed domain is scrubbed",
+  !lookalikeHost.answer?.answer.includes("fake-linkedin.com"),
+  lookalikeHost.answer?.answer ?? "null",
+);
+check(
+  "the genuine allowed link survives that same scrub",
+  lookalikeHost.answer?.answer.includes("linkedin.com/in/c-s-deepak-b1b41228b") ?? false,
+  lookalikeHost.answer?.answer ?? "null",
+);
+
 const oversized = interpretModelResponse(
   JSON.stringify({
     scope: "answer",
@@ -474,12 +497,13 @@ async function main(): Promise<void> {
     console.log("\nLive generation checks skipped — set LLM_API_KEY to run the paraphrase battery.");
   }
 
-  // Deliberately last: this reaches into `guard.ts`'s module-level Redis
-  // singleton and forces it through an unconfigured state to prove
-  // `getDexLlmConfig()` fails closed. Once poisoned that way the singleton
-  // never re-checks the real env vars for the rest of this process, so
-  // anything that needs a real Redis connection (the infra/live sections
-  // above) must run before this, not after.
+  // Kept last by convention rather than necessity now: this clears
+  // UPSTASH_REDIS_REST_URL to prove `getDexLlmConfig()` fails closed, then
+  // restores it immediately. It used to poison `guard.ts`'s module-level Redis
+  // cache for the rest of the process — the bug that made Phase 2 delete that
+  // cache entirely, so `getRedis()` re-reads the env on every call. Running it
+  // after the infra/live sections costs nothing and keeps the ordering honest
+  // if a cache ever comes back.
   console.log("\nGuardrail fail-closed behaviour");
   check(
     "v2 refuses to run without the durable abuse guard, even with a valid LLM key",

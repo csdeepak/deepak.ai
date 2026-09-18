@@ -97,3 +97,10 @@ jobs:
       - name: Guard - Dex matcher
         working-directory: apps/web
         run: npm run check:dex
+
+      # Unicode pseudo-bold must never reach a public page: it breaks screen
+      # readers, search indexing and in-page find, and it is invisible to a
+      # sighted reviewer, so only a scripted check can catch a regression.
+      - name: Guard - typography normalization
+        working-directory: apps/web
+        run: npm run check:typography

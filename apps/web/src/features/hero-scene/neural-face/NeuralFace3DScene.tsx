@@ -730,7 +730,11 @@ function buildHomogeneousInner(data: HeroFace3D, pos: Float32Array): InnerScene 
 // of depth bands, offset to alternating sides so the camera weaves between nodes,
 // then nudged away from any node it would clip. deepFocus is the deep-cluster
 // centroid the camera settles looking at.
-const FLIGHT_START = 0.6; // = BEAT.diveEnd
+// Derived, not duplicated. This was a hard-coded `0.6` with a comment saying
+// "= BEAT.diveEnd", which is a copy of a constant that had no way to stay in
+// sync: retuning the beats would have left the flight starting mid-dive, with
+// the face still fading, and nothing would have failed loudly.
+const FLIGHT_START = BEAT.diveEnd;
 
 // D-052.7 FIX 1's original algorithm, extracted so the homogeneous fallback
 // (no data.network — nothing to order chronologically) keeps its previous

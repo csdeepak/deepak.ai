@@ -1,6 +1,7 @@
 import { NavShell } from "@/components/layout/nav-shell";
 import { Footer } from "@/components/layout/footer";
 import { DexPanel } from "@/features/dex/dex-panel";
+import { KeyboardShortcuts } from "@/components/overlays/keyboard-shortcuts";
 
 /**
  * Site chrome layout — the standard public frame (nav · main · footer)
@@ -24,6 +25,7 @@ export default function SiteLayout({
       <main id="main">{children}</main>
       <Footer />
       <DexPanel />
+      <KeyboardShortcuts />
     </>
   );
 }

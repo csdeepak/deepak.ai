@@ -16,6 +16,7 @@
 
 import { localContent } from "./local-content";
 import { dbContent } from "./db-content";
+import { withNormalizedTypography } from "./normalize";
 import type { ContentService } from "./content";
 
 /**
@@ -111,4 +112,15 @@ function selectContentService(): ContentService {
     : dbContent;
 }
 
-export const contentService: ContentService = selectContentService();
+/**
+ * The public read path, with Unicode pseudo-bold normalised out of the
+ * human-readable fields (see `lib/text.ts` for what that is and why it
+ * matters). Applied here, at the single boundary every public page reads
+ * through, rather than in each implementation — file mode and db mode get
+ * identical treatment for free, and the admin, which queries Drizzle
+ * directly and never touches this module, keeps the owner's source text
+ * exactly as it was typed.
+ */
+export const contentService: ContentService = withNormalizedTypography(
+  selectContentService(),
+);

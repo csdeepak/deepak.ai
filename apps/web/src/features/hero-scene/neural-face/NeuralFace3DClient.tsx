@@ -201,10 +201,31 @@ export default function NeuralFace3DClient() {
 
         {/* (2b) Bottom legibility scrim (D-052.3): a subtle stage-colour fade
             behind the lower copy so Beat-3 sub-lines 3 & 4 stay ≥ 4.5:1 over
-            the glowing network. Fades to transparent well below the face. */}
+            the glowing network. Fades to transparent well below the face.
+
+            Two scrims, because the copy block is a very different height on a
+            phone and the desktop curve is tuned. Measured at 375×812: the
+            headline wraps to four lines, pushing the support paragraph — set
+            at 60% opacity — up to y=394, while the 42svh scrim did not begin
+            until y=536. It sat completely unprotected over the brightest part
+            of the face, which is what made it hard to read on a real phone.
+
+            The desktop scrim below is byte-identical to the tuned original. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[42svh]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[72svh] md:hidden"
+          style={{
+            // Reaches a useful alpha much earlier than the desktop curve: the
+            // phone copy block spans roughly the 30–75% band of this box, so
+            // the stops are placed to cover it rather than to fade in at the
+            // very bottom of the frame.
+            backgroundImage:
+              "linear-gradient(to top, rgba(10,11,13,0.78), rgba(10,11,13,0.62) 45%, rgba(10,11,13,0.34) 78%, transparent)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] hidden h-[42svh] md:block"
           style={{
             backgroundImage:
               "linear-gradient(to top, rgba(10,11,13,0.62), rgba(10,11,13,0.28) 40%, transparent)",

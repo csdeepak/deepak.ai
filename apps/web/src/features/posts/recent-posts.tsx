@@ -11,9 +11,22 @@ import { contentService } from "@/services";
  * Posts — horizontal carousel, newest first (D-058 Phase D carousel
  * redesign). Self-hides entirely when there are zero published posts
  * (LAW-008).
+ *
+ * Featured posts are filtered out because `FeaturedPosts` has already shown
+ * them a few hundred pixels above: before this, the same two posts rendered
+ * twice on one landing page, which reads as either a bug or padding. The
+ * extra read is build-time only (this route is statically generated) and
+ * keeps the section self-contained rather than threading props through the
+ * page — the pattern every other landing section here follows.
  */
 export async function RecentPosts() {
-  const posts = await contentService.getLatestPosts(10);
+  const [latest, featured] = await Promise.all([
+    contentService.getLatestPosts(10),
+    contentService.getFeaturedPosts(),
+  ]);
+
+  const featuredSlugs = new Set(featured.map((post) => post.slug));
+  const posts = latest.filter((post) => !featuredSlugs.has(post.slug));
   if (posts.length === 0) return null;
 
   return (

@@ -63,6 +63,8 @@ const AUDIENCE_LABEL: Record<DexAudience, string> = {
 export function DexPanel() {
   const open = useUiStore((s) => s.dexOpen);
   const closeOverlays = useUiStore((s) => s.closeOverlays);
+  const dexSeedQuestion = useUiStore((s) => s.dexSeedQuestion);
+  const consumeDexSeed = useUiStore((s) => s.consumeDexSeed);
   const [suggested, setSuggested] = useState<DexSuggestedQuestion[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [query, setQuery] = useState("");
@@ -89,18 +91,20 @@ export function DexPanel() {
     }
   };
 
-  // D-060 — Turnstile human check. A ref, not state: the token changes on
-  // every render/reset cycle and doesn't need to trigger a re-render itself,
-  // it's only read at submit time. `widgetIdRef` guards against rendering the
-  // widget twice if the panel is closed and reopened within one page load.
-  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+  // D-060 — Turnstile human check. Refs, not state: the token changes on every
+  // render/reset cycle and doesn't need to trigger a re-render itself, it's
+  // only read at submit time. `widgetIdRef` guards against rendering the widget
+  // twice for one open — both `Script`'s onLoad and the container's callback
+  // ref can fire for the same open, and only one widget should exist.
+  const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
   const turnstileWidgetIdRef = useRef<string | null>(null);
   const turnstileTokenRef = useRef<string>("");
 
   const renderTurnstileWidget = useCallback(() => {
-    if (!TURNSTILE_SITE_KEY || !window.turnstile || !turnstileContainerRef.current) return;
+    const container = turnstileContainerRef.current;
+    if (!TURNSTILE_SITE_KEY || !window.turnstile || !container) return;
     if (turnstileWidgetIdRef.current) return;
-    turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+    turnstileWidgetIdRef.current = window.turnstile.render(container, {
       sitekey: TURNSTILE_SITE_KEY,
       // Stays visually absent unless Cloudflare decides an interactive
       // challenge is actually needed — this is a chat panel, not a login
@@ -118,9 +122,45 @@ export function DexPanel() {
     });
   }, []);
 
-  useEffect(() => {
-    if (open && window.turnstile) renderTurnstileWidget();
-  }, [open, renderTurnstileWidget]);
+  /**
+   * A callback ref rather than an effect keyed on `open`, and that difference
+   * is the whole fix. Radix unmounts `Dialog.Content` — and this container with
+   * it — every time the panel closes, then mounts it again on the next open,
+   * but *not* in the same commit as the `open` state change: an effect in this
+   * component runs while the container is still null, so a reopen would render
+   * nothing. A callback ref fires exactly when the node appears and again when
+   * it goes away, which is precisely when there is work to do.
+   *
+   * Both halves matter. Without the teardown, the retained widget id points at
+   * detached DOM and the "already rendered" guard blocks every later render.
+   * Without the render-on-attach, nothing re-creates the widget, because
+   * `next/script` calls `onLoad` only on the script's *first* load — a reopen
+   * gets no second onLoad to lean on. Either gap alone produces the same
+   * silent failure: every question after the first close ships an empty token,
+   * the server reads `turnstile_missing`, and Dex quietly answers from the v1
+   * cached matcher for the rest of the page load.
+   */
+  const attachTurnstileContainer = useCallback(
+    (node: HTMLDivElement | null) => {
+      turnstileContainerRef.current = node;
+
+      if (node) {
+        renderTurnstileWidget();
+        return;
+      }
+
+      if (turnstileWidgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.remove(turnstileWidgetIdRef.current);
+        } catch {
+          // Already torn down with the container — nothing left to release.
+        }
+      }
+      turnstileWidgetIdRef.current = null;
+      turnstileTokenRef.current = "";
+    },
+    [renderTurnstileWidget],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -140,6 +180,20 @@ export function DexPanel() {
       window.clearTimeout(focus);
     };
   }, [open]);
+
+  /**
+   * A context chip opened the panel with a question in hand — put it in the
+   * input and clear the seed so it can't resurface on a later, unrelated
+   * open. Deliberately not auto-submitted: see `openDex` in the UI store.
+   *
+   * Runs only while `open`, because the seed is set in the same update that
+   * opens the panel and would otherwise be consumed before the panel mounts.
+   */
+  useEffect(() => {
+    if (!open || !dexSeedQuestion) return;
+    setQuery(dexSeedQuestion);
+    consumeDexSeed();
+  }, [open, dexSeedQuestion, consumeDexSeed]);
 
   // Ordered [label, questions] pairs. When the visitor told us who they are,
   // their own audience leads — presentation order only, nothing is hidden.
@@ -387,7 +441,7 @@ export function DexPanel() {
               onLoad={renderTurnstileWidget}
             />
           )}
-          <div ref={turnstileContainerRef} />
+          <div ref={attachTurnstileContainer} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

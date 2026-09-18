@@ -334,7 +334,10 @@ export const dexVisitorIntake = pgTable("dex_visitor_intake", {
 // the audience segment, but never build a per-person dossier of what an
 // identifiable visitor asked.
 //
-// answer_kind mirrors DexAnswerKind: cached | knowledge | unknown | refusal.
+// answer_kind mirrors DexAnswerKind: generated | cached | knowledge | unknown |
+// refusal. 'generated' is Dex v2's grounded LLM answer (D-059); the other four
+// are v1 cached recall, which still answers whenever the v2 path is
+// unavailable, so both generations coexist in this table.
 // 'unknown' rows are the actionable signal: questions about Deepak that the
 // approved knowledge base cannot yet answer.
 

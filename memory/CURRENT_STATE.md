@@ -2,7 +2,48 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
-**Last updated:** 2026-08-14 (D-060 Phase 2 — Dex v2 guardrails hardened + natural-prose rewrite, credentials in place, live verification still owner-side)
+**Last updated:** 2026-09-18 (D-061 surfacing pass — Dex reachable site-wide, work
+shown on the landing, project cards scannable, a11y/SEO gaps closed)
+
+## D-061 — surfacing pass (latest)
+
+An audit measured against the live site, not estimated, found the biggest
+problems were **surfacing**, not craft: features that shipped and then could
+not be reached, and real content that could not be skimmed.
+
+What the numbers were, before: `DexTrigger` existed in exactly one place (the
+hero CTA row, which fades out one viewport in) so the whole Dex v2 pipeline was
+unreachable from every other page; the landing showed **zero project cards**
+against 12 post cards, with the work represented only by six bare titles;
+`/projects` cards ran 424–729px tall with 567–1027 characters and no tags,
+though `tags[]` was populated; `/projects/asmos` had **two links in `<main>`**,
+the repo one at 81% scroll depth; 263 Unicode pseudo-bold characters were live
+in post content; `sitemap.xml` listed 4 URLs and no content pages; there was no
+JSON-LD anywhere.
+
+All of that is addressed. Full reasoning, every measurement, and the honest
+limits are in `DECISIONS.md` → `D-061`.
+
+- **Gates:** typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new
+  warnings · `check:bundle` 157.2 kB ≤ 170 kB, three/gsap/lenis/sharp still
+  absent from `/` · `check:dex` 34/34 · `check:typography` 22/22 (new, in CI).
+- **`check:dex-v2` is not green, and it is not from this work.** 22/22 offline
+  and structural checks pass; 3 live-battery cases failed on Gemini `503` and
+  timeouts. `src/lib/dex/` never imports `contentService`, so the new
+  normalization layer cannot reach that path. Re-run it when the free tier is
+  healthy.
+- **⚠️ Owner call, one constant:** the hero is now 320vh instead of 400vh. The
+  guided flight's scroll distance is arithmetically unchanged (160vh either
+  way) so D-058 Phase B's dwell tuning is preserved exactly — but whether the
+  shorter prologue *feels* right is not something a build environment can
+  judge. `REGION_VH` in `neural-face/constants.ts` reverts it.
+- **Still open from before this pass:** Dex v2 go-live (`docs/32`) and the
+  corpus frozen at 2026-08-04 (Phase 4, `docs/31` §7.1) are both untouched by
+  this work.
+
+---
+
+**Last updated:** 2026-08-17 (Dex v2 review pass — three code defects and one doc/UI mismatch found in the shipped v2 diff and fixed; browser verification still owner-side)
 
 ## Dex v2 (D-059/D-060) — built, credentialed, awaiting real-network verification
 
@@ -34,7 +75,9 @@ back to v1, never fails open to unlimited access.
 - **Owner's real credentials are already in `.env.local`** (gitignored, local-only) — Gemini key, Upstash Redis, Turnstile site+secret keys. Not yet in Vercel's production environment variables.
 - **Verified:** 18/18 offline + fail-closed checks (`npm run check:dex-v2 --workspace=web`), typecheck clean. The fail-closed behaviour was proven under a **genuine** network failure (real `EAI_AGAIN`/Redis-unreachable errors), not simulated — see below.
 - **Live-verified 2026-08-14 by the owner, from their own machine: 50/50 checks pass.** Real Upstash round-trips succeed; real Gemini answers ground correctly, including under an adversarial battery added specifically to stress-test this — twisted/skeptical phrasings of real facts, disguised injection dressed as being about Deepak, and (highest-stakes) direct questions hitting real corpus gaps (notice period, relocation, certifications, open source, hackathons, salary, visa) that correctly came back `unknown` instead of fabricated. One real bug found and fixed along the way: the first live run hit Gemini's free-tier RPM cap partway through (the ~30-call battery, unpaced, not a guardrail issue) — fixed by pacing the test script itself, not the production code.
-- **⚠️ Still open, needs a real browser, not just the CLI:** whether the Turnstile widget actually renders and completes for a real visitor — only the server-side verification call has been proven so far. Then: `npm run check:dex --workspace=web` (v1 regression guard), `CONTENT_SOURCE=file npm run build`, `npm run check:bundle --workspace=web`, ten questions read in-browser by the owner, `/admin/dex` showing the `generated` outcome, and adding the same five env vars to Vercel → Project Settings → Environment Variables. Full list: `docs/31` §5. Until Vercel has the env vars, production still behaves exactly as v1 — inert, not broken.
+- **Review pass 2026-08-17 — three code defects fixed, one doc claim corrected.** The one that mattered in production: the Turnstile widget never re-rendered after the Dex panel was closed and reopened (Radix unmounts the container; the retained widget id then blocked every later render), so from the second open onward every question shipped an empty token and silently answered from v1. Also: the fabrication scrub's link allowlist used `endsWith`, which accepts `fake-linkedin.com`; and an empty question spent a unit of the shared daily budget before being rejected as empty. Full detail in `docs/31` §8. Offline guard suite now **20/20** (two new scrub checks, confirmed to fail when the fix is reverted); `check:dex` 34/34; typecheck clean.
+- **⚠️ Local dev cannot exercise Dex v2 as configured.** The six v2 vars are in the **repo-root** `.env.local`, but `next dev` runs in `apps/web` and reads `apps/web/.env.local`, which has none of them — so `npm run dev` renders no Turnstile widget and `getDexLlmConfig()` returns null. `check:dex-v2` doesn't reveal this because it loads the root file by explicit path. Copy the six vars into `apps/web/.env.local`, or load the root file from `next.config.ts`. This is likely why the widget could never be confirmed locally.
+- **⚠️ Still open, on the deployed site:** the real Turnstile sitekey and its hostname allowlist (the widget lifecycle itself is now verified locally against Cloudflare's test sitekey). Then: `CONTENT_SOURCE=file npm run build`, `npm run check:bundle --workspace=web`, ten questions read in-browser by the owner, `generated` rows visible in `/admin/dex`'s Questions CSV, and adding the same five env vars to Vercel → Project Settings → Environment Variables. Full list: `docs/31` §5. Until Vercel has the env vars, production still behaves exactly as v1 — inert, not broken.
 - **Known gap, biggest remaining:** the knowledge corpus is frozen at 2026-08-04 while the owner keeps publishing. Threading published projects/posts from Postgres into the prompt is Phase 4 (`docs/31` §7.1).
 
 ---

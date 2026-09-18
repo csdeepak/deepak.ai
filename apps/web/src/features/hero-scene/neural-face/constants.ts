@@ -6,14 +6,21 @@
  * scene's own; the accent gradient stops match the Instrument tokens.
  */
 
-/** Sticky scroll region length. ~400vh → four beats of travel. */
-export const REGION_VH = 400;
-
-/** drei ScrollControls page count (≈ REGION_VH / 100). */
-export const SCROLL_PAGES = 4;
-
-/** Scroll-scrub damping (lerp) — native scroll owns truth. */
-export const SCROLL_DAMPING = 0.07;
+/**
+ * Sticky scroll region length.
+ *
+ * Was 400vh. Measured on the live landing page, that made the hero 3072px of
+ * a 7392px document — 41.6% of the entire page — and the copy and both CTAs
+ * fade out by `copyFadeOut`, so roughly three viewport-heights of it were
+ * scrolling past an animation with nothing to act on. LAW-009 makes the fast
+ * path sacred, and the hero was the thing standing in front of it.
+ *
+ * 320vh removes one full viewport of that travel WITHOUT speeding up the
+ * guided flight, which the owner tuned across two rounds in D-058 Phase B
+ * (+92% arc length, 5.1× dwell) and explicitly confirmed. See BEAT below for
+ * how the flight's scroll distance is held constant.
+ */
+export const REGION_VH = 320;
 
 /** Fraction of hero scroll before animations begin — 8% dead-zone at top. */
 export const SCROLL_START = 0.08;
@@ -23,18 +30,30 @@ export const SCROLL_START = 0.08;
  * Beat 2 cross-fade (D-052.2 FIX 1):
  *   surfaceFadeStart / surfaceFadeEnd span the entire Beat 2 window so the
  *   face dissolves fully before the inner network is bright.
- *   networkFadeStart lags surfaceFadeStart by +0.05 so the face has begun
- *   fading before a single network node appears. At any point during the
- *   dive, total visible opacity (surface + network) stays ≤ ~0.90× max of
- *   either layer — verified by construction (smoothstep math at t=0.485).
+ *   networkFadeStart lags surfaceFadeStart so the face has begun fading
+ *   before a single network node appears. At any point during the dive,
+ *   total visible opacity (surface + network) stays ≤ ~0.90× max of either
+ *   layer.
+ *
+ * THE FLIGHT'S SCROLL DISTANCE IS DELIBERATELY UNCHANGED. The guided flight
+ * runs from `diveEnd` to 1.0. At the old numbers that was 0.40 × 400vh =
+ * 160vh; at these it is 0.50 × 320vh = 160vh — identical travel, identical
+ * pacing, so D-058 Phase B's owner-confirmed dwell tuning is preserved
+ * exactly. What shortened is the face-and-dive prologue (240vh → 160vh),
+ * which nobody tuned and nobody asked to keep.
+ *
+ * Every pre-flight boundary below is therefore the old value × 5/6 — a
+ * uniform affine rescale of the same smoothstep domain, which preserves the
+ * cross-fade relationships (including the ≤0.90 combined-opacity property
+ * and the surface→network lag) rather than re-deriving them by eye.
  */
 export const BEAT = {
-  faceEnd: 0.32,          // Beat 1 → 2 (face phase ends)
-  diveEnd: 0.60,          // Beat 2 → 3 (dive ends)
-  copyFadeOut: 0.28,      // hero copy fully gone by here
-  surfaceFadeStart: 0.32, // surface cross-fade begins at Beat 1→2 boundary
-  surfaceFadeEnd: 0.60,   // surface gone by diveEnd
-  networkFadeStart: 0.37, // network fade-in lags surface by +0.05
+  faceEnd: 0.27,          // Beat 1 → 2 (face phase ends)      — was 0.32
+  diveEnd: 0.50,          // Beat 2 → 3 (dive ends, flight on) — was 0.60
+  copyFadeOut: 0.23,      // hero copy fully gone by here      — was 0.28
+  surfaceFadeStart: 0.27, // surface cross-fade begins at Beat 1→2 boundary
+  surfaceFadeEnd: 0.50,   // surface gone by diveEnd
+  networkFadeStart: 0.31, // network fade-in lags surface      — was 0.37
 } as const;
 
 /** The dark stage (never theme-swaps — the scene is a screen). */
