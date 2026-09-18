@@ -8,6 +8,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- **Dex is reachable from every public page (D-061).** `DexNavTrigger` (the presence dot, per `docs/14`) in the nav; `DexContextChip` ("Ask Dex about <project>") on project detail pages, the entry point `docs/12` specified and nobody built; ⌘K/Ctrl+K opens Dex. Previously `DexTrigger` appeared exactly once, in the hero CTA row, and that copy fades out one viewport in.
+- **"Selected work" on the landing page** — real project cards, featured-first, between Mission and the posts. The landing had shown zero project cards; the only project presence was six bare titles in the Timeline.
+- **Prev/next project navigation and an "All projects" return** at the end of each project detail page, plus a primary Source-code/Live-demo action row beside the title.
+- **Structured data (JSON-LD)** — `Person` + `WebSite` on the landing, `SoftwareSourceCode`/`CreativeWork` per project, `BlogPosting` per post, cross-linked by `@id`. The site previously emitted none, against its own "machine-readable by default" principle.
+- **`lib/text.ts` + `services/normalize.ts`** — Unicode pseudo-bold (U+1D400–U+1D7FF, plus the Letterlike Symbols holes) mapped back to ASCII on the public read path. 263 such characters were live in post content, where they break screen readers, search indexing and Ctrl+F.
+- **`npm run check:typography`** — 22-case guard covering the mapping, idempotency, and the service wiring (including that slugs and dates are left alone). Wired into `ci.yml`.
+
+### Changed
+- **`ProjectCard` is scannable.** The summary clamps to 3 lines and the existing `tags[]` now render, with year/role/status in a pinned meta row. Cards measured 424–729px tall with 567–1027 characters and no stack visible on the one page whose job is comparison.
+- **Hero shortened 400vh → 320vh** without touching the guided flight: `BEAT.diveEnd` 0.60 → 0.50 holds the flight's scroll distance at exactly 160vh, preserving D-058 Phase B's owner-confirmed dwell tuning, while the untuned face-and-dive prologue drops 240vh → 160vh.
+- **`sitemap.xml` lists every published project and post**, with per-item `lastModified`. It previously advertised 4 index URLs and no content.
+- **Touch targets** — nav lanes were 16px tall and footer links 17px; both now clear the 24px WCAG 2.5.8 floor comfortably. Theme toggle 32 → 44px.
+- **Mobile hero legibility** — the support paragraph measured at y=394–538 on a 375×812 phone while the legibility scrim only began at y=536, leaving 60%-opacity text unprotected over the brightest part of the face. Mobile now has its own scrim curve; the tuned desktop scrim is unchanged.
+- The landing's "Posts" carousel excludes the featured posts shown directly above it — the same posts were rendering twice on one page.
+- `/api/dex/suggested` sends `s-maxage`/`stale-while-revalidate`; it returns identical static JSON to every visitor and had no cache headers.
+- Mission's section heading is an `<h2>` — `aria-labelledby` pointed at a `<p>`, so the landing skipped from `<h1>` to `<h3>`.
+- Footer outbound links carry `rel="me noopener noreferrer"` and open in a new tab.
+
+### Fixed
+- **`FLIGHT_START` was a hand-copied `0.6`** duplicating `BEAT.diveEnd` with only a comment tying them together. Retuning the beats would have desynced the flight silently; it is now derived.
+- **⌘K was bound to a command palette that no component rendered.** `CommandPaletteListener` is removed along with the dead `paletteOpen` store state; `KeyboardShortcuts` opens Dex instead, and ignores the keypress while the visitor is typing.
+
 ## [0.9.0-alpha] — Rich Metadata + Media Sprint (typed optional fields · Cloudflare R2)
 
 ### Added
