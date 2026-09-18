@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { DexTrigger } from "@/features/dex/dex-trigger";
+import { ROUTES } from "@/constants/routes";
 import { decideTier, diagnoseTier, type TierDiagnostics } from "../gate";
 import { REGION_VH, BEAT, SCROLL_START } from "./constants";
 import { isHeroFace3D, type HeroFace3D } from "./types";
@@ -256,11 +257,17 @@ export default function NeuralFace3DClient() {
               <DexTrigger className="cta-pill">
                 Know about Deepak using AI
               </DexTrigger>
+              {/* Points at /memory, the Living Memory experience (docs/26),
+                  not at /projects/asmos. The label always said "Read the
+                  memory"; it just went somewhere else, because /memory was
+                  broken and unlinked. Now that it works, the hero is its
+                  doorway — the flagship idea of the whole project deserves
+                  better than a footer link. */}
               <Link
-                href="/projects/asmos"
+                href={ROUTES.memory}
                 className="gradient-underline-hover text-body text-muted underline-offset-4"
               >
-                Read the memory
+                Enter the memory
               </Link>
             </div>
           </div>

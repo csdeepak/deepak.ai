@@ -26,8 +26,8 @@ const COLUMNS: ReadonlyArray<{
     heading: "Work",
     links: [
       { label: "Projects", href: ROUTES.projects },
-      { label: "GitHub", href: ROUTES.github },
       { label: "Skills", href: ROUTES.skills },
+      { label: "GitHub", href: ROUTES.github },
     ],
   },
   {
@@ -45,6 +45,9 @@ const COLUMNS: ReadonlyArray<{
     heading: "Meta",
     links: [
       { label: "About", href: ROUTES.about },
+      // The immersive Living Memory experience (docs/26). Not a nav lane —
+      // this and the landing are its only doorways.
+      { label: "Memory", href: ROUTES.memory },
       { label: "Gallery", href: ROUTES.gallery },
       { label: "Timeline", href: ROUTES.timeline },
       { label: "Contact", href: ROUTES.contact },
