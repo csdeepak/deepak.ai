@@ -2,10 +2,18 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  FileText,
+  Github,
+  Globe,
+} from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Badge, Tag } from "@/components/ui/badge";
+import { DexContextChip } from "@/features/dex/dex-context-chip";
 import { ROUTES, isRouteBuilt } from "@/constants/routes";
 import { contentService } from "@/services";
 import type { ContentType, Project, Relation } from "@/types/content";
@@ -85,8 +93,23 @@ export default async function ProjectDetailPage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const project = await contentService.getProject(slug);
+  const [project, allProjects] = await Promise.all([
+    contentService.getProject(slug),
+    contentService.getProjects(),
+  ]);
   if (!project) notFound();
+
+  // Prev/next along the published order (newest first), so the bottom of a
+  // project is a door rather than a wall. Measured before this change, the
+  // whole of /projects/asmos contained exactly two links in <main> — the
+  // breadcrumb and one repo link at 81% scroll depth — so a visitor who read
+  // to the end had nowhere to go but the browser's back button.
+  const index = allProjects.findIndex((candidate) => candidate.slug === slug);
+  const previous = index > 0 ? allProjects[index - 1] : undefined;
+  const next =
+    index >= 0 && index < allProjects.length - 1
+      ? allProjects[index + 1]
+      : undefined;
 
   const branches = project.abandonedBranches ?? [];
   const evidence = project.relations
@@ -186,6 +209,43 @@ export default async function ProjectDetailPage({
               {project.tags.map((tag) => (
                 <Tag key={tag}>{tag}</Tag>
               ))}
+            </div>
+          )}
+
+          {/* Primary actions, next to the title.
+              The full Evidence list stays at the bottom where the reading
+              order puts it — but measured on the live site, the repo link sat
+              at 81% scroll depth, which is the wrong place for the first thing
+              an engineer or recruiter goes looking for. Repeating the one or
+              two highest-intent links up here is the same pattern a repo
+              header uses, and costs nothing when they are absent: the row
+              self-hides entirely. */}
+          {(project.repoUrl || project.liveUrl) && (
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {project.repoUrl && (
+                <a
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-small text-ink transition-colors duration-(--duration-fast) hover:border-border-emphasis"
+                >
+                  <Github className="size-4 shrink-0" aria-hidden />
+                  Source code
+                  <ArrowUpRight className="size-3.5 shrink-0 text-faint" aria-hidden />
+                </a>
+              )}
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-small text-ink transition-colors duration-(--duration-fast) hover:border-border-emphasis"
+                >
+                  <Globe className="size-4 shrink-0" aria-hidden />
+                  Live demo
+                  <ArrowUpRight className="size-3.5 shrink-0 text-faint" aria-hidden />
+                </a>
+              )}
             </div>
           )}
         </header>
@@ -380,6 +440,67 @@ export default async function ProjectDetailPage({
             </ul>
           </section>
         )}
+
+        {/* Ask Dex about this specific project — docs/12 specifies context
+            chips as a Dex entry point; this is the first one built. Placed at
+            the end because that is where a reader has actually formed a
+            question, not at the top where they have nothing to ask yet. */}
+        <div className="mt-24 border-t border-border pt-8 md:mt-40">
+          <DexContextChip
+            question={`Tell me about ${project.title}`}
+            label={`Ask Dex about ${project.title}`}
+          />
+        </div>
+
+        {/* Prev/next along the published order — the exit path. */}
+        {(previous || next) && (
+          <nav
+            aria-label="More projects"
+            className="mt-8 grid gap-4 border-t border-border pt-8 sm:grid-cols-2"
+          >
+            {previous ? (
+              <Link
+                href={`/projects/${previous.slug}`}
+                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis"
+              >
+                <span className="flex items-center gap-1.5 text-micro text-faint">
+                  <ArrowLeft className="size-3.5" aria-hidden />
+                  Newer
+                </span>
+                <span className="mt-2 block text-body font-medium text-ink">
+                  {previous.title}
+                </span>
+              </Link>
+            ) : (
+              // Keeps `next` in the right-hand column when there is no
+              // previous, instead of letting it slide under "Newer".
+              <span aria-hidden />
+            )}
+            {next && (
+              <Link
+                href={`/projects/${next.slug}`}
+                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis sm:text-right"
+              >
+                <span className="flex items-center gap-1.5 text-micro text-faint sm:justify-end">
+                  Older
+                  <ArrowRight className="size-3.5" aria-hidden />
+                </span>
+                <span className="mt-2 block text-body font-medium text-ink">
+                  {next.title}
+                </span>
+              </Link>
+            )}
+          </nav>
+        )}
+
+        <p className="mt-8 text-small">
+          <Link
+            href={ROUTES.projects}
+            className="text-accent underline-offset-4 hover:underline"
+          >
+            ← All projects
+          </Link>
+        </p>
       </Container>
     </Section>
   );
