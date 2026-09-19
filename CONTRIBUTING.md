@@ -37,18 +37,29 @@ Component structure, composition rules, and reuse policy are defined in [`docs/0
 
 ## Git Branch Strategy
 
-We follow a Git Flow–style model:
+`main` is the integration branch and the deploy target: pushing to it triggers
+a production deploy on Vercel. Work happens on a branch and lands through a
+pull request.
 
-| Branch        | Purpose                                                        |
-| ------------- | ------------------------------------------------------------- |
-| `main`        | Production-ready, always deployable.                          |
-| `develop`     | Integration branch for completed work.                        |
-| `feature/*`   | New features, branched from `develop`.                        |
-| `fix/*`       | Non-urgent bug fixes, branched from `develop`.                |
-| `hotfix/*`    | Urgent production fixes, branched from `main`.                |
-| `release/*`   | Release stabilization, branched from `develop`.               |
+| Branch      | Purpose                                                        |
+| ----------- | -------------------------------------------------------------- |
+| `main`      | Production. Always deployable; auto-deploys on push.            |
+| `feat/*`    | New features, branched from `main`.                             |
+| `fix/*`     | Bug fixes, branched from `main`.                                |
+| `release/*` | Release stabilization, when a release needs one.                |
 
-Feature and fix branches merge back into `develop`. Releases and hotfixes merge into both `main` and `develop`.
+Branch from `main`, open a PR against `main`, merge when CI is green. Stack a
+branch on another branch's head when the work genuinely depends on it, and say
+so in the PR description along with the merge order.
+
+> **This section previously described a Git Flow model with a `develop`
+> integration branch.** The project never actually worked that way: `develop`
+> has not been touched since the initial commit and sits 122 commits behind
+> `main`, while every piece of real work has landed on `main` directly or
+> through a PR into it. A contributing guide that documents a workflow nobody
+> follows is worse than one that documents a simple workflow honestly, so this
+> now describes what the repository actually does. If `develop` is ever
+> revived, this section changes back — deliberately, and with the branch.
 
 ## Commit Message Format
 

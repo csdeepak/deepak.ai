@@ -16,24 +16,35 @@ interface ContentPublishBarProps {
   publishAction: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   unpublish: (id: string) => Promise<void>;
   archive: (id: string) => Promise<void>;
-  /** e.g. "paper", "skill" — used in the delete confirmation. */
+  /** e.g. "post", "paper", "skill" — used in the delete confirmation. */
   noun: string;
 }
 
 const initial: ActionState = { error: null };
 
 /**
- * The publish bar, parameterised by action set.
+ * The publish bar for every content type.
  *
- * Posts and Timeline each ship their own copy of this (PostPublishBar,
- * TimelinePublishBar). By the third and fourth content type that stops being
- * reasonable duplication and starts being four places to fix the same bug, so
- * Publications and Skills share this one. The *actions* stay per-type — the
- * lifecycle is what is genuinely common, not the data.
+ * Posts, Projects and Timeline each grew their own copy. By the fifth type
+ * that is five places to fix one bug, so this is the single implementation —
+ * parameterised by action set, because the *lifecycle* is what is genuinely
+ * common across types, not the data.
  *
- * The existing two are deliberately left alone: rewriting working, shipped
- * editors to adopt this is a separate change with its own risk, and bundling
- * it here would mean a refactor riding along inside a feature PR.
+ * ## The three states are deliberate, and archived is the one that matters
+ *
+ * An earlier draft of this component only knew draft and published: it offered
+ * Publish whenever the status was not `published`, which meant an archived item
+ * jumped straight back to live, skipping draft entirely, and never offered the
+ * Restore that `PostPublishBar` had always had. That is a behaviour change
+ * wearing the clothes of a refactor — the kind that is invisible in review
+ * because both versions "have a publish button".
+ *
+ * So the states mirror the Posts original exactly:
+ *   draft     → Publish · Delete
+ *   published → Un-publish · Delete
+ *   archived  → Restore (back to draft, never straight to live)
+ *
+ * Delete is hidden when archived, because it already is.
  */
 export function ContentPublishBar({
   id,
@@ -47,6 +58,25 @@ export function ContentPublishBar({
   const [publishState, action, pending] = useActionState(publishAction, initial);
   const [, startTransition] = useTransition();
 
+  function handleUnpublish() {
+    startTransition(() => {
+      unpublish(id);
+    });
+  }
+
+  function handleArchive() {
+    if (
+      !confirm(
+        `Delete this ${noun}? It will be hidden from the public site and can be restored later.`,
+      )
+    ) {
+      return;
+    }
+    startTransition(() => {
+      archive(id);
+    });
+  }
+
   return (
     <div className="sticky bottom-0 border-t border-border bg-surface px-6 py-3">
       {publishState.error && (
@@ -56,47 +86,54 @@ export function ContentPublishBar({
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        {status !== "published" && (
-          <form action={action}>
-            <input type="hidden" name="id" value={id} />
-            <input type="hidden" name="question" value={question} />
-            <Button type="submit" variant="primary" disabled={pending}>
-              {pending ? "Publishing…" : "Publish"}
-            </Button>
-          </form>
+        {status === "draft" && (
+          <>
+            <form action={action}>
+              <input type="hidden" name="id" value={id} />
+              <input type="hidden" name="question" value={question} />
+              <Button type="submit" variant="primary" disabled={pending}>
+                {pending ? "Publishing…" : "Publish"}
+              </Button>
+            </form>
+            <DeleteButton onClick={handleArchive} />
+          </>
         )}
 
         {status === "published" && (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => startTransition(() => { unpublish(id); })}
-          >
-            Unpublish
-          </Button>
+          <>
+            <Button type="button" variant="secondary" onClick={handleUnpublish}>
+              Un-publish
+            </Button>
+            <DeleteButton onClick={handleArchive} />
+          </>
         )}
 
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => {
-            if (
-              !confirm(
-                `Delete this ${noun}? It will be hidden from the public site and can be restored later.`,
-              )
-            ) {
-              return;
-            }
-            startTransition(() => { archive(id); });
-          }}
-        >
-          Delete
-        </Button>
+        {/* Restore returns it to draft, not to live — the same unpublish action
+            Posts has always used for this. Re-publishing is then a deliberate
+            second step. */}
+        {status === "archived" && (
+          <Button type="button" variant="secondary" onClick={handleUnpublish}>
+            Restore
+          </Button>
+        )}
 
         <span className="ml-auto font-mono text-micro uppercase tracking-[0.14em] text-faint">
           {status}
         </span>
       </div>
     </div>
+  );
+}
+
+function DeleteButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      onClick={onClick}
+      className="text-warning"
+    >
+      Delete
+    </Button>
   );
 }

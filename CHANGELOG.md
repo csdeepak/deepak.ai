@@ -20,6 +20,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 - **`memory/KNOWN_LIMITATIONS.md` rewritten.** It still read "No application code exists. Tech stack undecided." for a deployed site with a working CMS.
 
+- **Tag filtering on the Work index (D-067)** — filters the DOM rather than re-rendering a list, so no project data crosses the server/client boundary. A tag earns a chip only if it partitions the work: used at least twice and covering no more than 60% of projects ("Python" covers 8 of 9).
+
+### Changed
+- **One publish bar for all five content types.** The migration surfaced a real defect: the shared bar offered Publish on archived items, jumping straight back to live and skipping draft, and never offered the Restore that Posts always had. Now mirrors the Posts original across draft / published / archived.
+- **`CONTRIBUTING.md` documents the real branch workflow** — it described Git Flow with a `develop` branch that has been untouched since the initial commit and sits 122 commits behind `main`.
+
+### Removed
+- Dead `--font-serif` declaration in `globals.css` — it pointed at `--font-newsreader`, which is never loaded, and no rule or component referenced it.
+
+
+### Added
 - **Three projects that existed on GitHub and nowhere on the site (D-066)** — HandCode (effect-safety control plane for LLM agents; 502 tests, nine-point chaos suite, CI on Linux and Windows), Warden (agentic-payments trust layer, Razorpay AI Buildathon 2026; 131 tests, live rail), LinkedIn Writer (style from a measured 116-post corpus).
 - **The survey paper** — 47 papers reviewed 2021-2026, four authors, IEEE format. `/publications` had shipped empty the same day.
 - **Five Dex knowledge cards** closing gaps `docs/31` section 7.2 documents as standard recruiter screens: open-source work, hackathons, deployment/CI experience, plus the two new projects.
