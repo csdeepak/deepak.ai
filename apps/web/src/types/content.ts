@@ -124,6 +124,15 @@ export interface Project extends ContentBase {
 
 export interface Publication extends ContentBase {
   type: "publication";
+  /**
+   * The question that created it (LAW-003). Required to publish — the
+   * database enforces this for every content type via the
+   * `ck_published_has_question` check on `content_items`, not just for
+   * projects, and the admin editors refuse to publish without it. It was
+   * modelled only on `Project` until D-070, which is why the first ingest
+   * of a publication failed the constraint.
+   */
+  question: string;
   authors: string[];
   venue: string;
   year: number;
@@ -156,6 +165,15 @@ export interface Post extends ContentBase {
 
 export interface TimelineEntry extends ContentBase {
   type: "timeline_entry";
+  /**
+   * The question that created it (LAW-003). Required to publish — the
+   * database enforces this for every content type via the
+   * `ck_published_has_question` check on `content_items`, not just for
+   * projects, and the admin editors refuse to publish without it. It was
+   * modelled only on `Project` until D-070, which is why the first ingest
+   * of a publication failed the constraint.
+   */
+  question: string;
   organization: string;
   role: string;
   startDate: string;
@@ -170,6 +188,15 @@ export interface TimelineEntry extends ContentBase {
 
 export interface Skill extends ContentBase {
   type: "skill";
+  /**
+   * The question that created it (LAW-003). Required to publish — the
+   * database enforces this for every content type via the
+   * `ck_published_has_question` check on `content_items`, not just for
+   * projects, and the admin editors refuse to publish without it. It was
+   * modelled only on `Project` until D-070, which is why the first ingest
+   * of a publication failed the constraint.
+   */
+  question: string;
   context: string; // one-line context ("currently using for …")
   current: boolean; // Currently working on vs Previously
   // Rich metadata (D-048)

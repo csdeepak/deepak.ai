@@ -22,7 +22,8 @@
     "gallery:migrate-r2": "tsx scripts/gallery-r2-migrate.ts",
     "admin:password": "tsx scripts/set-admin-password.ts",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
-    "check:typography": "tsx scripts/check-typography.ts"
+    "check:typography": "tsx scripts/check-typography.ts",
+    "check:content": "tsx scripts/check-content.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1085.0",
