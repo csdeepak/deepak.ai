@@ -116,8 +116,27 @@ export function DexPanel() {
       "expired-callback": () => {
         turnstileTokenRef.current = "";
       },
-      "error-callback": () => {
+      /**
+       * Cloudflare passes an error code here, and the original callback threw
+       * it away. That made this the quietest possible failure: the widget
+       * errors, the token stays empty, the server reads `turnstile_missing`,
+       * Dex answers from the v1 cached matcher, and the page looks completely
+       * healthy — which is exactly what was happening in production, where the
+       * challenge request fired and returned but never produced a token.
+       *
+       * Logging the code is the difference between "Dex feels a bit generic"
+       * and a two-minute fix: 110200 is an unlisted hostname (add the domain
+       * under Turnstile → your widget → Hostname management, docs/32 Step 4),
+       * 110100 is a bad sitekey. Console only — the visitor still gets a real
+       * answer from v1 and should never see this.
+       */
+      "error-callback": (code?: string) => {
         turnstileTokenRef.current = "";
+        console.warn(
+          `Dex: Turnstile failed (code ${code ?? "unknown"}) — the LLM path is ` +
+            "denied and Dex is answering from v1 cached recall. " +
+            "110200 = hostname not on the widget's allowlist; 110100 = invalid sitekey.",
+        );
       },
     });
   }, []);
