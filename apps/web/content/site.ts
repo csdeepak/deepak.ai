@@ -616,5 +616,63 @@ export const publications: Publication[] = [
   },
 ];
 export const posts: Post[] = [];
-export const timeline: TimelineEntry[] = [];
+export const timeline: TimelineEntry[] = [
+  {
+    type: "timeline_entry",
+    slug: "agentic-ai-researcher-cdsaml",
+    title: "Agentic AI Researcher & Engineer at CDSAML / CCBD",
+    status: "published",
+    publishedAt: "2026-06-01",
+    updatedAt: "2026-09-19",
+    relations: [],
+    organization: "Center for Data Sciences & Applied ML (CDSAML / CCBD), PES University",
+    role: "Agentic AI Researcher & Engineer",
+    startDate: "2026-06-01",
+    place: "Bengaluru",
+    summary:
+      "Research on long-term memory and routing for autonomous multi-agent LLM systems, leading a four-person team and owning the memory schema and storage module.",
+    highlights: [
+      "Leads a four-person team; owns the memory schema and storage module",
+      "Designed evaluation protocols measuring owner-selection accuracy, handoff correctness and subtask assignment across multi-seed, multi-regime configurations",
+      "Ownership-scoring and fallback-routing work cut token cost at equal answer accuracy with zero retrains across four drift regimes",
+      "Mentored by Dr. Uma Damotharan and Dr. Shylaja S S",
+    ],
+  },
+  {
+    type: "timeline_entry",
+    slug: "head-of-events-sahayai",
+    title: "Head of Events and Management at SahayAI Club",
+    status: "published",
+    publishedAt: "2025-08-01",
+    updatedAt: "2026-09-19",
+    relations: [],
+    organization: "SahayAI Club, PES University",
+    role: "Head of Events and Management",
+    startDate: "2025-08-01",
+    endDate: "2026-06-30",
+    place: "Bengaluru",
+    summary:
+      "Ran the club's technical programme, including VICHAR 2026 — an AI ideathon with over 100 participants.",
+    highlights: [
+      "Ran VICHAR 2026, an AI ideathon with 100+ participants across multiple structured problem-statement rounds",
+      "Shipped a ~1,300-line frontend contribution to the club's live Next.js site, with a content-as-code pipeline and handover docs for non-technical successors",
+    ],
+  },
+  {
+    type: "timeline_entry",
+    slug: "app-developer-nexus-pes",
+    title: "App Developer at Nexus PES",
+    status: "published",
+    publishedAt: "2024-10-01",
+    updatedAt: "2026-09-19",
+    relations: [],
+    organization: "Nexus PES",
+    role: "App Developer",
+    startDate: "2024-10-01",
+    endDate: "2025-12-31",
+    place: "Bengaluru",
+    summary: "Android application development in Java, part-time alongside coursework.",
+    highlights: [],
+  },
+];
 export const skills: Skill[] = [];

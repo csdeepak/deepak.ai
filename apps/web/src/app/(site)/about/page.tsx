@@ -184,14 +184,16 @@ export default async function AboutPage() {
               >
                 Experience
               </h2>
-              {experience.length > 3 && (
-                <Link
-                  href={ROUTES.timeline}
-                  className="py-2 text-small text-accent underline-offset-4 hover:underline"
-                >
-                  Full record →
-                </Link>
-              )}
+              {/* Always shown, not gated on a count. /timeline carries the
+                  highlights and summaries this three-line list omits, so it is
+                  worth reaching even when the counts match — and with the
+                  entry count small, the footer was otherwise its only door. */}
+              <Link
+                href={ROUTES.timeline}
+                className="py-2 text-small text-accent underline-offset-4 hover:underline"
+              >
+                Full record →
+              </Link>
             </div>
             <ol className="mt-6 space-y-px overflow-hidden rounded-md border border-border bg-border">
               {experience.slice(0, 3).map((entry) => (
