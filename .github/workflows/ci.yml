@@ -105,6 +105,14 @@ jobs:
         working-directory: apps/web
         run: npm run check:typography
 
+      # D-070: LAW-003 at the content layer. ck_published_has_question lives in
+      # the database, so a violation surfaces only when an ingest runs against a
+      # real Postgres -- which is how it was found: an ingest against production
+      # aborted mid-run, after 21 projects had already been written.
+      - name: Guard - content invariants (LAW-003, unique slugs)
+        working-directory: apps/web
+        run: npm run check:content
+
       # D-059/D-060/D-061: Dex v2 output guardrails. No secrets are set here,
       # so this runs the OFFLINE + Phase 4 sections only — the INFRA (Upstash,
       # Cloudflare) and LIVE (Gemini) sections skip themselves when their env

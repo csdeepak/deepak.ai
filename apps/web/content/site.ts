@@ -591,6 +591,8 @@ export const publications: Publication[] = [
   {
     type: "publication",
     slug: "panoramic-dental-radiographs-survey",
+    question:
+      "What has deep learning actually demonstrated on panoramic dental radiographs, and where do the published results stop being comparable to each other?",
     title:
       "Deep Learning for Panoramic Dental Radiographs: A Comprehensive Survey on Caries Detection, Periodontal Bone Loss Assessment and Explainable AI",
     status: "published",
@@ -620,6 +622,8 @@ export const timeline: TimelineEntry[] = [
   {
     type: "timeline_entry",
     slug: "agentic-ai-researcher-cdsaml",
+    question:
+      "Can a multi-agent system learn which agent owns which topic and route by that, instead of loading the whole shared history into every prompt?",
     title: "Agentic AI Researcher & Engineer at CDSAML / CCBD",
     status: "published",
     publishedAt: "2026-06-01",
@@ -641,6 +645,8 @@ export const timeline: TimelineEntry[] = [
   {
     type: "timeline_entry",
     slug: "head-of-events-sahayai",
+    question:
+      "Can a student club run an AI event that produces real problem-solving rather than a hackathon-shaped social occasion?",
     title: "Head of Events and Management at SahayAI Club",
     status: "published",
     publishedAt: "2025-08-01",
@@ -661,6 +667,8 @@ export const timeline: TimelineEntry[] = [
   {
     type: "timeline_entry",
     slug: "app-developer-nexus-pes",
+    question:
+      "What does shipping an Android app that other people actually use demand beyond what coursework asks for?",
     title: "App Developer at Nexus PES",
     status: "published",
     publishedAt: "2024-10-01",

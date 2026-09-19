@@ -3,7 +3,9 @@
  *
  * Idempotent: ON CONFLICT (slug) DO UPDATE — safe to re-run after edits.
  * Only inserts real content from site.ts (no seeds, no invented fields).
- * Empty stays empty: question: "" → question: '' in the DB.
+ * Empty stays empty: an absent optional field ingests as '' or null.
+ * EXCEPT `question` on a published row -- ck_published_has_question
+ * rejects that, for every content type (D-070).
  *
  * Usage (from apps/web/):
  *   npm run db:ingest
@@ -23,9 +25,10 @@ import {
   abandonedBranches,
   projectsTable,
   publicationsTable,
+  timelineEntriesTable,
   siteSettings,
 } from "../src/db/schema";
-import { projects, publications, siteContent } from "../content/site";
+import { projects, publications, timeline, siteContent } from "../content/site";
 
 const db = getDb();
 
@@ -155,13 +158,17 @@ async function ingestPublications() {
         publishedAt: publication.publishedAt
           ? new Date(publication.publishedAt)
           : null,
-        question: "",
+        // LAW-003 is enforced in the DATABASE by ck_published_has_question,
+        // for every content type and not only projects. Hardcoding "" here is
+        // what made the first real publication ingest abort on the constraint.
+        question: publication.question,
       })
       .onConflictDoUpdate({
         target: contentItems.slug,
         set: {
           title: publication.title,
           status: publication.status,
+          question: publication.question,
           publishedAt: publication.publishedAt
             ? new Date(publication.publishedAt)
             : null,
@@ -196,6 +203,68 @@ async function ingestPublications() {
   }
 }
 
+/**
+ * Timeline (experience) entries.
+ *
+ * This is the same gap publications had before D-066: the array existed in
+ * site.ts and the script only ever imported `projects`, so a row added to the
+ * file could never reach the site in db mode.
+ *
+ * It also carries `question`, because ck_published_has_question applies here
+ * too — publications simply hit that constraint first.
+ */
+async function ingestTimeline() {
+  if (timeline.length === 0) {
+    console.log("Ingesting experience... none in site.ts, skipping.");
+    return;
+  }
+  console.log(`Ingesting ${timeline.length} experience entr(ies)...`);
+
+  for (const entry of timeline) {
+    const returning = await db
+      .insert(contentItems)
+      .values({
+        slug: entry.slug,
+        title: entry.title,
+        contentType: "timeline_entry",
+        status: entry.status,
+        publishedAt: entry.publishedAt ? new Date(entry.publishedAt) : null,
+        question: entry.question,
+      })
+      .onConflictDoUpdate({
+        target: contentItems.slug,
+        set: {
+          title: entry.title,
+          status: entry.status,
+          question: entry.question,
+          publishedAt: entry.publishedAt ? new Date(entry.publishedAt) : null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning({ id: contentItems.id });
+
+    const itemId = returning[0]?.id;
+    if (!itemId) throw new Error(`Upsert returned no id for ${entry.slug}`);
+
+    const fields = {
+      organization: entry.organization ?? "",
+      role: entry.role ?? "",
+      startDate: entry.startDate,
+      endDate: entry.endDate ?? null,
+      summary: entry.summary ?? "",
+      place: entry.place ?? "",
+      highlights: entry.highlights ?? [],
+    };
+
+    await db
+      .insert(timelineEntriesTable)
+      .values({ id: itemId, ...fields })
+      .onConflictDoUpdate({ target: timelineEntriesTable.id, set: fields });
+
+    console.log(`  ✓ ${entry.slug} (${entry.status})`);
+  }
+}
+
 async function ingestSiteSettings() {
   console.log("Ingesting site settings…");
 
@@ -225,6 +294,7 @@ async function main() {
   console.log("── DB ingest starting ──");
   await ingestProjects();
   await ingestPublications();
+  await ingestTimeline();
   await ingestSiteSettings();
   console.log("── DB ingest complete ──");
   process.exit(0);
