@@ -968,3 +968,54 @@ typecheck clean · `CONTENT_SOURCE=file` build exit 0 · `/` First Load 157.5 kB
 **`check:dex-v2` 48/52** — the four failures are all `provider_error` in the LIVE battery (Gemini free-tier flakiness; it ran 52/52 earlier the same day). Offline and infra sections pass, and one side of each failing pair returned `generated` correctly. Nothing on this branch touches the Dex path. CI has no key, so LIVE skips there.
 
 **Not verified:** the admin editors' rendering, for any of the four content types. The auth middleware correctly blocks an AI from logging in, so only queries and compilation were exercised — the same honest limit D-054 recorded for `/admin/dex`. The owner should create one row of each type end to end before trusting them.
+
+---
+
+## D-066 — GitHub audit: the strongest work was not on the site
+
+- **Date:** 2026-09-19.
+- **Status:** Implemented, gate-green. Stacked on D-065.
+- **Context:** Audited all 22 repositories on `github.com/csdeepak` against the portfolio. The finding was not that a few things were missing — it was that **the two strongest projects in the account were entirely absent, and the two most measurable published projects carried none of their measurements.**
+
+### What was missing
+
+| Repo | Why it matters | State on the site |
+|---|---|---|
+| **HandCode** (2026-09) | Effect-safety control plane for LLM agents. 502 tests including a nine-point chaos suite with real process death; four crash experiments; CI reproducing the claim on Linux *and* Windows. The closest thing in the account to the agent-infrastructure role the owner targets. | absent |
+| **Warden** (2026-08) | Trust layer for agentic payments, Razorpay AI Buildathon 2026 Track 01. 131 tests, 38 attacks / 15 benign, 14 models across 6 labs, live Razorpay rail. `docs/31` §7.2 lists hackathons as absent from the corpus *entirely*. | absent |
+| **LinkedIn Writer** (2026-08) | Style derived from a measured corpus of 116 real posts, zero dependencies. | absent |
+| **Survey paper** | 47 papers reviewed 2021–2026, IEEE format, four named authors, CITATION.cff. | absent — and `/publications` had shipped empty the same day |
+
+### Results that existed and were never surfaced
+
+- **Dental AI Pipeline** showed a problem statement and nothing measurable. Its README carries mAP@0.5 **0.810**, bone-loss macro F1 **0.9233**, **58.3%** exact FDI end-to-end, validation across **four hospitals plus a second public benchmark**, 174 tests, 97.7M parameters across six models.
+- **ASMOS** carried none of its causal ablation, second-tokenizer re-count, honest FLAT null, or test coverage.
+
+### Decision — do NOT promote the README's ASMOS figure over the ratified one
+
+The repository README now reports **−23.84% ± 0.15** LLM tokens/query. The site says **"about 22%"**, which is owner-ratified and appears in ten places across `asmos.ts`, the Dex FAQ cache and the knowledge cards — and the corpus explicitly records that an earlier **~24%** measurement was *superseded* by the 22% figure.
+
+Silently promoting a README number over a ratified one would have created exactly the inconsistency this audit existed to remove, and would have re-introduced a number the owner had already retired. The site keeps 22%; the discrepancy is flagged for the owner to rule on. **This is a content decision, not an engineering one.**
+
+### Decision — ordering as narrative
+
+`timelineOrder` now runs 1–9: agent infrastructure → multi-agent memory → agentic safety → applied ML with clinical validation → CV research → XAI research → systems depth → applied tooling → utility. `featured` narrowed from **8 of 9 to 4** — a flag on nearly everything carries no signal (`docs/15` §6, the badge ration).
+
+### Two backend gaps found while integrating
+
+Both would have made the content changes *look* applied without being applied:
+
+- **`timelineOrder` has been in the schema since D-058 Phase E and was never ingested.** An ordering set in `site.ts` was silently dropped, leaving the landing spine on whatever the database already held. That is worse than no ordering, because it looks like it worked.
+- **Publications were never ingested at all** — the array existed in `site.ts` and `db-ingest.ts` only ever imported `projects`.
+
+### Dex corpus — four documented gaps closed
+
+`docs/31` §7.2 names open-source, hackathons, certifications/awards and cloud/CI-CD as absent. The audit produced evidence for three, plus the two new projects. Five cards added, with two deliberate boundaries: the open-source card states explicitly that this is **publishing his own work in the open, not contributions merged into other people's repositories**; the survey card instructs Dex to say **preprint or capstone survey, not peer-reviewed**, unless a venue is confirmed. Prompt grows ~8.5k → ~9.6k tokens against a 40k budget.
+
+### Verification
+
+typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings (the two are the pre-existing `<img>` ones in `GalleryManager.tsx`) · `/` First Load **157.5 kB ≤ 170 kB** · `check:dex` 34/34 · `check:typography` 22/22 · no dangling Dex `sourceIds`. Server-rendered checks confirm outcomes render on all three enriched project pages, `/publications` is no longer empty, `/skills` went 16 → 33 evidenced skills, Selected Work shows the four featured, and **the landing Timeline spine renders in file mode for the first time** — every `timelineOrder` had been `null`.
+
+### Correction to this session's own work
+
+An earlier pass reported `dental-ai-pipeline` as missing its `repoUrl`. It was not: the URL is on a wrapped line that a same-line regex did not match. A false positive from the audit tooling, not a defect in the content.

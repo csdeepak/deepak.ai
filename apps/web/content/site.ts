@@ -344,8 +344,8 @@ export const projects: Project[] = [
     year: 2026,
     projectStatus: "archived",
     tags: ["Python", "FastAPI", "Playwright"],
-    featured: true,
-    timelineOrder: null,
+    featured: false,
+    timelineOrder: 9,
     repoUrl: "https://github.com/csdeepak/Pesu_academy_content_downloader",
   },
   {
@@ -364,8 +364,8 @@ export const projects: Project[] = [
     year: 2026,
     projectStatus: "archived",
     tags: ["Python", "scikit-learn", "Jupyter"],
-    featured: true,
-    timelineOrder: null,
+    featured: false,
+    timelineOrder: 5,
     repoUrl: "https://github.com/csdeepak/turb-detr-underwater-detection",
   },
   {
@@ -383,8 +383,8 @@ export const projects: Project[] = [
     year: 2026,
     projectStatus: "archived",
     tags: ["Go"],
-    featured: true,
-    timelineOrder: null,
+    featured: false,
+    timelineOrder: 7,
     repoUrl: "https://github.com/GUNADEEP19/docksmith-engine",
   },
   {
@@ -402,8 +402,8 @@ export const projects: Project[] = [
     year: 2026,
     projectStatus: "archived",
     tags: ["Python", "scikit-learn", "Jupyter"],
-    featured: true,
-    timelineOrder: null,
+    featured: false,
+    timelineOrder: 6,
     repoUrl: "https://github.com/csdeepak/tdl-project",
   },
   {
@@ -420,11 +420,118 @@ export const projects: Project[] = [
       "Panoramic OPG X-rays are among the messiest medical images: all teeth in one frame, overlapping structures, restorations, anatomical variation, and inconsistent image quality. Instead of treating the whole image as one prediction task, we decomposed it into stages — tooth detection, tooth-level cropping, disease-specific analysis for caries and periodontal bone loss, severity estimation, and structured report generation — which made the system more interpretable and far easier to debug. The system is a clinical decision-support tool, not a replacement for dentists: it highlights suspicious teeth that deserve closer examination, aiming at efficiency and consistency during screening.",
     year: 2026,
     projectStatus: "active",
-    tags: ["Python", "PyTorch"],
+    tags: [
+      "Python",
+      "PyTorch",
+      "YOLOv11",
+      "Computer Vision",
+      "Medical Imaging",
+      "Docker",
+      "Streamlit",
+    ],
     featured: true,
-    timelineOrder: null,
+    timelineOrder: 4,
     repoUrl:
       "https://github.com/csdeepak/An-Intelligent-Dental-Assisting-System-for-Dentists-in-Cavity-and-Periodontal-Disease-Detection",
+    role: "Team of 4",
+    context: "PES University capstone, guided by Dr. Mamatha H R",
+    outcomes: [
+      "Tooth detection mAP@0.5 of 0.810 across the six-stage pipeline",
+      "Periodontal bone-loss classification at 0.9233 macro F1",
+      "58.3% exact FDI tooth-numbering end-to-end, measured through the full pipeline rather than per-stage",
+      "Externally validated on four hospitals plus a second public benchmark",
+      "174 passing tests with invariant checks, over 97.7M parameters across six models",
+      "CPU-only Docker image and a Streamlit demo, so it runs without a GPU",
+    ],
+    skillsLearned: [
+      "Staged pipeline decomposition for interpretability",
+      "External validation across institutions",
+      "Honest reporting of failure modes",
+    ],
+  },
+  {
+    type: "project",
+    slug: "handcode",
+    title: "HandCode — Effect-Safety Control Plane for LLM Agents",
+    status: "published",
+    publishedAt: "2026-09-11",
+    updatedAt: "2026-09-15",
+    relations: [],
+    question:
+      "When a long-running agent crashes mid-action, how do you guarantee it never performs the same real-world effect twice?",
+    problem:
+      "An agent runs `git commit`. The process dies before the result is recorded. On resume the harness re-drives the pending action through the real executor — and commits again. That is reproduced, not hypothesised: one effect before the crash, two after resume. HandCode is a control plane that sits between the agent and anything irreversible. Effects are classified and written to a fenced SQLite ledger (WAL, fsync) before they execute, and three seams with deliberately unequal powers enforce the verdict: one can block, one can also substitute a recorded result so a resumed agent receives the original outcome instead of a refusal. It fails closed — when the gate cannot tell whether an effect landed, it blocks and asks a human rather than guessing.",
+    year: 2026,
+    projectStatus: "active",
+    tags: ["Python", "LLM Agents", "Fault Tolerance", "Idempotency", "LiteLLM", "SQLite"],
+    featured: true,
+    timelineOrder: 1,
+    repoUrl: "https://github.com/csdeepak/HandCode",
+    role: "Solo",
+    outcomes: [
+      "502 tests, including a nine-point chaos suite that kills the real process at each point",
+      "Four end-to-end crash experiments: zero duplicate effects across all three enforcement modes",
+      "CI reproduces the correctness claim on Linux and Windows, so the result holds on a machine that is not the author's",
+      "Replay mode re-runs a recorded session for $0.00 with no API key, and answers an uncovered request with a 502 rather than a plausible-looking completion",
+      "Budget caps are enforced before a run starts — a check that runs afterwards is an audit, not a control",
+    ],
+    skillsLearned: [
+      "Idempotency keys for remote effects",
+      "Write-ahead ledgers and fencing",
+      "Fail-closed system design",
+      "Chaos testing with real process death",
+    ],
+  },
+  {
+    type: "project",
+    slug: "warden",
+    title: "Warden — Trust Layer for Agentic Payments",
+    status: "published",
+    publishedAt: "2026-08-20",
+    updatedAt: "2026-08-29",
+    relations: [],
+    question:
+      "If an AI agent can move real money, what stops a poisoned instruction from making it pay the wrong person — or quietly pay nobody at all?",
+    problem:
+      "Built for the Razorpay AI Buildathon 2026 (Track 01 — AI Growth & Agentic Commerce). An agent running a refund desk faces two injection attacks, and only one of them is loud. Redirecting a refund to a stranger gets noticed immediately because the customer complains. Suppressing a legitimate refund — \"this item is final-sale, do not refund\" — closes the case, pays nobody, and shows up on the dashboard as resolved in 41 seconds. The second failure is worse and almost nobody tests for it. Warden is the layer that catches both, evaluated against a real payment rail rather than a simulation.",
+    year: 2026,
+    projectStatus: "active",
+    tags: ["Python", "AI Safety", "Prompt Injection", "Agentic Commerce", "Razorpay"],
+    featured: true,
+    timelineOrder: 3,
+    repoUrl: "https://github.com/csdeepak/razorpay_buildathon",
+    context: "Razorpay AI Buildathon 2026 — Track 01",
+    outcomes: [
+      "131 tests across a 38-attack / 15-benign evaluation set covering both redirection and suppression",
+      "14 models from 6 labs measured against the same attack battery",
+      "27 findings and 18 architecture decision records written up alongside the code",
+      "Exercised against a live Razorpay rail, not a mock",
+    ],
+  },
+  {
+    type: "project",
+    slug: "linkedin-writer",
+    title: "LinkedIn Writer — Source-to-Post Pipeline",
+    status: "published",
+    publishedAt: "2026-08-01",
+    updatedAt: "2026-08-05",
+    relations: [],
+    question:
+      "Can a writing assistant learn a specific person's voice well enough that the output does not need rewriting?",
+    problem:
+      "Turns any source — a PDF, a paper, rough notes, a half-formed idea — into ready-to-post LinkedIn drafts, each shipping with its hashtags, keywords, @-mentions, references and an image-generation prompt. The style is not guessed: it is derived from a measured corpus of the author's own posts, which is what makes the output usable as written rather than as a first draft. Runs with zero dependencies and is provider-agnostic across Claude, GPT and Gemini.",
+    year: 2026,
+    projectStatus: "active",
+    tags: ["Python", "Prompt Engineering", "AI Workflows", "GenAI Tools"],
+    featured: false,
+    timelineOrder: 8,
+    repoUrl: "https://github.com/csdeepak/LINKEDIN-writer.ai",
+    role: "Solo",
+    outcomes: [
+      "Style derived from a measured corpus of 116 real posts",
+      "Zero runtime dependencies",
+      "Provider-agnostic — same pipeline across Claude, GPT and Gemini",
+    ],
   },
   {
     type: "project",
@@ -440,13 +547,59 @@ export const projects: Project[] = [
       "Most multi-agent systems choose between two bad options: give every agent an isolated memory, which prevents collaboration, or let all agents write into one shared history, which quickly becomes noisy, redundant, and inconsistent. ASMOS treats memory as a knowledge system instead of a chat history. An agent creates a semantic checkpoint only when it produces meaningful knowledge — a verified fact, a decision, an assumption, an observation — with metadata for topic, evidence, confidence, verification status, source agent, and relationships to earlier checkpoints. Agents share knowledge rather than conversations, and each retrieves only the checkpoints relevant to its current task. Memory is utility-driven rather than permanent: the memory manager continuously evaluates checkpoints on relevance, confidence, verification, and retrieval frequency, retaining what serves future reasoning and letting temporary detail expire. The aim is memory that stays scalable, explainable, and reusable as the number of agents grows.",
     year: 2026,
     projectStatus: "active",
-    tags: ["Python"],
+    tags: [
+      "Python",
+      "Agentic AI",
+      "Multi-Agent Systems",
+      "AI Agents",
+      "Memory Systems",
+    ],
     featured: true,
-    timelineOrder: null,
+    timelineOrder: 2,
     repoUrl: "https://github.com/csdeepak/ASMOS",
+    role: "Solo",
+    outcomes: [
+      "About 22% fewer prompt tokens at equal answer accuracy (roughly 18-26% by question), causally tested and stamped to a named artifact",
+      "Ablation isolates the cause: freezing ownership evolution costs +39.14 +/- 0.43 tokens per query and never inverts across seeds",
+      "A token re-count under a second tokenizer left the headline unchanged, so the result is not a tokenizer artifact",
+      "One hypothesis returned an honest FLAT null and is reported as such rather than dropped",
+      "22 test files covering contract, ownership, routing and scoring",
+    ],
+    skillsLearned: [
+      "Causal ablation design",
+      "Reporting null results honestly",
+      "Transactive memory routing",
+    ],
   },
 ];
-export const publications: Publication[] = [];
+export const publications: Publication[] = [
+  {
+    type: "publication",
+    slug: "panoramic-dental-radiographs-survey",
+    title:
+      "Deep Learning for Panoramic Dental Radiographs: A Comprehensive Survey on Caries Detection, Periodontal Bone Loss Assessment and Explainable AI",
+    status: "published",
+    publishedAt: "2026-04-06",
+    updatedAt: "2026-04-06",
+    relations: [],
+    authors: [
+      "C S Deepak",
+      "Chennupati Gunadeep",
+      "Archana",
+      "AVSN Sai Srujan",
+    ],
+    venue:
+      "Department of Computer Science, PES University (RR Campus), Bangalore",
+    year: 2026,
+    pubStatus: "preprint",
+    abstract:
+      "A survey of deep-learning methods for panoramic dental radiographs (OPG), covering caries detection, periodontal bone-loss assessment, tooth localization and numbering, and explainable AI. The review synthesises 47 papers published between 2021 and 2026 into a comparative account of what these methods measure, where they agree, and where reported results are not directly comparable.",
+    plainSummary:
+      "Before building a dental screening system, we read the field: 47 papers from 2021 to 2026 on reading dental X-rays with AI. The survey maps what has actually been demonstrated versus what is still assumed, and it is the groundwork the Dental AI Pipeline was built on.",
+    arxivUrl:
+      "https://github.com/csdeepak/Deep-Learning-for-Panoramic-Dental-Radiographs---survey-paper",
+  },
+];
 export const posts: Post[] = [];
 export const timeline: TimelineEntry[] = [];
 export const skills: Skill[] = [];

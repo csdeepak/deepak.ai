@@ -47,6 +47,43 @@ Full reasoning: `DECISIONS.md` → `D-062`.
   model call, and the Gemini free tier returned `503`/timeouts throughout. It is
   moot in production anyway until the Turnstile hostname above is fixed.
 
+**Last updated:** 2026-09-19 (D-066 — GitHub audit; the strongest work was not
+on the site)
+
+## D-066 — GitHub audit (latest)
+
+Audited all 22 repositories against the portfolio. The finding was not that a
+few things were missing: **the two strongest projects in the account were
+entirely absent, and the two most measurable published projects carried none of
+their measurements.**
+
+- **HandCode** (agent-infrastructure control plane; 502 tests, nine-point chaos
+  suite with real process death, CI on Linux and Windows) — absent. It is the
+  closest thing in the account to the role being targeted.
+- **Warden** (Razorpay AI Buildathon 2026; 131 tests, live payment rail) —
+  absent. `docs/31` 7.2 lists hackathons as absent from the corpus entirely.
+- **The survey paper** — absent, while `/publications` shipped empty that day.
+- **Dental AI Pipeline** showed no numbers despite mAP@0.5 0.810, macro F1
+  0.9233, 58.3% FDI end-to-end and four-hospital validation sitting in its
+  README.
+
+**Owner decision needed — the ASMOS figure.** The repo README now reports
+-23.84% +/- 0.15; the site says "about 22%", which is owner-ratified, appears
+in ten places, and explicitly superseded an earlier ~24%. The site keeps 22%.
+Not a call to make silently.
+
+**Two backend gaps fixed:** `db-ingest` silently dropped `timelineOrder` and
+never carried publications at all — both would have made content changes look
+applied without being applied.
+
+Full reasoning: `DECISIONS.md` -> `D-066`.
+
+- **Gates:** typecheck clean, build exit 0 with no new warnings, `/` 157.5 kB
+  <= 170 kB, `check:dex` 34/34, `check:typography` 22/22, no dangling Dex
+  sourceIds. The landing Timeline spine renders in file mode for the first time.
+
+---
+
 **Last updated:** 2026-09-19 (D-065 — Publications and Skills CRUD; every
 stubbed content type is now enterable)
 

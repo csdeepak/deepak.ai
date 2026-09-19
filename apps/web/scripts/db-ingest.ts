@@ -22,9 +22,10 @@ import {
   contentItems,
   abandonedBranches,
   projectsTable,
+  publicationsTable,
   siteSettings,
 } from "../src/db/schema";
-import { projects, siteContent } from "../content/site";
+import { projects, publications, siteContent } from "../content/site";
 
 const db = getDb();
 
@@ -77,6 +78,11 @@ async function ingestProjects() {
       videoUrl: project.videoUrl ?? null,
       outcomes: project.outcomes ?? [],
       skillsLearned: project.skillsLearned ?? [],
+      // In the schema since D-058 Phase E and never ingested, so the landing
+      // page's project spine silently ignored whatever the file said and kept
+      // whatever the DB already held. An ordering set in site.ts that the
+      // ingest drops is worse than no ordering: it looks applied and is not.
+      timelineOrder: project.timelineOrder ?? null,
     };
     await db
       .insert(projectsTable)
@@ -125,6 +131,71 @@ async function ingestProjects() {
   }
 }
 
+/**
+ * Publications were never ingested — the array existed in site.ts and this
+ * script only ever read `projects`, so a paper added to the file could not
+ * reach the site in db mode. Mirrors ingestProjects: upsert the base
+ * content_items row, then the child row.
+ */
+async function ingestPublications() {
+  if (publications.length === 0) {
+    console.log("Ingesting publications… none in site.ts, skipping.");
+    return;
+  }
+  console.log(`Ingesting ${publications.length} publication(s)…`);
+
+  for (const publication of publications) {
+    const returning = await db
+      .insert(contentItems)
+      .values({
+        slug: publication.slug,
+        title: publication.title,
+        contentType: "publication",
+        status: publication.status,
+        publishedAt: publication.publishedAt
+          ? new Date(publication.publishedAt)
+          : null,
+        question: "",
+      })
+      .onConflictDoUpdate({
+        target: contentItems.slug,
+        set: {
+          title: publication.title,
+          status: publication.status,
+          publishedAt: publication.publishedAt
+            ? new Date(publication.publishedAt)
+            : null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning({ id: contentItems.id });
+
+    const itemId = returning[0]?.id;
+    if (!itemId) throw new Error(`Upsert returned no id for ${publication.slug}`);
+
+    const fields = {
+      authors: publication.authors ?? [],
+      venue: publication.venue ?? "",
+      year: publication.year,
+      abstract: publication.abstract ?? "",
+      plainSummary: publication.plainSummary ?? "",
+      pdfUrl: publication.pdfUrl ?? null,
+      bibtex: publication.bibtex ?? null,
+      doi: publication.doi ?? null,
+      pubDate: publication.pubDate ?? null,
+      pubStatus: publication.pubStatus ?? "published",
+      arxivUrl: publication.arxivUrl ?? null,
+    };
+
+    await db
+      .insert(publicationsTable)
+      .values({ id: itemId, ...fields })
+      .onConflictDoUpdate({ target: publicationsTable.id, set: fields });
+
+    console.log(`  ✓ ${publication.slug} (${publication.status})`);
+  }
+}
+
 async function ingestSiteSettings() {
   console.log("Ingesting site settings…");
 
@@ -153,6 +224,7 @@ async function ingestSiteSettings() {
 async function main() {
   console.log("── DB ingest starting ──");
   await ingestProjects();
+  await ingestPublications();
   await ingestSiteSettings();
   console.log("── DB ingest complete ──");
   process.exit(0);
