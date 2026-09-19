@@ -235,7 +235,6 @@
   /* Fonts wired via next/font variables in the root layout. */
   --font-sans: var(--font-inter), "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-inter-tight), var(--font-inter), "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
