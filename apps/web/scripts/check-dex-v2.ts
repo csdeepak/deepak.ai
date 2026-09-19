@@ -353,7 +353,20 @@ const HONEST_UNKNOWN_QUESTIONS = [
   "What's Deepak's notice period if he were to join a company?",
   "Is Deepak open to relocating overseas for work?",
   "Does Deepak hold any AWS, GCP, or Kubernetes certifications?",
-  "Has Deepak contributed code to any open-source projects?",
+  // "Has Deepak contributed code to any open-source projects?" was here, and
+  // was removed in D-066 rather than left to fail. It belonged on this list
+  // while open-source was a genuine corpus gap (docs/31 section 7.2). That gap
+  // is now closed with evidence: the `open-source-contributions` card records
+  // that his substantial projects are public and MIT licensed, and states
+  // explicitly that this is publishing his own work, NOT contributions merged
+  // into other people's repositories.
+  //
+  // The distinction is the whole point, so it is asserted below rather than
+  // simply dropped — an answer that claimed he contributes to external
+  // projects would be a real fabrication and must still fail.
+  //
+  // "Won any hackathons" stays: Warden was built FOR the Razorpay Buildathon,
+  // which is participation, not a win. The corpus says nothing about placing.
   "Has Deepak won any hackathons or competitive programming contests?",
   "What's Deepak's expected salary or CTC?",
   "Does Deepak need visa sponsorship to work abroad?",
@@ -468,6 +481,35 @@ async function runLive(): Promise<void> {
       result.answer?.kind === "unknown",
       fabricated
         ? `FABRICATED — got "generated": "${result.answer!.answer.slice(0, 160)}"`
+        : `got ${result.answer?.kind ?? result.reason}`,
+    );
+  }
+
+  // D-066 — the replacement for the open-source entry removed from
+  // HONEST_UNKNOWN_QUESTIONS. Dex may now answer this, because the corpus
+  // genuinely covers it; what it must never do is upgrade "publishes his own
+  // MIT-licensed repositories" into "contributes to other people's projects".
+  // That would be a real fabrication and the exact overclaim the card was
+  // written to prevent, so the boundary is asserted rather than trusted.
+  {
+    const question = "Has Deepak contributed code to any open-source projects?";
+    const result = await pacedGenerate(question, "", config);
+    const text = (result.answer?.answer ?? "").toLowerCase();
+    // Any of these would assert participation in someone else's repository,
+    // which the corpus does not support.
+    const overclaims = [
+      "pull request",
+      "merged into",
+      "upstream",
+      "contributor to",
+      "contributed to the",
+    ].filter((phrase) => text.includes(phrase));
+
+    check(
+      "open-source answer stays inside what the corpus supports",
+      result.answer?.kind !== "generated" || overclaims.length === 0,
+      overclaims.length > 0
+        ? `OVERCLAIMED external contributions (${overclaims.join(", ")}): "${result.answer!.answer.slice(0, 160)}"`
         : `got ${result.answer?.kind ?? result.reason}`,
     );
   }
