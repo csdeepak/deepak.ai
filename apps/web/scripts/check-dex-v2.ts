@@ -49,6 +49,7 @@ import {
   interpretModelResponse,
   generateGroundedAnswer,
 } from "../src/lib/dex/llm/generate";
+import { safeBuildLiveContentCards } from "../src/lib/dex/llm/live-content";
 import { dexKnowledgeCards } from "../src/lib/dex/content";
 import { getDexLlmConfig } from "../src/lib/dex/llm/config";
 import { checkIpRateLimit, consumeDailyBudget } from "../src/lib/dex/llm/guard";
@@ -485,9 +486,102 @@ async function runLive(): Promise<void> {
   }
 }
 
+/**
+ * Phase 4 (docs/31 §7.1) — published projects and posts in the prompt.
+ *
+ * Offline: reads through `contentService`, which in this script resolves to
+ * file mode (no CONTENT_SOURCE set), so it needs no database and runs in CI.
+ * The point is not to assert *which* content exists — that changes every time
+ * the owner publishes — but that the wiring holds: live cards reach the
+ * prompt, their ids survive the grounding gate, their citations resolve to
+ * real page links, and the whole thing still fits the token budget.
+ */
+async function runLiveContentChecks(): Promise<void> {
+  console.log("\nPhase 4 — published content in the prompt");
+
+  const liveCards = await safeBuildLiveContentCards();
+
+  check(
+    "live content cards are produced from the content layer",
+    liveCards.length > 0,
+    `${liveCards.length} live cards (projects + posts)`,
+  );
+  if (liveCards.length === 0) return;
+
+  const liveContext = buildDexContext(
+    "What has Deepak been working on lately?",
+    "recruiter",
+    liveCards,
+  );
+
+  check(
+    "every live card reaches the prompt",
+    liveCards.every((card) => liveContext.includes(`[card:${card.id}]`)),
+    "a live card is missing from the context block",
+  );
+
+  check(
+    "the curated corpus still reaches the prompt alongside it",
+    cards.every((card) => liveContext.includes(`[card:${card.id}]`)),
+    "live content displaced a curated card",
+  );
+
+  const liveTokens = Math.round(
+    (DEX_SYSTEM_PROMPT.length + liveContext.length) / 4,
+  );
+  check(
+    "prompt with live content stays inside the free-tier token budget",
+    liveTokens < 40_000,
+    `~${liveTokens} tokens`,
+  );
+  console.log(`        (with live content ~${liveTokens} tokens, ${cards.length} curated + ${liveCards.length} live)`);
+
+  // The one that actually matters. Before Phase 4 `knownCardIds()` was the
+  // whole valid set, so an answer citing a live project id would have been
+  // rejected as ungrounded and downgraded to the contact hand-off — the
+  // freshest facts would have been the least citable ones.
+  const liveId = liveCards[0]!.id;
+  const grounded = interpretModelResponse(
+    JSON.stringify({
+      scope: "answer",
+      answer: "He recently shipped a project, described on the site.",
+      cardIds: [liveId],
+    }),
+    liveCards,
+  );
+  check(
+    "an answer citing only a live card is accepted, not downgraded",
+    grounded.answer?.kind === "generated",
+    `got kind=${grounded.answer?.kind}, reason=${grounded.reason}`,
+  );
+  check(
+    "a live citation resolves to a real page link",
+    (grounded.answer?.sources ?? []).some((s) => s.href?.startsWith("/")),
+    JSON.stringify(grounded.answer?.sources ?? []),
+  );
+
+  // Without the live set in hand, the same id must still be rejected — this is
+  // what protects the grounding gate from a model inventing a plausible
+  // `live-project-whatever` id when no live content was actually shown.
+  const unseen = interpretModelResponse(
+    JSON.stringify({
+      scope: "answer",
+      answer: "He recently shipped a project.",
+      cardIds: [liveId],
+    }),
+  );
+  check(
+    "a live id is rejected when no live content was in the prompt",
+    unseen.answer?.kind === "unknown" && unseen.reason === "ungrounded",
+    `got kind=${unseen.answer?.kind}, reason=${unseen.reason}`,
+  );
+}
+
 async function main(): Promise<void> {
   const validIds = knownCardIds();
   check("card id index is populated", validIds.size === cards.length);
+
+  await runLiveContentChecks();
 
   await runInfraChecks();
 

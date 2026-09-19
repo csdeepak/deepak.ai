@@ -2,6 +2,51 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-09-18 (D-062 — Dex Phase 4 live corpus; and the discovery
+that Dex v2's LLM path has never actually run in production)
+
+## ⚠️ Dex v2 is not answering in production — one owner action
+
+Traced against the live site on 2026-09-18, not inferred:
+
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` **is** set (this corrects the older note below
+saying the Vercel vars were missing) and Cloudflare *is* reached — the challenge
+request fires and returns in 120ms. But the widget's response input stays empty
+and `getResponse()` is `undefined`, so every question ships an empty token, the
+server reads `turnstile_missing`, and the v1 cached matcher answers. Confirmed:
+a live `/api/dex/answer` call returned `kind: "cached"`.
+
+It hid for weeks because `error-callback` discarded Cloudflare's error code.
+Every guardrail behaved exactly as D-060 designed — fail closed, fall back,
+show no error — so nothing looked broken. **The code is now logged.**
+
+**The one thing left, and it needs a Cloudflare login:** dashboard → Turnstile →
+your widget → Hostname management → confirm `deepak-ai-web.vercel.app` is listed
+exactly (no `https://`, no trailing slash). That is `docs/32` Step 4, and it is
+the top suspect for error `110200`. If the hostname is already there, the newly
+logged code will name the real cause.
+
+## D-062 — Dex Phase 4 (latest)
+
+Published projects and posts now join the prompt, so Dex is no longer frozen at
+2026-08-04 while the site keeps publishing. Rendered into the same card shape
+the curated corpus uses, as a separate labelled block; the grounding gate
+accepts live ids (without that, the freshest facts would have been the least
+citable); citations resolve to the real page. Fails soft to the curated corpus
+if the database is unreachable.
+
+Also closed: `check:dex-v2` is in CI at last (flagged since D-054),
+`KNOWN_LIMITATIONS.md` is rewritten from scratch, and `CLAUDE.md` now exists.
+
+Full reasoning: `DECISIONS.md` → `D-062`.
+
+- **Gates:** typecheck clean · build exit 0 · `check:bundle` 157.2 kB ≤ 170 kB ·
+  `check:dex` 34/34 · `check:typography` 22/22 · `check:dex-v2` **30/30** (was
+  22), with the Phase 4 grounding change proven to fail 2 checks when reverted.
+- **Not verified:** Phase 4's effect on real answer quality — that needs a live
+  model call, and the Gemini free tier returned `503`/timeouts throughout. It is
+  moot in production anyway until the Turnstile hostname above is fixed.
+
 **Last updated:** 2026-09-19 (D-065 — Publications and Skills CRUD; every
 stubbed content type is now enterable)
 
