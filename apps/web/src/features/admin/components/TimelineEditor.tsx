@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import {
   saveTimelineEntry,
+  publishTimelineEntry,
+  unpublishTimelineEntry,
+  archiveTimelineEntry,
   type TimelineFormState,
 } from "@/features/admin/actions/timeline";
-import { TimelinePublishBar } from "./TimelinePublishBar";
+import { ContentPublishBar } from "./ContentPublishBar";
 import type { ContentStatus } from "@/types/content";
 
 export interface TimelineEditorData {
@@ -210,10 +213,14 @@ export function TimelineEditor({ data }: { data: TimelineEditorData }) {
         </Button>
       </form>
 
-      <TimelinePublishBar
+      <ContentPublishBar
         id={data.id}
         status={data.status}
         question={question}
+        publishAction={publishTimelineEntry}
+        unpublish={unpublishTimelineEntry}
+        archive={archiveTimelineEntry}
+        noun="entry"
       />
     </div>
   );

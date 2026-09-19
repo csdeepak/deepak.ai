@@ -2,8 +2,14 @@
 
 import { useActionState, useRef, useState } from "react";
 import type { ContentStatus } from "@/types/content";
-import { savePost, type PostFormState } from "@/features/admin/actions/posts";
-import { PostPublishBar } from "@/features/admin/components/PostPublishBar";
+import {
+  savePost,
+  publishPost,
+  unpublishPost,
+  archivePost,
+  type PostFormState,
+} from "@/features/admin/actions/posts";
+import { ContentPublishBar } from "@/features/admin/components/ContentPublishBar";
 import { StatusBadge } from "@/features/admin/components/PublishBar";
 import type { MediaListItem } from "@/features/admin/queries/media";
 import { Button } from "@/components/ui/button";
@@ -230,7 +236,15 @@ export function PostEditor({
       </div>
 
       {/* Sticky publish bar */}
-      <PostPublishBar id={data.id} status={data.status} question={question} />
+      <ContentPublishBar
+        id={data.id}
+        status={data.status}
+        question={question}
+        publishAction={publishPost}
+        unpublish={unpublishPost}
+        archive={archivePost}
+        noun="post"
+      />
     </div>
   );
 }
