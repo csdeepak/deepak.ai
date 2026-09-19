@@ -51,8 +51,23 @@ export const siteContent = {
     updatedAt: "2026-07-11",
   } as { phrase: string; updatedAt: string } | null,
 
-  /** TODO(asset): real CV file in /public; null hides the CTA. */
-  cvUrl: null as string | null,
+  /**
+   * The general/portfolio CV, built from RESUME_MASTER.md in the owner's own
+   * LaTeX template (`PESU/resume/latex/Portfolio_General.tex`).
+   *
+   * Deliberately NOT one of the JD-tailored copies in that folder: a resume
+   * addressed to Walmart, downloaded by a recruiter from somewhere else, is
+   * worse than no download at all.
+   *
+   * It also drops the phone number the tailored copies carry in their header.
+   * This file is served publicly from /public, the site exposes no phone
+   * anywhere else, and a scrapeable number on a portfolio invites spam —
+   * email and LinkedIn are the contact path. No CGPA and no C++, per the
+   * standing decisions recorded in RESUME_MASTER.md.
+   *
+   * null hides the CTA (graceful absence).
+   */
+  cvUrl: "/cv-c-s-deepak.pdf" as string | null,
 
   /** Real contact email; null hides the direct block. */
   contactEmail: "csdeepak2005@gmail.com" as string | null,
