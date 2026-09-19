@@ -27,13 +27,15 @@ export const ROUTES = {
  * Skills sits between Work and Posts deliberately: for the site's stated
  * primary audience — evaluators — "what can he do" and "what has he built"
  * are the same question asked two ways, and they belong next to each other.
- * Research stays listed but unbuilt, so it self-hides via BUILT_ROUTES.
+ *
+ * The Research lane points at /publications, not the unbuilt /research. It had
+ * been self-hiding since the beginning for want of a page; D-065 built one.
  */
 export const NAV_LANES = [
   { label: "Work", href: ROUTES.projects },
   { label: "Skills", href: ROUTES.skills },
   { label: "Posts", href: ROUTES.posts },
-  { label: "Research", href: ROUTES.research },
+  { label: "Research", href: ROUTES.publications },
   { label: "About", href: ROUTES.about },
 ] as const;
 
@@ -74,6 +76,14 @@ export const BUILT_ROUTES: ReadonlySet<string> = new Set<string>([
   ROUTES.posts, // D-058 Phase D
   ROUTES.about, // D-063 — the page an evaluator looks for by name
   ROUTES.timeline, // D-064 — the career record, now that admin CRUD exists
+  // D-065 — the research shelf. Registered even while empty, because
+  // docs/SESSION_START §6 is explicit that an empty publications shelf should
+  // be "visibly, unashamedly empty" rather than hidden: for a student
+  // portfolio that is a true and unembarrassing state, and hiding it would be
+  // the dishonesty the whole system exists to avoid. Unlike /timeline, this
+  // one IS a nav lane (Research), because the lane already existed in
+  // NAV_LANES and was only self-hiding for want of a page.
+  ROUTES.publications,
   ROUTES.gallery, // D-058 Phase F
   // D-063 — /memory is IMMERSIVE, not a lane: it renders outside the (site)
   // chrome group. Listing it here gets it into the footer and the sitemap;

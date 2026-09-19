@@ -20,6 +20,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 - **`memory/KNOWN_LIMITATIONS.md` rewritten.** It still read "No application code exists. Tech stack undecided." for a deployed site with a working CMS.
 
+- **Publications and Skills CRUD (D-065)** — the last two admin stubs. `/admin/publications` was 21 lines reading "ships in the next sprint"; `/admin/skills` was 13. Both schemas had existed since D-043.
+- **`/publications`** — the research shelf, each entry led by its plain-language summary rather than its abstract, with copyable BibTeX. Registered while empty on purpose: `docs/SESSION_START` section 6 asks for an empty shelf to be "visibly, unashamedly empty".
+- **The Research nav lane now points at `/publications`** — it had been listed and self-hiding since the beginning for want of a page. Nav is now five lanes.
+- **`getSkills()`** on the ContentService — `getCurrentSkills()` narrows to `current: true`, which is wrong for a full listing.
+
+### Changed
+- **`/skills` merges owner-authored enrichment by name.** A DB row upgrades a taxonomy entry with context/category/current; taxonomy-only skills are untouched; DB-only skills are appended. Enrichment adds, never replaces — making the database authoritative would have blanked a working page until 22 items were re-entered by hand.
+
+
+### Added
 - **Timeline/experience CRUD (D-064)** — `/admin/timeline` was a 13-line stub, so work experience could not be recorded at all. Full editor with version history, mirroring the Posts pattern. Publishing is gated on LAW-003 like every other content type.
 - **`/timeline`** — the public career record, plus a short Experience list on `/about`. Both self-hide when nothing is published; `/timeline` is registered in the footer and sitemap but deliberately not a nav lane until it has content.
 

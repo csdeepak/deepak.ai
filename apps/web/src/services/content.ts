@@ -33,5 +33,9 @@ export interface ContentService {
   getPost(slug: string): Promise<Post | null>;
 
   getTimeline(): Promise<TimelineEntry[]>;
+  /** Published skills the owner has enriched — current AND previously.
+   *  Distinct from getCurrentSkills(), which narrows to `current: true` for
+   *  the "currently working with" surfaces. */
+  getSkills(): Promise<Skill[]>;
   getCurrentSkills(): Promise<Skill[]>;
 }

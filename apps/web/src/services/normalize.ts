@@ -149,6 +149,7 @@ export function withNormalizedTypography(
     },
 
     getTimeline: async () => (await service.getTimeline()).map(timelineEntry),
+    getSkills: async () => (await service.getSkills()).map(skill),
     getCurrentSkills: async () =>
       (await service.getCurrentSkills()).map(skill),
   };
