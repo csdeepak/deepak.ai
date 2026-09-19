@@ -1,6 +1,7 @@
 import "server-only";
 import { dexFaqCache, dexKnowledgeCards } from "../content";
 import { DEX_VISITOR_ROLE_LABEL, isDexVisitorRole } from "../intake-shared";
+import type { DexLiveCard } from "./live-content";
 import type { DexFaq, DexKnowledgeCard } from "../types";
 
 /**
@@ -132,16 +133,42 @@ Rules for the fields:
 - "cardIds": required whenever scope is "answer". Only ids that appear in the CONTEXT.
 - When scope is "unknown" or "refuse", leave "answer" and "cardIds" empty. The site supplies that wording itself.`;
 
-export function buildDexContext(question: string, visitorRole: string): string {
+/**
+ * Renders a card into its prompt block. Shared by the curated corpus and the
+ * live content (Phase 4) on purpose: the model should not be able to tell
+ * which is which, because the grounding rules are identical for both.
+ */
+function renderCard(card: DexKnowledgeCard): string {
+  const tags = card.tags.length > 0 ? `\n(tags: ${card.tags.join(", ")})` : "";
+  return `[card:${card.id}] ${card.title}\n${card.summary}${tags}`;
+}
+
+export function buildDexContext(
+  question: string,
+  visitorRole: string,
+  /**
+   * Published projects and posts, read live from the content layer
+   * (docs/31 §7.1). Defaults to none so every existing caller — including the
+   * offline half of the guard script — keeps working with the curated corpus
+   * alone, which is also the honest fallback when the database is unreachable.
+   */
+  liveCards: DexLiveCard[] = [],
+): string {
   const cards = publicKnowledgeCards();
   const faqs = rankFaqs(question);
 
-  const cardBlock = cards
-    .map(
-      (card) =>
-        `[card:${card.id}] ${card.title}\n${card.summary}\n(tags: ${card.tags.join(", ")})`,
-    )
-    .join("\n\n");
+  const cardBlock = cards.map(renderCard).join("\n\n");
+
+  // A separate, labelled block rather than one merged list. The curated cards
+  // carry interpretation ("why this matters", "how he works"); these carry the
+  // record. Telling the model which is which lets it lead with judgement and
+  // reach for the catalogue when asked what actually exists.
+  const liveBlock =
+    liveCards.length > 0
+      ? `\n\n---\n\nCONTEXT — published work, read live from the site. This is the current record: if it is listed here, it is live on the site right now. Cite by id exactly as above.\n\n${liveCards
+          .map(renderCard)
+          .join("\n\n")}`
+      : "";
 
   const faqBlock = faqs
     .map((faq) => `Q: ${faq.question}\nA: ${faq.answer}`)
@@ -161,7 +188,7 @@ export function buildDexContext(question: string, visitorRole: string): string {
 
   return `CONTEXT — approved knowledge cards about Deepak. Cite by id.
 
-${cardBlock}
+${cardBlock}${liveBlock}
 
 ---
 

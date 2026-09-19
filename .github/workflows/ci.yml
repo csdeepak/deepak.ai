@@ -104,3 +104,16 @@ jobs:
       - name: Guard - typography normalization
         working-directory: apps/web
         run: npm run check:typography
+
+      # D-059/D-060/D-061: Dex v2 output guardrails. No secrets are set here,
+      # so this runs the OFFLINE + Phase 4 sections only — the INFRA (Upstash,
+      # Cloudflare) and LIVE (Gemini) sections skip themselves when their env
+      # vars are absent, by design. That offline half is the part that must
+      # never regress: the grounding gate, the fabrication scrub, the link
+      # allowlist, and the live-content wiring are what stand between a public
+      # endpoint and a confidently wrong answer.
+      #
+      # Flagged as "worth doing" since D-054 and repeatedly deferred.
+      - name: Guard - Dex v2 output guardrails (offline)
+        working-directory: apps/web
+        run: npm run check:dex-v2

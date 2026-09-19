@@ -831,6 +831,48 @@ Still open, and cannot be closed by any automated check: whether the Turnstile w
 
 ---
 
+## D-062 — Dex Phase 4: published content in the prompt; and the silent failure it exposed
+
+- **Date:** 2026-09-18.
+- **Status:** Implemented, gate-green, 30/30 on `check:dex-v2` (was 22/22). One finding remains owner-side and is stated plainly below.
+- **Context:** D-061 put Dex in the nav of every public page. That raised the stakes on two things that had been quietly true for weeks.
+
+### Finding 1 — Dex v2's LLM path has never run in production
+
+Traced against the live site rather than inferred:
+
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` **is** set — the Cloudflare challenge request fires and returns in 120ms. This corrects `CURRENT_STATE.md`, which said the Vercel env vars were not set.
+- The widget renders its `cf-chl-widget-…_response` input, but that input stays **empty** and `getResponse()` is `undefined`.
+- So every question ships an empty token, `generate.ts` returns `turnstile_missing`, and the v1 cached matcher answers. Confirmed end-to-end: a live `/api/dex/answer` call returned `kind: "cached"`.
+
+**Why it went unnoticed for weeks, and the lesson worth keeping:** `error-callback` discarded the error code Cloudflare passes it. Every guardrail behaved *exactly as D-060 designed* — fail closed, fall back to v1, never show an error — so the product looked completely healthy while its best answer path was off. **Fail-closed behaviour hides misconfiguration.** Correct degradation is not the same as observable degradation; anything that degrades silently needs a log line, not just correct behaviour. The code now logs the error code (110200 = hostname not on the widget allowlist, 110100 = bad sitekey).
+
+**Not fixed here, and cannot be:** the underlying configuration lives in the Cloudflare dashboard (`docs/32` Step 4). That needs an owner login.
+
+### Finding 2 — the corpus was frozen while the site kept publishing
+
+Every curated card's `updatedAt` sits between 2026-07-27 and 2026-08-04, while posts, a gallery, a timeline and more projects shipped since. Prominence went up in D-061; freshness did not.
+
+- **Decision — render published content into the existing card shape, not a new pathway.** Projects and posts become `DexKnowledgeCard`s, so the grounding gate, citation resolution and fabrication scrub all keep working untouched. The model does not need to know which cards were hand-written; it needs facts with stable, citable ids.
+- **Decision — a separate, labelled block rather than one merged list.** The curated cards carry *interpretation* (why a project matters, how he works); live content carries the *record*. Telling the model which is which lets it lead with judgement and reach for the catalogue when asked what actually exists. Merging them would have flattened that distinction and invited the model to treat a one-line post dek as considered analysis.
+- **Decision — the grounding gate accepts live ids.** This is the change that makes the rest work: `knownCardIds()` was the entire valid set, so an answer citing a live project would have been rejected as ungrounded and downgraded to the contact hand-off. **The freshest facts would have been the least citable ones** — the exact inverse of the goal. Proven: reverting this one predicate fails 2 of the 7 new checks.
+- **Decision — live citations resolve to the page itself** (`/projects/<slug>`), which is strictly better than a curated source: the visitor gets a link to the actual artifact the claim came from, and it is ordered ahead of curated sources for that reason.
+- **Decision — read the card set once and pass it forward,** rather than re-reading it during validation. The set the model was shown must be exactly the set its citations are checked against, or a publish landing mid-request could invalidate a legitimate citation.
+- **Decision — fail soft, deliberately inverting the surrounding convention.** `contentService` is used unwrapped at runtime by design (`services/index.ts`: the build-time fallback is build-only so a real outage surfaces rather than silently serving stale content). That is right for a page render, which should fail loudly. It is wrong here — an unreachable database should cost Dex its freshest facts, not its ability to answer. `safeBuildLiveContentCards` catches and returns the curated corpus alone, which is precisely Dex's pre-Phase-4 behaviour.
+- **Bounds:** 24 projects, 15 most recent posts, 420 characters each. Measured at ~9,322 tokens with live content against the 40,000 budget the guard asserts (was ~8,460). Posts accumulate forever; projects do not, which is why only posts are capped by recency.
+
+### Also closed in this pass
+
+- **`check:dex-v2` is finally in CI.** Flagged as "worth doing" since D-054 and deferred repeatedly. No secrets exist in CI, so the INFRA and LIVE sections skip themselves by design and the offline + Phase 4 guardrails run — the half that must never regress.
+- **`memory/KNOWN_LIMITATIONS.md` rewritten.** It still read "No application code exists. Tech stack undecided." for a deployed site with a working CMS — the one memory file that would actively mislead a fresh session. Now an eleven-row honest gap list.
+- **`CLAUDE.md` added.** Every session was re-deriving the conventions from ~1,200 lines of `SESSION_START.md`. Includes the traps that have already cost real time: Python-on-Windows rewriting LF to CRLF, the dev server's `.next` lock, the two `.env.local` files, and the admin's deliberate independence from `contentService`.
+
+### Verification
+
+Typecheck clean · `CONTENT_SOURCE=file` build exit 0 · `check:bundle` 157.2 kB ≤ 170 kB · `check:dex` 34/34 · `check:typography` 22/22 · `check:dex-v2` **30/30**, with the Phase 4 grounding change proven to fail 2 checks when reverted.
+
+**Not verified:** Phase 4's effect on real answer quality. That needs a live model call, and the free tier returned `503`/timeouts throughout this session — the same reason `check:dex-v2`'s live battery could not be run green. It is also moot in production until Finding 1's Cloudflare hostname is fixed, since the LLM path is not being reached at all.
+
 ## D-063 — Reachability: the site served five pages and offered a two-lane nav
 
 - **Date:** 2026-09-19.
