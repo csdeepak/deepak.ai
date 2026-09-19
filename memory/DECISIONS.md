@@ -977,3 +977,46 @@ typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings (the two 
 ### Correction to this session's own work
 
 An earlier pass reported `dental-ai-pipeline` as missing its `repoUrl`. It was not: the URL is on a wrapped line that a same-line regex did not match. A false positive from the audit tooling, not a defect in the content.
+
+---
+
+## D-067 — Engineering polish, and one recommendation withdrawn
+
+- **Date:** 2026-09-19.
+- **Status:** Implemented, gate-green. Stacked on D-066.
+
+### Withdrawn — dropping JetBrains Mono is not a perf win
+
+An earlier pass this session called this "the cheapest perf win left". Measured properly, that was wrong and is withdrawn.
+
+The real payload is **130.7 kB across three preloaded faces** (Inter 43.9, Inter Tight 39.5, JetBrains Mono 47.3). The other 17 woff2 files in `.next/static/media` are unicode-range subsets Google splits out and the browser never fetches. All three faces are genuinely used: `--font-sans` is Inter, `--font-display` is Inter Tight falling back to Inter, `--font-mono` is JetBrains Mono across **98 usages**.
+
+Pinning the variable faces to specific weights would make it *worse* — three static Latin instances of Inter exceed one variable file. And dropping the mono face is an **identity change**, not an optimisation: `docs/14` lists it among the recognition devices used "relentlessly, never diluted", and the owner asked explicitly that the site's identity be preserved. 130 kB of `display: swap` fonts that do not block an LCP carried by the hero poster is defensible. **Not done, deliberately.**
+
+One real finding survived: `--font-serif` was declared in `globals.css`, pointed at `--font-newsreader` which is never loaded, and was referenced by no rule or component. Dead three ways; removed.
+
+### One publish bar for five content types
+
+Posts, Timeline, Publications and Skills each carried a copy of the same lifecycle. The migration was not mechanical — it surfaced a real defect in my own D-065 work.
+
+`PostPublishBar` handled three states; `ContentPublishBar` knew two. It offered Publish whenever status was not `published`, so an **archived item jumped straight back to live, skipping draft**, and never offered the Restore that Posts always had. Migrating naively would have shipped that as a silent behaviour change on Posts — and it means Publications and Skills have been inconsistent with Posts since D-065. The shared bar now mirrors the Posts original exactly: draft → Publish + Delete, published → Un-publish + Delete, archived → Restore. Delete hides when archived.
+
+### Work index filtering, and what the data said about it
+
+Filters the DOM rather than re-rendering a list: the obvious implementation serialises every project — including the paragraph-length `problem` the card clamps — into the RSC payload, so each ships twice, roughly doubling the page transfer to buy a filter. Cards stay server-rendered; the component toggles `hidden` by ref. Without JavaScript the chips never render and every card shows, which is the correct unfiltered state rather than a broken control.
+
+**A tag earns a chip only if it partitions the work:** used ≥2 times and covering ≤60% of projects. The upper bound is the half that matters — measured against the real corpus, **"Python" covers 8 of 9**, so a Python chip hides one card and looks broken. This is D-054's reasoning applied to a different surface: terms ubiquitous across a corpus carry no discriminating signal. A filter is a search with buttons.
+
+**Honest limitation:** with the heuristic applied the corpus yields only **two** usable chips (Jupyter, scikit-learn). The control is correct and self-adjusting, but thin today — not because of the heuristic, but because the *stored* tag vocabulary is thinner than the audited one. `PROJECT_SKILL_ADDITIONS` in `content/skills.ts` holds the richer set (Computer Vision, Deep Learning, Transformers, Agentic AI, Multi-Agent Systems) from the 2026-08-04 code audit, and D-058 scoped it hero-only so a hero decision would not silently rewrite the Work listing. Promoting those into stored tags is the unlock, and it is a **content decision for the owner**, not something to do unilaterally.
+
+### CONTRIBUTING now describes the real workflow
+
+It documented Git Flow with a `develop` integration branch. The project never worked that way — `develop` is untouched since the initial commit and 122 commits behind `main`. A guide documenting a workflow nobody follows is worse than one documenting a simple workflow honestly. The note explaining the change is left in place so the next reader knows it was deliberate.
+
+### Verification
+
+typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings · `/` **157.5 kB ≤ 170 kB**, unchanged · `/projects` 106 → 114 kB, still static, no ceiling on that route · `check:dex` 34/34 · `check:typography` 22/22. Filter verified server-side: 9 items each carrying `data-project-tags`, chips reduced from `[All, Python, Jupyter, scikit-learn]` to `[All, Jupyter, scikit-learn]` once the coverage ceiling was applied.
+
+### Not done, and why
+
+**Gallery positional IDs** (`g01…gNN` by sorted filename) still break deep links when an earlier-sorting photo is inserted. Fixing it means choosing a migration for existing `/gallery#g03` links, which is an owner ruling, not a refactor. Recorded in `specs/gallery.md` §9 and `KNOWN_LIMITATIONS.md`.
