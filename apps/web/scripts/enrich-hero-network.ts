@@ -27,6 +27,12 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import {
+  PROJECT_SKILL_ADDITIONS,
+  FOUNDATIONAL_SKILLS,
+  GENERAL_AI_SKILLS,
+  effectiveProjectSkills,
+} from "../content/skills";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const JSON3D_PATH = join(__dirname, "..", "public", "hero-face-3d.json");
@@ -166,18 +172,7 @@ function fib(i: number, n: number): Vec3 {
  *   and end of the scroll" the owner asked for — see the flight-rail bookend
  *   selection in NeuralFace3DScene.tsx, which looks these two up by name.
  */
-const HERO_SKILL_ADDITIONS: Record<string, string[]> = {
-  "pesu-vault": ["REST APIs"],
-  "turb-detr": ["PyTorch", "Computer Vision", "Deep Learning", "Transformers"],
-  "docksmith-engine": ["Systems Programming"],
-  "shortcutscore": ["Explainable AI", "Deep Learning"],
-  "dental-ai-pipeline": ["Computer Vision", "Deep Learning"],
-  asmos: ["Agentic AI", "Multi-Agent Systems", "AI Agents"],
-};
-/** Bookend-eligible — kept small and specific, not the owner's full CS list. */
-const FOUNDATIONAL_SKILLS = ["Data Structures & Algorithms", "Operating Systems"];
-/** General AI/automation vocabulary the owner's original ask named directly. */
-const GENERAL_AI_SKILLS = ["Prompt Engineering", "RAG concepts", "AI Workflows", "GenAI Tools"];
+const HERO_SKILL_ADDITIONS = PROJECT_SKILL_ADDITIONS;
 
 function effectiveTags(proj: ProjectRecord): string[] {
   return [...proj.tags, ...(HERO_SKILL_ADDITIONS[proj.slug] ?? [])];

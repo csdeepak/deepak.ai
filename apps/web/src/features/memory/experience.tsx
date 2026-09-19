@@ -101,33 +101,53 @@ export function LivingMemory({ memory }: { memory: Memory }) {
         className="pt-14 outline-none"
         aria-label={phase === "map" ? "Memory map" : `${memory.title} reconstructed`}
       >
-        <AnimatePresence mode="wait">
-          {phase === "map" ? (
-            <motion.div
-              key="map"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="flex min-h-[calc(100svh-3.5rem)] flex-col items-center justify-center px-6 py-16"
-            >
-              <MemoryMap onRecall={recall} onUnformed={onUnformed} />
-              <p className="mt-10 max-w-sm text-center text-small text-faint">
-                A mind, mid-thought. Select a memory to reconstruct it.
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="recall"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <Reconstruction memory={memory} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/*
+         * A plain keyed conditional, NOT `AnimatePresence mode="wait"`.
+         *
+         * That combination left this page a blank screen in production.
+         * Reproduced locally and on the deployed site: clicking a memory
+         * flipped `phase` correctly — the header's Ask Dex / Exit buttons
+         * appeared and stayed — but the exiting map was animated to
+         * `opacity: 0` and then never removed from the DOM, so the entering
+         * `recall` child never mounted. `<main>` kept the map's node forever
+         * and no `stage-*` element was ever rendered. Under motion 11.18.2
+         * with React 19, AnimatePresence completed the exit animation without
+         * completing the removal, and `mode="wait"` makes the entrance wait on
+         * exactly that removal.
+         *
+         * Dropping `mode="wait"` alone would not have been enough: the stale
+         * node still occupies `min-h-[calc(100svh-3.5rem)]`, so the
+         * reconstruction would have mounted a full viewport below the fold,
+         * which reads as the same blank screen.
+         *
+         * Only the exit animation is lost, a 0.4s fade on a view that is being
+         * replaced anyway. The entrance still carries the state change, which
+         * is the part docs/24 §0.3 actually asks for — motion when meaning
+         * changes, stillness otherwise.
+         */}
+        {phase === "map" ? (
+          <motion.div
+            key="map"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="flex min-h-[calc(100svh-3.5rem)] flex-col items-center justify-center px-6 py-16"
+          >
+            <MemoryMap onRecall={recall} onUnformed={onUnformed} />
+            <p className="mt-10 max-w-sm text-center text-small text-faint">
+              A mind, mid-thought. Select a memory to reconstruct it.
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="recall"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Reconstruction memory={memory} />
+          </motion.div>
+        )}
       </main>
 
       {/* Honest response to an unformed memory. */}

@@ -20,6 +20,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 - **`memory/KNOWN_LIMITATIONS.md` rewritten.** It still read "No application code exists. Tech stack undecided." for a deployed site with a working CMS.
 
+- **`/skills` (D-063)** — the owner's real 22-item skill taxonomy, which until now lived in a build script and was rendered only as dots in the 3D hero. Skills evidenced by shipped work link to the projects that prove them; self-reported skills sit in separate labelled groups.
+- **`/about` (D-063)** — the page an evaluator looks for by name. "The record" counts are computed from published content at build time, never hand-written.
+- **`content/skills.ts`** — one source of truth for the taxonomy, imported by both the hero pipeline and the page so they cannot drift.
+
+### Fixed
+- **`/memory` was a blank screen.** 724 lines implementing the project's north-star concept shipped broken: `AnimatePresence mode="wait"` completed its exit animation but never removed the exiting child, so the reconstruction never mounted. Only `mode="wait"` in the codebase, which is why nothing else showed symptoms.
+- **The hero's "Read the memory" CTA went to `/projects/asmos`.** Now "Enter the memory", pointing at `/memory`.
+
+### Changed
+- **Nav: two lanes → four** (Work | Skills | Posts | About). `/memory` and `/gallery` were live but effectively invisible — `/memory` was in no registry at all, reachable only by typing the URL. Both now reach the footer and the sitemap.
+
 
 ### Added
 - **Dex is reachable from every public page (D-061).** `DexNavTrigger` (the presence dot, per `docs/14`) in the nav; `DexContextChip` ("Ask Dex about <project>") on project detail pages, the entry point `docs/12` specified and nobody built; ⌘K/Ctrl+K opens Dex. Previously `DexTrigger` appeared exactly once, in the hero CTA row, and that copy fades out one viewport in.

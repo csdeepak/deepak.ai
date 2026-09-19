@@ -47,6 +47,41 @@ Full reasoning: `DECISIONS.md` → `D-062`.
   model call, and the Gemini free tier returned `503`/timeouts throughout. It is
   moot in production anyway until the Turnstile hostname above is fixed.
 
+**Last updated:** 2026-09-19 (D-063 — reachability: five live pages, two-lane
+nav, and a north-star feature that was broken and unlinked)
+
+## D-063 — what the re-audit found (latest)
+
+Measured against production with `curl` over every specified route: exactly
+five returned 200 (`/`, `/memory`, `/gallery`, `/posts`, `/projects`) while the
+nav offered two lanes.
+
+- **`/memory` was broken, not just hidden.** 724 lines of `docs/26`'s Living
+  Memory left a blank screen: `AnimatePresence mode="wait"` finished its exit
+  animation but never removed the exiting child, so the reconstruction never
+  mounted. Fixed, and now reachable from the hero.
+- **The skill taxonomy existed only as scene decoration.** 22 owner-authored
+  skills lived in a build script, rendered as dots in the 3D graph. No page
+  showed a skills list. Now `/skills`, with every evidenced skill linking to
+  the project that proves it.
+- **No About page existed.** Now `/about`, with counts computed from published
+  content rather than written by hand.
+- **The hero's "Read the memory" CTA pointed at `/projects/asmos`.** Fixed.
+
+Nav is now Work | Skills | Posts | About; the footer carries Memory and
+Gallery. Full reasoning: `DECISIONS.md` → `D-063`.
+
+**Deliberately not built:** `/timeline`, `/publications`, `/contact`. All three
+have schema, a 13–21 line admin **stub**, and no content. The blocker is admin
+CRUD, not the public page — building empty pages would look like progress and
+deliver none.
+
+**Owner note:** the `currentFocus` line is dated 2026-07-11, so the "Currently"
+block on `/about` is correctly self-hidden by the 30-day freshness rule.
+
+- **Gates:** typecheck clean · build exit 0 · `/` 157.5 kB ≤ 170 kB ·
+  `check:dex` 34/34 · `check:typography` 22/22.
+
 ---
 
 **Last updated:** 2026-09-18 (D-061 surfacing pass — Dex reachable site-wide, work
