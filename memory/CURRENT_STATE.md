@@ -47,6 +47,39 @@ Full reasoning: `DECISIONS.md` → `D-062`.
   model call, and the Gemini free tier returned `503`/timeouts throughout. It is
   moot in production anyway until the Turnstile hostname above is fixed.
 
+**Last updated:** 2026-09-19 (D-064 — Timeline CRUD, closing the stub that
+blocked a whole content type)
+
+## D-064 — experience is now recordable (latest)
+
+D-063 declined to build `/timeline`, `/publications` and `/contact` because each
+had schema, an admin **stub**, and no content — the real blocker was the admin.
+D-064 removes it for the highest-value one.
+
+Work experience was impossible to record: `timeline_entries` has had a schema
+since D-043 and `/admin/timeline` was 13 lines. That is why `docs/31` §7.2 lists
+internships as absent from Dex's corpus entirely, while calling it "the single
+most common recruiter screen".
+
+Now: full admin CRUD with version history (mirroring Posts), a public
+`/timeline`, and an Experience block on `/about`. Both public surfaces self-hide
+when empty. `/timeline` is in the footer and sitemap but **not** a nav lane —
+a lane pointing at an empty shelf is worse than no lane. One-line promotion once
+there is content.
+
+**Owner action:** create one entry end to end at `/admin/timeline/new`. The auth
+middleware correctly blocks an AI from logging in, so the editor's rendering is
+unverified — only its queries and compilation were exercised.
+
+**Still stubs:** `/admin/publications` (21 lines), `/admin/skills` (13 lines).
+
+- **Gates:** typecheck clean · build exit 0 · `/` 157.5 kB ≤ 170 kB ·
+  `check:dex` 34/34 · `check:typography` 22/22 · `check:dex-v2` **52/52
+  including the live Gemini battery** — the free tier has recovered, so Phase 4
+  can finally be verified live once PR #5 lands.
+
+---
+
 **Last updated:** 2026-09-19 (D-063 — reachability: five live pages, two-lane
 nav, and a north-star feature that was broken and unlinked)
 

@@ -46,9 +46,10 @@ function focusIsFresh(updatedAt: string): boolean {
 }
 
 export default async function AboutPage() {
-  const [projects, posts] = await Promise.all([
+  const [projects, posts, experience] = await Promise.all([
     contentService.getProjects(),
     contentService.getPosts(),
+    contentService.getTimeline(),
   ]);
 
   const activeProjects = projects.filter(
@@ -166,6 +167,51 @@ export default async function AboutPage() {
             <p className="mt-4 text-small text-faint">
               Counted from what is published here, not written by hand.
             </p>
+          </section>
+        )}
+
+        {/* Experience — the most common recruiter screen (docs/31 §7.2), and
+            absent from this site entirely until D-064 built the admin CRUD to
+            create it. Shows the three most recent; the full record lives at
+            /timeline. Self-hides completely when there is nothing published,
+            rather than rendering a heading over an empty rail. */}
+        {experience.length > 0 && (
+          <section aria-labelledby="experience-heading" className="mt-20">
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <h2
+                id="experience-heading"
+                className="font-mono text-micro uppercase tracking-[0.2em] text-faint"
+              >
+                Experience
+              </h2>
+              {experience.length > 3 && (
+                <Link
+                  href={ROUTES.timeline}
+                  className="py-2 text-small text-accent underline-offset-4 hover:underline"
+                >
+                  Full record →
+                </Link>
+              )}
+            </div>
+            <ol className="mt-6 space-y-px overflow-hidden rounded-md border border-border bg-border">
+              {experience.slice(0, 3).map((entry) => (
+                <li
+                  key={entry.slug}
+                  className="flex flex-wrap items-baseline gap-x-4 gap-y-1 bg-canvas p-5"
+                >
+                  <span className="text-body font-medium text-ink">
+                    {entry.role}
+                  </span>
+                  <span className="text-small text-muted">
+                    {entry.organization}
+                  </span>
+                  <span className="ml-auto font-mono text-micro tabular text-faint">
+                    {entry.startDate.slice(0, 4)}
+                    {entry.endDate ? `–${entry.endDate.slice(0, 4)}` : "–present"}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </section>
         )}
 
