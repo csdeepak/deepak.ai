@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **Dex Phase 4 (D-062)** — published projects and posts are read live from the content layer and joined to the prompt as a separate labelled block, so Dex stops answering from a corpus frozen at 2026-08-04. Live citations resolve to the page itself (`/projects/<slug>`). Bounded at 24 projects / 15 recent posts / 420 chars, measured at ~9,322 tokens against a 40,000 budget.
+- **`CLAUDE.md`** — working notes for AI assistants, including the traps that have already cost time (Python on Windows rewriting LF→CRLF, the dev server's `.next` lock, the two `.env.local` files, the admin's deliberate independence from `contentService`).
+- **`check:dex-v2` is in CI** — flagged as worth doing since D-054. No secrets exist in CI, so the INFRA and LIVE sections skip themselves and the offline guardrails run.
+
+### Fixed
+- **The Turnstile error code is logged instead of discarded.** Dex v2's LLM path has never run in production: the widget renders but never produces a token, so every question fails closed to the v1 matcher. `error-callback` threw away the code Cloudflare passes it, so the product looked healthy while its best answer path was off. The underlying config is owner-side (`docs/32` Step 4).
+- The grounding gate accepts live content ids. Without it, answers grounded in the freshest facts would have been rejected as ungrounded — the newest content would have been the least citable.
+
+### Changed
+- **`memory/KNOWN_LIMITATIONS.md` rewritten.** It still read "No application code exists. Tech stack undecided." for a deployed site with a working CMS.
+
 - **Three projects that existed on GitHub and nowhere on the site (D-066)** — HandCode (effect-safety control plane for LLM agents; 502 tests, nine-point chaos suite, CI on Linux and Windows), Warden (agentic-payments trust layer, Razorpay AI Buildathon 2026; 131 tests, live rail), LinkedIn Writer (style from a measured 116-post corpus).
 - **The survey paper** — 47 papers reviewed 2021-2026, four authors, IEEE format. `/publications` had shipped empty the same day.
 - **Five Dex knowledge cards** closing gaps `docs/31` section 7.2 documents as standard recruiter screens: open-source work, hackathons, deployment/CI experience, plus the two new projects.

@@ -1,6 +1,7 @@
 import "server-only";
 import { resolveDexSources } from "../content";
-import type { DexAnswer } from "../types";
+import { safeBuildLiveContentCards, type DexLiveCard } from "./live-content";
+import type { DexAnswer, DexSource } from "../types";
 import { getDexLlmConfig, type DexLlmConfig } from "./config";
 import { completeJson } from "./provider";
 import { checkIpRateLimit, consumeDailyBudget } from "./guard";
@@ -201,7 +202,14 @@ export async function generateGroundedAnswer(
   const trimmed = question.trim();
   if (!trimmed) return { answer: null, reason: "empty_question" };
 
-  const context = buildDexContext(trimmed, visitorRole);
+  // Phase 4 (docs/31 §7.1): published projects and posts join the prompt, so
+  // Dex stops answering from a corpus frozen at 2026-08-04. Read once here and
+  // passed forward rather than re-read during validation — the set the model
+  // was shown must be exactly the set its citations are checked against, or a
+  // publish landing mid-request could invalidate a legitimate citation.
+  const liveCards = await safeBuildLiveContentCards();
+
+  const context = buildDexContext(trimmed, visitorRole, liveCards);
   const result = await completeJson(
     config,
     DEX_SYSTEM_PROMPT,
@@ -210,7 +218,7 @@ export async function generateGroundedAnswer(
 
   if (!result.text) return { answer: null, reason: result.failure ?? "no_text" };
 
-  return interpretModelResponse(result.text);
+  return interpretModelResponse(result.text, liveCards);
 }
 
 /**
@@ -220,7 +228,15 @@ export async function generateGroundedAnswer(
  * invented contact details, oversized output — against synthetic model
  * responses, with no API key, no Redis, and no network call.
  */
-export function interpretModelResponse(text: string): DexGenerationOutcome {
+export function interpretModelResponse(
+  text: string,
+  /**
+   * The live content cards the model was shown, if any. Defaults to none so
+   * the offline guard battery — which never touches the content layer — keeps
+   * exercising the curated-corpus behaviour unchanged.
+   */
+  liveCards: DexLiveCard[] = [],
+): DexGenerationOutcome {
   const raw = parseModelJson(text);
   if (!raw) return { answer: null, reason: "unparseable_json" };
 
@@ -247,9 +263,17 @@ export function interpretModelResponse(text: string): DexGenerationOutcome {
   const answerText = cleanAnswer(raw.answer);
   if (!answerText) return { answer: null, reason: "empty_answer" };
 
+  // The valid set spans both halves of the prompt. A live project id is as
+  // real a citation as a curated one — omitting them here would reject every
+  // answer grounded in the freshest facts, which is the opposite of Phase 4's
+  // intent.
+  const liveById = new Map(liveCards.map((card) => [card.id, card]));
   const valid = knownCardIds();
   const citedIds = Array.isArray(raw.cardIds)
-    ? raw.cardIds.filter((id): id is string => typeof id === "string" && valid.has(id))
+    ? raw.cardIds.filter(
+        (id): id is string =>
+          typeof id === "string" && (valid.has(id) || liveById.has(id)),
+      )
     : [];
 
   // Grounding gate. A confident-sounding answer that cites nothing real is
@@ -266,11 +290,23 @@ export function interpretModelResponse(text: string): DexGenerationOutcome {
     ),
   );
 
+  // Live citations resolve to the page itself, which is strictly better than a
+  // curated source: the visitor gets a link to the actual project or post the
+  // claim came from. Ordered first for that reason.
+  const liveSources = citedIds
+    .map((id) => liveById.get(id)?.source)
+    .filter((source): source is DexSource => Boolean(source));
+
+  const sources = [...liveSources, ...resolveDexSources(sourceIds)];
+  const deduped = Array.from(
+    new Map(sources.map((source) => [source.id, source])).values(),
+  );
+
   return {
     answer: {
       kind: "generated",
       answer: answerText,
-      sources: resolveDexSources(sourceIds).slice(0, MAX_SOURCES),
+      sources: deduped.slice(0, MAX_SOURCES),
       relatedCardIds: citedIds,
     },
     reason: null,
