@@ -79,6 +79,9 @@ export default async function WorkIndexPage() {
             {/* Each item carries its own tags so the filter can hide it
                 without any project data crossing the server/client boundary —
                 see ProjectFilter for why that matters at paragraph length. */}
+            {/* Cards are h3 (they are h3 under the landing's "Selected work"
+                h2 too); without this the outline jumped h1 → h3. */}
+            <h2 className="sr-only">All projects</h2>
             <ul
               id={LIST_ID}
               className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2"

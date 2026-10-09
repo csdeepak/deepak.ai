@@ -32,6 +32,8 @@ export default async function PostsIndexPage() {
 
         {posts.length > 0 ? (
           <div className="mt-12">
+            {/* Rows are h3; this keeps the outline from jumping h1 → h3. */}
+            <h2 className="sr-only">All posts</h2>
             {posts.map((post) => (
               <PostRow key={post.slug} post={post} />
             ))}

@@ -45,8 +45,13 @@
   --glass-tint: rgb(250 250 247 / 0.6); /* nav glass = 60% stage */
 
   --text-primary: rgb(var(--stage-ink)); /* #0A0B0D */
-  --text-muted: rgb(var(--stage-ink) / 0.6);
-  --text-faint: rgb(var(--stage-ink) / 0.42);
+  /* D-071: faint was 0.42 (2.84:1) and muted 0.6. docs/03 §12 makes 4.5:1 the
+     hard floor for ALL text and faint sets real text (eyebrows, dates, tags),
+     so faint rises to the lowest value that clears 4.5:1 on every light
+     surface (worst case 4.70:1, recessed) and muted rises with it to keep a
+     visible step (6.67–7.02:1, at the docs/03 7:1 body target on cards). */
+  --text-muted: rgb(var(--stage-ink) / 0.68);
+  --text-faint: rgb(var(--stage-ink) / 0.58);
   --text-inverse: #fafaf7;
   --text-on-accent: #ffffff;
 
@@ -103,7 +108,10 @@
 
   --text-primary: rgb(var(--stage-ink)); /* #F2F3F5 */
   --text-muted: rgb(var(--stage-ink) / 0.6);
-  --text-faint: rgb(var(--stage-ink) / 0.38);
+  /* D-071: was 0.38 — 3.27:1 on canvas, 3.33:1 on cards, flagged by
+     Lighthouse on every page. 0.5 is the lowest value clearing the 4.5:1
+     floor on canvas, surface, raised and recessed (worst case 4.76:1). */
+  --text-faint: rgb(var(--stage-ink) / 0.5);
   --text-inverse: #0a0b0d;
 
   --border-default: rgb(var(--stage-ink) / 0.08); /* hairline = ink @ 8% */
