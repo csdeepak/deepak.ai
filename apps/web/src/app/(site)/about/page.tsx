@@ -8,6 +8,7 @@ import { DexContextChip } from "@/features/dex/dex-context-chip";
 import { ROUTES } from "@/constants/routes";
 import { contentService } from "@/services";
 import { siteContent, mission } from "../../../../content/site";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /about — the 90-second fast path as a page (LAW-009).
@@ -26,11 +27,12 @@ import { siteContent, mission } from "../../../../content/site";
  * Every optional field self-hides: no CV link until `cvUrl` is set, no
  * current-focus line if it is null, no social link that isn't filled in.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description:
     "Who Deepak is, what he is building, and the published work that evidences it.",
-};
+  path: "/about",
+});
 
 /**
  * The freshness rule from specs/landing.md R5: a "currently working on" claim

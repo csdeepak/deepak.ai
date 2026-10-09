@@ -19,6 +19,8 @@ import { ROUTES, isRouteBuilt } from "@/constants/routes";
 import { contentService } from "@/services";
 import { projectJsonLd } from "@/lib/structured-data";
 import type { ContentType, Project, Relation } from "@/types/content";
+import { pageMetadata } from "@/lib/seo";
+import { InlineCode } from "@/components/content/inline-code";
 
 /**
  * /projects/[slug] — the Work detail (Detail archetype, docs/24 Part 10).
@@ -86,7 +88,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await contentService.getProject(slug);
   if (!project) return {};
-  return { title: `${project.title} — Work`, description: project.problem };
+  // The LAW-003 question is the one-sentence statement of what the project is
+  // for — the best snippet there is. The problem paragraph is the fallback.
+  return pageMetadata({
+    title: project.title,
+    description: project.question?.trim() || project.problem,
+    path: `/projects/${project.slug}`,
+    type: "article",
+  });
 }
 
 export default async function ProjectDetailPage({
@@ -181,7 +190,9 @@ export default async function ProjectDetailPage({
           <h1 className="mt-5 text-section font-display font-semibold text-ink">
             {project.title}
           </h1>
-          <p className="mt-4 text-lead text-muted">{project.problem}</p>
+          <p className="mt-4 text-lead text-muted">
+            <InlineCode text={project.problem} />
+          </p>
 
           {/* Context row — context · role · collaborators (self-hides). */}
           {hasContextRow && (
@@ -331,7 +342,9 @@ export default async function ProjectDetailPage({
               {outcomes.map((line, i) => (
                 <li key={i} className="flex gap-3">
                   <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
-                  <span className="text-ink">{line}</span>
+                  <span className="text-ink">
+                    <InlineCode text={line} />
+                  </span>
                 </li>
               ))}
             </ul>

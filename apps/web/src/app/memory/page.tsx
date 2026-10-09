@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LivingMemory } from "@/features/memory/experience";
 import { asmosMemory } from "../../../content/asmos";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /memory — the Living Memory vertical slice (docs/26). One complete
@@ -9,11 +10,12 @@ import { asmosMemory } from "../../../content/asmos";
  * reachable. Rendered outside the (site) chrome group — immersive, its
  * own header and main.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "ASMOS — a memory, reconstructed",
   description:
     "Explore the Living Memory: a research memory reconstructed from the question it began with to the work it became.",
-};
+  path: "/memory",
+});
 
 export default function MemoryPage() {
   return <LivingMemory memory={asmosMemory} />;

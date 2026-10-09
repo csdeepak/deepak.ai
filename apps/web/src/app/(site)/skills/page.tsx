@@ -13,6 +13,7 @@ import {
   type SkillEvidenceKind,
 } from "../../../../content/skills";
 import type { Project, Skill } from "@/types/content";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /skills — the skill vocabulary, with its evidence attached.
@@ -33,11 +34,12 @@ import type { Project, Skill } from "@/types/content";
  * Fully static — it reads published projects at build time and derives
  * everything else from `content/skills.ts`.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Skills",
   description:
     "What Deepak can build with, and the shipped work that evidences each one.",
-};
+  path: "/skills",
+});
 
 interface SkillEntry {
   name: string;
