@@ -69,6 +69,27 @@ export const siteContent = {
    */
   cvUrl: "/cv-c-s-deepak.pdf" as string | null,
 
+  /**
+   * Education — the first filter a recruiter applies (graduation year), and
+   * stated nowhere on the site until D-071. Copied from the canonical profile
+   * (`PESU/resume/profile/identity.toml` [education], verified 2026-09-30),
+   * the same source every resume uses. No CGPA, by standing owner decision
+   * (2026-09-08: "my work should speak"). null hides the block.
+   */
+  education: {
+    degree: "B.Tech, Computer Science & Engineering",
+    specialization: "Machine Intelligence & Data Science",
+    institution: "PES University",
+    place: "Bengaluru",
+    years: "2023 – 2027",
+  } as {
+    degree: string;
+    specialization: string;
+    institution: string;
+    place: string;
+    years: string;
+  } | null,
+
   /** Real contact email; null hides the direct block. */
   contactEmail: "csdeepak2005@gmail.com" as string | null,
 
@@ -361,7 +382,7 @@ export const projects: Project[] = [
     tags: ["Python", "FastAPI", "Playwright"],
     featured: false,
     timelineOrder: 9,
-    repoUrl: "https://github.com/csdeepak/Pesu_academy_content_downloader",
+    repoUrl: "https://github.com/csdeepak/Pesu_academy_content_downloader-",
   },
   {
     type: "project",
@@ -427,7 +448,7 @@ export const projects: Project[] = [
     title: "Dental AI Pipeline — Automated OPG Analysis",
     status: "published",
     publishedAt: "2026-05-01",
-    updatedAt: "2026-07-12",
+    updatedAt: "2026-09-30",
     relations: [],
     question:
       "Can a model read a panoramic dental X-ray well enough to flag caries and bone loss a dentist would trust?",
@@ -454,8 +475,8 @@ export const projects: Project[] = [
       "Tooth detection mAP@0.5 of 0.810 across the six-stage pipeline",
       "Periodontal bone-loss classification at 0.9233 macro F1",
       "58.3% exact FDI tooth-numbering end-to-end, measured through the full pipeline rather than per-stage",
-      "Externally validated on four hospitals plus a second public benchmark",
-      "174 passing tests with invariant checks, over 97.7M parameters across six models",
+      "Externally validated on six independent cohorts: 2,000+ images and 6,000+ annotated lesions from four hospitals plus a public AAAI benchmark",
+      "A 127-check verification suite ties every reported result to a saved artifact, alongside 174 passing unit tests",
       "CPU-only Docker image and a Streamlit demo, so it runs without a GPU",
     ],
     skillsLearned: [
@@ -470,7 +491,7 @@ export const projects: Project[] = [
     title: "HandCode — Effect-Safety Control Plane for LLM Agents",
     status: "published",
     publishedAt: "2026-09-11",
-    updatedAt: "2026-09-15",
+    updatedAt: "2026-10-07",
     relations: [],
     question:
       "When a long-running agent crashes mid-action, how do you guarantee it never performs the same real-world effect twice?",
@@ -484,9 +505,10 @@ export const projects: Project[] = [
     repoUrl: "https://github.com/csdeepak/HandCode",
     role: "Solo",
     outcomes: [
-      "502 tests, including a nine-point chaos suite that kills the real process at each point",
-      "Four end-to-end crash experiments: zero duplicate effects across all three enforcement modes",
-      "CI reproduces the correctness claim on Linux and Windows, so the result holds on a machine that is not the author's",
+      "917 tests, including a ten-point chaos suite that kills the real process at each crash point",
+      "Released on PyPI as `handcode` (0.3.1), with a container image, a GitHub Action and a documentation site",
+      "CI runs on Ubuntu, Windows and macOS across Python 3.12 and 3.13, so the correctness claim holds on machines that are not the author's",
+      "The first live run through a real provider pool surfaced three defects that the 637 tests of the time had missed",
       "Replay mode re-runs a recorded session for $0.00 with no API key, and answers an uncovered request with a 502 rather than a plausible-looking completion",
       "Budget caps are enforced before a run starts — a check that runs afterwards is an audit, not a control",
     ],

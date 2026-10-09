@@ -343,17 +343,18 @@
       "opg",
       "x-ray",
       "yolo",
-      "u-net",
+      "resnet",
       "pytorch",
       "computer vision"
     ],
     "sourceIds": [
       "project-dental-ai",
       "github-audit-2026-07",
-      "resume-2026-04"
+      "resume-2026-04",
+      "resume-profile-2026-10"
     ],
     "visibility": "public",
-    "updatedAt": "2026-07-27"
+    "updatedAt": "2026-10-10"
   },
   {
     "id": "project-docksmith",
@@ -873,7 +874,7 @@
   {
     "id": "project-smart-door-lock",
     "title": "Smart Door Lock",
-    "summary": "A multi-factor IoT access-control system requiring RFID, fingerprint and ESP32-CAM face recognition to all pass before a relay releases a solenoid lock. Deepak wrote every one of the 16 commits, including a custom Express server that bridges serial data from an Arduino Mega to the ESP32-CAM over WebSocket and REST, plus a React and Tailwind frontend; two teammates are credited in the README for hardware work that does not appear in git. Built March to May 2025. Honest scope: it is a hardware demo, and the only test file is the untouched Create React App default, so the authentication logic has no automated coverage.",
+    "summary": "A smart lock on an Arduino Mega: C++ firmware checks an RFID card (MFRC522 over SPI) and a fingerprint (R307) before an active-low relay releases a solenoid lock, with status on an OLED. A Node.js middleware reads the Mega's serial output and serves REST status and log endpoints plus a WebSocket to a React and Tailwind dashboard, and proxies an ESP32-CAM Wi-Fi camera feed with an offline fallback. Each sensor was brought up and tested on its own before integration. Deepak wrote every one of the 16 commits; two teammates are credited in the README for hardware work that does not appear in git. Built March to May 2025. Honest scope: the camera is not an authentication factor. The face step in the committed firmware is a timed placeholder, and the camera sketch is Espressif's CameraWebServer example with recognition disabled. Authorised card IDs are hard-coded, and the only test file is the untouched Create React App default, so the authentication logic has no automated coverage.",
     "tags": [
       "smart door lock",
       "iot",
@@ -882,7 +883,6 @@
       "esp32",
       "rfid",
       "fingerprint",
-      "face recognition",
       "express",
       "websocket",
       "react",
@@ -891,10 +891,11 @@
     ],
     "sourceIds": [
       "github-code-audit-2026-08-04",
-      "owner-profile-2026-08-04"
+      "owner-profile-2026-08-04",
+      "resume-profile-2026-10"
     ],
     "visibility": "public",
-    "updatedAt": "2026-08-04"
+    "updatedAt": "2026-10-10"
   },
   {
     "id": "project-sahayai-website",
@@ -1016,7 +1017,7 @@
   {
     "id": "project-handcode",
     "title": "HandCode — effect-safety control plane for LLM agents",
-    "summary": "HandCode is Deepak's agent-infrastructure project and his closest match to the Agentic AI Engineer roles he targets. It solves a reproduced failure: when a long-running agent crashes mid-action, the harness re-drives the pending action on resume and performs the same real-world effect twice — one git commit before the crash, two after. HandCode sits between the agent and anything irreversible, classifying each effect and writing it to a fenced SQLite ledger before it executes, then either blocking a repeat or handing back the recorded result so a resumed agent continues cleanly. It fails closed: when it cannot tell whether an effect landed, it blocks and asks a human. Evidence: 502 tests including a nine-point chaos suite that kills the real process at each point, four end-to-end crash experiments with zero duplicate effects, and CI that reproduces the correctness claim on both Linux and Windows. MIT licensed and public.",
+    "summary": "HandCode is Deepak's agent-infrastructure project and his closest match to the Agentic AI Engineer roles he targets. It solves a reproduced failure: when a long-running agent crashes mid-action, the harness re-drives the pending action on resume and performs the same real-world effect twice — one git commit before the crash, two after. HandCode sits between the agent and anything irreversible, classifying each effect and writing it to a fenced SQLite ledger before it executes, then either blocking a repeat or handing back the recorded result so a resumed agent continues cleanly. It fails closed: when it cannot tell whether an effect landed, it blocks and asks a human. Evidence: 917 tests including a ten-point chaos suite that kills the real process at each crash point, and CI on Ubuntu, Windows and macOS across Python 3.12 and 3.13. It is released on PyPI as handcode (0.3.1; the command is agentctl), with a container image, a GitHub Action and a documentation site at csdeepak.github.io/HandCode. Its first live run through a real provider pool surfaced three defects that the 637 tests of the time had missed. It is published, but nothing measures use, so there are no user or download figures. It has no sandbox and runs as a single process, and prompt-injection resistance was not tested. MIT licensed and public.",
     "tags": [
       "handcode",
       "agent infrastructure",
@@ -1031,10 +1032,11 @@
     ],
     "sourceIds": [
       "project-handcode",
-      "github-audit-2026-09"
+      "github-audit-2026-09",
+      "resume-profile-2026-10"
     ],
     "visibility": "public",
-    "updatedAt": "2026-09-19"
+    "updatedAt": "2026-10-10"
   },
   {
     "id": "project-warden",
@@ -1061,7 +1063,7 @@
   {
     "id": "open-source-contributions",
     "title": "Open-source work",
-    "summary": "Deepak's substantial projects are public and MIT licensed on github.com/csdeepak rather than private coursework. HandCode, Warden, the Dental AI Pipeline and the panoramic-radiograph survey repository are all openly readable, with their tests, evaluation artifacts and decision records included rather than just final code. HandCode additionally runs CI on Linux and Windows so its correctness claim reproduces on a machine that is not his. This is publishing his own work in the open; it is not a record of contributions merged into other people's repositories, and Dex should not imply otherwise.",
+    "summary": "Deepak's substantial projects are public and MIT licensed on github.com/csdeepak rather than private coursework. HandCode, Warden, the Dental AI Pipeline and the panoramic-radiograph survey repository are all openly readable, with their tests, evaluation artifacts and decision records included rather than just final code. HandCode additionally runs CI on Ubuntu, Windows and macOS so its correctness claim reproduces on machines that are not his, and is released on PyPI. This is publishing his own work in the open; it is not a record of contributions merged into other people's repositories, and Dex should not imply otherwise.",
     "tags": [
       "open source",
       "github",
@@ -1081,7 +1083,7 @@
   {
     "id": "deployment-ci-experience",
     "title": "Deployment, CI and infrastructure experience",
-    "summary": "Deepak has shipped and operated real deployment infrastructure. This portfolio itself runs on Vercel with Neon Postgres and Cloudflare R2 for media, behind a CI pipeline that enforces typecheck, a zero-warning production build, JavaScript bundle budgets, and scripted correctness guards on every push. HandCode runs its own CI matrix across Linux and Windows. The Dental AI Pipeline ships a CPU-only Docker image so it runs without a GPU. This is hands-on delivery and operations work rather than a cloud certification.",
+    "summary": "Deepak has shipped and operated real deployment infrastructure. This portfolio itself runs on Vercel with Neon Postgres and Cloudflare R2 for media, behind a CI pipeline that enforces typecheck, a zero-warning production build, JavaScript bundle budgets, and scripted correctness guards on every push. HandCode runs its own CI matrix across Ubuntu, Windows and macOS, and publishes a PyPI package, a container image and a documentation site from separate release workflows. The Dental AI Pipeline ships a CPU-only Docker image so it runs without a GPU. This is hands-on delivery and operations work rather than a cloud certification.",
     "tags": [
       "ci",
       "cd",

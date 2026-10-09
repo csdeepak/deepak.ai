@@ -56,7 +56,7 @@ export default async function AboutPage() {
     (project) => project.projectStatus === "active",
   ).length;
 
-  const { currentFocus, cvUrl, contactEmail, outbound } = siteContent;
+  const { currentFocus, cvUrl, contactEmail, outbound, education } = siteContent;
   const showFocus = currentFocus && focusIsFresh(currentFocus.updatedAt);
 
   // Only counts that are actually non-zero are shown — a "0 posts" tile is
@@ -89,6 +89,24 @@ export default async function AboutPage() {
             <p className="mt-6 text-lead text-muted">
               {siteContent.identitySupport}
             </p>
+          )}
+          {/* The facts a screen starts from — degree, school, graduation year
+              — stated once, plainly, above the thesis (LAW-009). Until D-071
+              the only way to learn them was to download the CV or ask Dex. */}
+          {education && (
+            <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-small">
+              <dt className="text-faint">Studying</dt>
+              <dd className="text-ink">
+                {education.degree}{" "}
+                <span className="text-muted">({education.specialization})</span>
+              </dd>
+              <dt className="text-faint">At</dt>
+              <dd className="text-ink">
+                {education.institution}, {education.place}
+              </dd>
+              <dt className="text-faint">Years</dt>
+              <dd className="font-mono tabular text-ink">{education.years}</dd>
+            </dl>
           )}
         </header>
 
