@@ -588,6 +588,24 @@
     }
   }
 
+  /* Mobile menu sheet (D-071): rises into place on open — a state change, not
+     decoration (LAW-007). Entrance only; Radix unmounts on close. */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes sheet-enter {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .sheet-enter {
+      animation: sheet-enter var(--duration-base) var(--ease-instrument) both;
+    }
+  }
+
   /* Dex's breath — the ONE permitted ambient loop. */
   @keyframes dl-breathe {
     0%,
