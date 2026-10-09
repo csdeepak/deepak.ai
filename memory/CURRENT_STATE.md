@@ -2,6 +2,61 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-10-10 (D-071 — optimization cycle 1: phones, the
+accessibility floor, and drift from the owner's canonical profile)
+
+## D-071 — optimization cycle 1 (latest)
+
+On `feat/d-071-optimization-cycle-1`, **PR open, not merged** — merging deploys.
+Full reasoning and every measurement: `DECISIONS.md` → `D-071`.
+
+- **Phones:** the five-lane nav made every page 498px wide on 320–430px phones,
+  pushing Ask Dex and the theme toggle off-screen. Below `md` (1024px in this
+  project) the lanes now live in the `docs/04` §11 bottom sheet. Desktop is
+  unchanged to the pixel.
+- **Accessibility:** `faint` text measured 3.27:1 against a 4.5:1 floor the
+  design language already promised. Fixed in both themes. Lighthouse
+  accessibility 94–96 → **100** and best practices 96 → **100** on the four
+  pages measured; the favicon 404 (the only console error) is gone.
+- **Accuracy:** Dex was stating a Smart Door Lock face-recognition factor the
+  owner's profile marks do-not-ship, plus retired HandCode/Dental figures; the
+  PESU Vault repo link 404'd. All corrected from the profile; the three changed
+  answers were verified against the live model.
+- **`npm run check:profile`** (local only) now applies the resume system's
+  retired-figure rule to the site and the public CV.
+- **About** states degree, university and years; **every page** now has its
+  own canonical and link-preview card (all used to preview as the homepage).
+
+- **Gates:** typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new
+  warnings · `/` **157.5 kB** ≤ 170 kB, unchanged · `check:dex` 34/34 ·
+  `check:typography` 22/22 · `check:content` 13/13 · `check:dex-v2` 56/58 —
+  identical to `main` (two pre-existing live-battery failures) ·
+  `check:profile` **red on the CV only** (see below).
+
+### Owner actions, in priority order
+
+1. **`/timeline` and `/publications` are empty on the live site** although
+   `site.ts` has the three roles and the survey paper. Run the D-070-fixed
+   ingest against Neon (or create the rows in `/admin`), then redeploy —
+   public pages are static and `db-ingest` does not revalidate them.
+   ⚠️ The ingest upserts every project from `site.ts`, so it will overwrite any
+   project edited in the admin since.
+2. **Regenerate the public CV** in the resume system and copy it to
+   `apps/web/public/cv-c-s-deepak.pdf`. The current one (Sep 19) carries "502
+   tests" and "97.7M"; `check:profile` stays red until it is replaced.
+3. **Rule on ASMOS: "about 22%" or 23.84%.** The profile now marks 22.09%
+   superseded, and the CV this site serves already says 23.84%, while the
+   pages around it say about 22% (ten places).
+4. **Production DB content the file changes cannot reach:** HandCode and Dental
+   outcomes, the PESU Vault repo URL (needs the trailing hyphen), the post at
+   `/posts/-` (its slug is a bare hyphen — title "Adaptive Semantic Memory
+   Operating System"), and the "Summer Intership" title typo.
+5. **Decide on analytics** — Vercel Web Analytics is the low-cost fit for the
+   PRD's "page views and referrers" requirement; it needs the dashboard toggle.
+6. Still open from before: the Turnstile hostname (`docs/32` Step 4).
+
+---
+
 **Last updated:** 2026-09-18 (D-062 — Dex Phase 4 live corpus; and the discovery
 that Dex v2's LLM path has never actually run in production)
 

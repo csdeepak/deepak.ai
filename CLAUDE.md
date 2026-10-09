@@ -60,6 +60,12 @@ npm run check:bundle --workspace=web
 Plus the guards, all wired into CI: `check:dex` (34 matcher cases),
 `check:dex-v2` (offline guardrails + Phase 4 wiring), `check:typography`.
 
+And one that is **local only**, because its input is private:
+`npm run check:profile --workspace=web` checks the site's content and the
+public CV against the retired figures in the owner's canonical resume profile
+(`~/PESU/resume/profile`; override with `RESUME_DIR`). Run it before
+shipping any content change. On CI it prints SKIP.
+
 `/` First Load JS must stay under **170 kB**, and three/gsap/lenis/sharp must
 never reach `/`'s client bundle.
 
@@ -68,7 +74,7 @@ never reach `/`'s client bundle.
 - **Conventional Commits.** Feature branch → PR → `main`. Don't commit or push
   unless asked, and don't commit onto `main` directly.
 - **Decisions get a D-number** in [`memory/DECISIONS.md`](memory/DECISIONS.md).
-  Currently at D-062. Nothing architectural lands undocumented.
+  Currently at D-071. Nothing architectural lands undocumented.
 - **Update `memory/` and `CHANGELOG.md` as part of finishing**, not after.
 - **Measure, don't estimate.** The handoff log is full of "browser-MEASURED",
   "ported the real scoring against the real JSON", "proven to fail when the fix
@@ -80,6 +86,10 @@ never reach `/`'s client bundle.
 
 ## Traps that have already cost time
 
+- **Breakpoints are custom: `md` is 1024px and `lg` is 1440px** (`@theme` in
+  `globals.css`). `lg:` written with Tailwind's default 1024 in mind hides
+  things on every laptop narrower than 1440. D-071 shipped that once and the
+  re-measure caught it.
 - **Writing files with Python on Windows converts LF to CRLF**, which turns a
   three-line edit into a whole-file diff. Pass `newline=''`, or normalise
   afterwards.

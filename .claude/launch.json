@@ -8,6 +8,12 @@
       "port": 3000
     },
     {
+      "name": "deepak-web-prod-file",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["cross-env", "CONTENT_SOURCE=file", "npm", "run", "start", "--workspace=web"],
+      "port": 3000
+    },
+    {
       "name": "deepak-web-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--workspace=web"],
