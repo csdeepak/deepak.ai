@@ -36,9 +36,11 @@ Full reasoning and every measurement: `DECISIONS.md` → `D-071`.
 ### Owner actions, in priority order
 
 1. **`/timeline` and `/publications` are empty on the live site** although
-   `site.ts` has the three roles and the survey paper. Run the D-070-fixed
-   ingest against Neon (or create the rows in `/admin`), then redeploy —
-   public pages are static and `db-ingest` does not revalidate them.
+   `site.ts` has the three roles and the survey paper. **The database has no
+   published rows** (proved on the PR #16 preview, which shares production's
+   `DATABASE_URL`), so a redeploy alone will not fill them. Run the
+   D-070-fixed ingest against Neon (or create the rows in `/admin`), then
+   redeploy — public pages are static and `db-ingest` does not revalidate them.
    ⚠️ The ingest upserts every project from `site.ts`, so it will overwrite any
    project edited in the admin since.
 2. **Regenerate the public CV** in the resume system and copy it to
@@ -47,7 +49,9 @@ Full reasoning and every measurement: `DECISIONS.md` → `D-071`.
 3. **Rule on ASMOS: "about 22%" or 23.84%.** The profile now marks 22.09%
    superseded, and the CV this site serves already says 23.84%, while the
    pages around it say about 22% (ten places).
-4. **Production DB content the file changes cannot reach:** HandCode and Dental
+4. **Production DB content the file changes cannot reach** — do this right
+   after merging, or Dex (917 tests, PyPI) and the HandCode page (502 tests)
+   will contradict each other: HandCode and Dental
    outcomes, the PESU Vault repo URL (needs the trailing hyphen), the post at
    `/posts/-` (its slug is a bare hyphen — title "Adaptive Semantic Memory
    Operating System"), and the "Summer Intership" title typo.

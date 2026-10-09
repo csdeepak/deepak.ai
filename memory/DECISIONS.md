@@ -1237,13 +1237,29 @@ HandCode's card, the first on the landing, opened with literal backticks.
   the pages around it say about 22%.** `check:profile` cannot see this — "about
   22%" is not the literal blocked "22.09".
 - **`/timeline` and `/publications` are empty in production**, though `site.ts`
-  has the three roles and the survey paper. Public pages are fully static and
-  refresh only on a deploy or an admin `revalidatePath`; `db-ingest` does
-  neither, and D-070 records that the production ingest aborted midway. This
-  machine has no production database access (`DATABASE_URL` is the local
-  Docker Postgres), so whether the rows are missing or the pages are just stale
-  could not be determined. Owner: run the ingest (or create the rows in the
-  admin), then redeploy.
+  has the three roles and the survey paper. **The rows are missing from the
+  database — not merely stale pages.** Settled on the PR #16 preview: built
+  fresh from the database on 2026-10-10, it still rendered both shelves empty
+  and `/about` with no Experience block, and `vercel env ls` shows one
+  `DATABASE_URL` shared by Production and Preview. (D-070 records the
+  production ingest aborting midway; it was evidently never re-run.) A redeploy
+  alone will not fill them. Owner: run the ingest or create the rows in the
+  admin, then redeploy.
+- **After merge, Dex and the HandCode page will disagree** until the database
+  is updated: the preview's project page, read from Neon, still shows "502
+  tests / nine-point / Linux and Windows", while the file-read Dex corpus says
+  917 tests and PyPI. Dex Phase 4 also feeds the live (old) project into the
+  prompt beside the corrected card. Update HandCode, Dental and PESU Vault in
+  the admin (or ingest) right after merging.
+- **Preview verification (PR #16, 2026-10-10)** — on the deployed preview: the
+  document is 375px at 375px, the sheet opens bottom-anchored with the right
+  lanes and `aria-current`, a lane navigates and closes it; `faint` measured
+  4.91:1 (dark) and 4.79:1 / 4.69:1 (light, canvas / recessed); `/about` shows
+  the Education block; project metadata and `<code>` render; `/favicon.ico`
+  200; only the pre-existing `THREE.Clock` warning in the console. Canonical
+  and `og:url` read `localhost:3000` on previews only, because
+  `NEXT_PUBLIC_SITE_URL` is set for Production alone — pre-existing, and
+  production emits the real domain.
 - **Analytics.** None exists, and `docs/02` requires privacy-respecting,
   aggregate page views and referrers. Vercel Web Analytics fits (cookieless,
   aggregate, served same-origin) but needs a dashboard toggle and has plan
