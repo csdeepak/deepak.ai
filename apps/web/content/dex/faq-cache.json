@@ -104,10 +104,10 @@
     "audience": "technical",
     "question": "What computer vision experience does Deepak have?",
     "aliases": ["Does Deepak know computer vision", "Tell me about Deepak's CV projects", "What vision models has Deepak worked on", "Has Deepak worked on medical AI"],
-    "answer": "Deepak's computer vision work includes Turb-DETR for underwater plastic detection under turbidity and the Dental AI Pipeline for panoramic OPG X-ray analysis. His resume also records work with YOLOv12, U-Net, RT-DETR, PyTorch, Grad-CAM, and attribution-based analysis.",
-    "sourceIds": ["project-turb-detr", "project-dental-ai", "resume-2026-04"],
+    "answer": "Deepak's computer vision work includes Turb-DETR for underwater plastic detection under turbidity and the Dental AI Pipeline for panoramic OPG X-ray analysis. In PyTorch: RT-DETR with SimAM attention for Turb-DETR, YOLOv11 detection and segmentation with ResNet18 classifiers for the dental pipeline, and Grad-CAM, Integrated Gradients and GradSHAP (via Captum) for explainability in ShortcutScore.",
+    "sourceIds": ["project-turb-detr", "project-dental-ai", "project-shortcutscore", "resume-profile-2026-10"],
     "relatedCardIds": ["project-turb-detr", "project-dental-ai", "skills-core"],
-    "updatedAt": "2026-07-27"
+    "updatedAt": "2026-10-10"
   },
   {
     "id": "xai-research",
@@ -454,10 +454,10 @@
     "audience": "technical",
     "question": "What is the Smart Door Lock project?",
     "aliases": ["Tell me about the IoT project", "What hardware has Deepak worked with", "Explain the door lock", "Has he done embedded systems"],
-    "answer": "A multi-factor access-control system: RFID, fingerprint and ESP32-CAM face recognition must all pass before a relay releases a solenoid lock.\n\nDeepak wrote all 16 commits, including a custom Express server bridging serial data from an Arduino Mega to the ESP32-CAM over WebSocket and REST, plus a React and Tailwind frontend. Two teammates are credited in the README for hardware assembly that doesn't appear in git history.\n\nHonest scope: it's a hardware demo built March to May 2025, and the only test file is the untouched Create React App default — the authentication logic has no automated coverage.",
-    "sourceIds": ["github-code-audit-2026-08-04"],
+    "answer": "A smart lock on an Arduino Mega: C++ firmware checks an RFID card and a fingerprint before a relay releases a solenoid lock, with status on an OLED.\n\nDeepak wrote all 16 commits, including a Node.js middleware that reads the Mega's serial output, serves REST endpoints and a WebSocket to a React and Tailwind dashboard, and proxies an ESP32-CAM camera feed. Two teammates are credited in the README for hardware assembly that doesn't appear in git history.\n\nHonest scope: it's a hardware demo built March to May 2025. The camera is not an authentication factor — the face step in the committed firmware is a timed placeholder — and the only test file is the untouched Create React App default, so the authentication logic has no automated coverage.",
+    "sourceIds": ["github-code-audit-2026-08-04", "resume-profile-2026-10"],
     "relatedCardIds": ["project-smart-door-lock", "skills-evidenced-by-code"],
-    "updatedAt": "2026-08-04"
+    "updatedAt": "2026-10-10"
   },
   {
     "id": "team-contribution",

@@ -8,6 +8,7 @@ import { DexContextChip } from "@/features/dex/dex-context-chip";
 import { ROUTES } from "@/constants/routes";
 import { contentService } from "@/services";
 import { siteContent, mission } from "../../../../content/site";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /about — the 90-second fast path as a page (LAW-009).
@@ -26,11 +27,12 @@ import { siteContent, mission } from "../../../../content/site";
  * Every optional field self-hides: no CV link until `cvUrl` is set, no
  * current-focus line if it is null, no social link that isn't filled in.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description:
     "Who Deepak is, what he is building, and the published work that evidences it.",
-};
+  path: "/about",
+});
 
 /**
  * The freshness rule from specs/landing.md R5: a "currently working on" claim
@@ -56,7 +58,7 @@ export default async function AboutPage() {
     (project) => project.projectStatus === "active",
   ).length;
 
-  const { currentFocus, cvUrl, contactEmail, outbound } = siteContent;
+  const { currentFocus, cvUrl, contactEmail, outbound, education } = siteContent;
   const showFocus = currentFocus && focusIsFresh(currentFocus.updatedAt);
 
   // Only counts that are actually non-zero are shown — a "0 posts" tile is
@@ -89,6 +91,24 @@ export default async function AboutPage() {
             <p className="mt-6 text-lead text-muted">
               {siteContent.identitySupport}
             </p>
+          )}
+          {/* The facts a screen starts from — degree, school, graduation year
+              — stated once, plainly, above the thesis (LAW-009). Until D-071
+              the only way to learn them was to download the CV or ask Dex. */}
+          {education && (
+            <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-small">
+              <dt className="text-faint">Studying</dt>
+              <dd className="text-ink">
+                {education.degree}{" "}
+                <span className="text-muted">({education.specialization})</span>
+              </dd>
+              <dt className="text-faint">At</dt>
+              <dd className="text-ink">
+                {education.institution}, {education.place}
+              </dd>
+              <dt className="text-faint">Years</dt>
+              <dd className="font-mono tabular text-ink">{education.years}</dd>
+            </dl>
           )}
         </header>
 

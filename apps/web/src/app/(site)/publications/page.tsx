@@ -8,6 +8,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { DexContextChip } from "@/features/dex/dex-context-chip";
 import { contentService } from "@/services";
 import type { Publication } from "@/types/content";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /publications — the research half of the record.
@@ -24,11 +25,12 @@ import type { Publication } from "@/types/content";
  * a student's portfolio is true and unembarrassing — and the honesty is the
  * point of the whole system.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Publications",
   description:
     "Papers, preprints and work under review — each with a plain-language summary.",
-};
+  path: "/publications",
+});
 
 /** `preprint` and `under-review` are honest states, not lesser ones. */
 const STATUS_LABEL: Record<string, string> = {

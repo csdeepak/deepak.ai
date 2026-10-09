@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tag } from "@/components/ui/badge";
+import { InlineCode } from "@/components/content/inline-code";
 import type { Project } from "@/types/content";
 
 /**
@@ -46,7 +47,9 @@ export function ProjectCard({ project }: { project: Project }) {
       </h3>
 
       {summary && (
-        <p className="mt-3 line-clamp-3 text-body text-muted">{summary}</p>
+        <p className="mt-3 line-clamp-3 text-body text-muted">
+          <InlineCode text={summary} />
+        </p>
       )}
 
       {visibleTags.length > 0 && (

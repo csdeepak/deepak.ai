@@ -10,6 +10,7 @@ import { contentService } from "@/services";
 import { renderMarkdown } from "@/lib/markdown";
 import { JsonLd } from "@/components/seo/json-ld";
 import { postJsonLd } from "@/lib/structured-data";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /posts/[slug] — the Post detail (Detail archetype, docs/24 Part 10).
@@ -36,7 +37,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await contentService.getPost(slug);
   if (!post) return {};
-  return { title: `${post.title} — Posts`, description: post.dek };
+  return pageMetadata({
+    title: post.title,
+    description: post.dek,
+    path: `/posts/${post.slug}`,
+    type: "article",
+  });
 }
 
 export default async function PostDetailPage({

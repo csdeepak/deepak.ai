@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/content/empty-state";
 import { ProjectFilter } from "@/features/projects/project-filter";
 import { contentService } from "@/services";
 import type { Project } from "@/types/content";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /projects — the Work index (Index archetype, docs/24 Part 10; D-021
@@ -13,11 +14,12 @@ import type { Project } from "@/types/content";
  * projects is a legitimate state (LAW-008): the grid is replaced by an
  * honest, designed empty state — never a dummy project or a fake count.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Work — Projects",
   description:
     "Systems where the reasoning became real — each with the question that created it and the branches abandoned along the way.",
-};
+  path: "/projects",
+});
 
 /** The <ul> the filter reaches for by id. */
 const LIST_ID = "work-index";
@@ -79,6 +81,9 @@ export default async function WorkIndexPage() {
             {/* Each item carries its own tags so the filter can hide it
                 without any project data crossing the server/client boundary —
                 see ProjectFilter for why that matters at paragraph length. */}
+            {/* Cards are h3 (they are h3 under the landing's "Selected work"
+                h2 too); without this the outline jumped h1 → h3. */}
+            <h2 className="sr-only">All projects</h2>
             <ul
               id={LIST_ID}
               className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2"

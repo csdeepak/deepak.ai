@@ -8,6 +8,12 @@ import { ProjectTimeline } from "@/features/timeline/project-timeline";
 import { GalleryStrip } from "@/features/gallery/gallery-strip";
 import { JsonLd } from "@/components/seo/json-ld";
 import { personJsonLd, webSiteJsonLd } from "@/lib/structured-data";
+import type { Metadata } from "next";
+
+// The root layout's title and Open Graph card are the landing's own. It lacks
+// only a canonical, which cannot live in the layout without being inherited
+// by every page that does not set its own (D-071).
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /**
  * Landing — the Landing Experience (D-052 Track 2, extended D-056/D-058

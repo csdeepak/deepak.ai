@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/content/empty-state";
 import { DexContextChip } from "@/features/dex/dex-context-chip";
 import { contentService } from "@/services";
 import type { TimelineEntry } from "@/types/content";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /timeline — the career record.
@@ -23,11 +24,12 @@ import type { TimelineEntry } from "@/types/content";
  * empty state rather than a fabricated history (LAW-008), and it stays out of
  * the nav until there is something in it.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Experience",
   description:
     "Roles, internships and research positions — what each one produced.",
-};
+  path: "/timeline",
+});
 
 const MONTH_YEAR: Intl.DateTimeFormatOptions = {
   month: "short",

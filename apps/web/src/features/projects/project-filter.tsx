@@ -118,7 +118,9 @@ function FilterChip({
         "transition-colors duration-(--duration-fast)",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         selected
-          ? "border-accent bg-accent text-on-accent"
+          // Ink, not accent: white on the flat accent measured 3.21:1, and
+          // docs/DESIGN_SYSTEM §1 rules out the accent as a flat fill anyway.
+          ? "border-ink bg-ink text-canvas"
           : "border-border text-muted hover:border-border-emphasis hover:text-ink",
       )}
     >

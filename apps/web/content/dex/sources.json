@@ -110,5 +110,11 @@
     "label": "GitHub repository audit, September 2026",
     "kind": "intake",
     "note": "Direct read of all 22 repositories on github.com/csdeepak, including README metrics, CITATION metadata and CI configuration."
+  },
+  {
+    "id": "resume-profile-2026-10",
+    "label": "Canonical resume profile, October 2026",
+    "kind": "intake",
+    "note": "The owner-maintained profile behind every resume (PESU/resume/profile, TOML): verified claims, superseded figures and per-project do-not-claim lists. Read 2026-10-10; check:profile compares the site against it."
   }
 ]

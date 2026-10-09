@@ -18,10 +18,11 @@ import { cn } from "@/lib/utils";
  * and the breathing loop is the one ambient animation the design system
  * permits. `dl-breathe` already drops to static under prefers-reduced-motion.
  *
- * The label is hidden below `sm` and the dot carries the meaning there, so the
- * control stays a comfortable tap target on a phone without crowding the two
- * nav lanes. `aria-label` is unconditional, so the accessible name survives the
- * label being visually hidden.
+ * The label shows from 360px up (D-071). It used to hide below `sm` to make
+ * room for the lanes; the lanes now live in the mobile menu, and a bare dot is
+ * a cryptic door to the site's flagship feature for a first-time visitor. Below
+ * 360px the dot alone still carries it. `aria-label` is unconditional, so the
+ * accessible name survives the label being visually hidden.
  */
 export function DexNavTrigger({ className }: { className?: string }) {
   const openDex = useUiStore((s) => s.openDex);
@@ -47,7 +48,7 @@ export function DexNavTrigger({ className }: { className?: string }) {
         aria-hidden
         className="dl-breathe size-2 shrink-0 rounded-full bg-accent shadow-[0_0_10px_var(--interactive-default)]"
       />
-      <span className="hidden sm:inline">Ask Dex</span>
+      <span className="hidden whitespace-nowrap min-[360px]:inline">Ask Dex</span>
     </button>
   );
 }

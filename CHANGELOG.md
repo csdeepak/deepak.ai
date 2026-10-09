@@ -9,6 +9,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **A mobile menu (D-071).** The five-lane nav made every page 498px wide on 320–430px phones, hiding Ask Dex and the theme toggle and letting the page pan sideways. Below 1024px the lanes, the footer's other routes, the CV and the theme toggle live in the bottom sheet `docs/04` §11 specified. Desktop is unchanged; `/` First Load JS is unchanged at 157.5 kB.
+- **`check:profile`** — applies the resume system's retired-figure rule (`blocked_terms`, matched as `claimcheck.py` matches them) to the site's content and public PDFs, reading the owner's canonical profile through its own `profile_lib`. Local only: the profile is private, so CI prints SKIP.
+- **Education on `/about`** — degree, university and years, from the canonical profile. They appeared nowhere on the site.
+- **Per-page link previews and canonical URLs** (`lib/seo.ts`). Every project, post and page previewed as the homepage on LinkedIn and elsewhere. Project descriptions are now their LAW-003 question, ≤ 160 chars.
+- A favicon — `/favicon.ico` 404'd on every page.
+
+### Fixed
+- **Dex described a Smart Door Lock face-recognition factor** the owner's profile marks do-not-ship (the face step is a timed placeholder). Corrected, along with HandCode's retired figures (now 917 tests, ten-point chaos suite, macOS CI, released on PyPI) and Dental AI's retired parameter count and U-Net/YOLOv12 mentions.
+- **The PESU Vault repository link 404'd** — the repo's name ends in a hyphen.
+- **Text contrast now meets the 4.5:1 floor `docs/03` promised.** The `faint` token measured 3.27:1. Lighthouse accessibility 94–96 → 100 and best practices 96 → 100 on the pages measured.
+- The selected filter chip (3.21:1, a flat accent fill) is ink-filled; `/projects` and `/posts` no longer skip from h1 to h3; backtick spans in project prose render as code.
+
+### Changed
+- `memory/KNOWN_LIMITATIONS.md` brought current; D-068 – D-070 backfilled into `DECISIONS.md`, which had stopped at D-067.
+
+### Added
 - **Dex Phase 4 (D-062)** — published projects and posts are read live from the content layer and joined to the prompt as a separate labelled block, so Dex stops answering from a corpus frozen at 2026-08-04. Live citations resolve to the page itself (`/projects/<slug>`). Bounded at 24 projects / 15 recent posts / 420 chars, measured at ~9,322 tokens against a 40,000 budget.
 - **`CLAUDE.md`** — working notes for AI assistants, including the traps that have already cost time (Python on Windows rewriting LF→CRLF, the dev server's `.next` lock, the two `.env.local` files, the admin's deliberate independence from `contentService`).
 - **`check:dex-v2` is in CI** — flagged as worth doing since D-054. No secrets exist in CI, so the INFRA and LIVE sections skip themselves and the offline guardrails run.

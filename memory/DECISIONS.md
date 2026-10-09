@@ -1062,3 +1062,207 @@ typecheck clean · `CONTENT_SOURCE=file` build exit 0, no new warnings · `/` **
 ### Not done, and why
 
 **Gallery positional IDs** (`g01…gNN` by sorted filename) still break deep links when an earlier-sorting photo is inserted. Fixing it means choosing a migration for existing `/gallery#g03` links, which is an owner ruling, not a refactor. Recorded in `specs/gallery.md` §9 and `KNOWN_LIMITATIONS.md`.
+
+## D-068 – D-070 — backfilled pointers
+
+These three shipped on 2026-09-19 with their reasoning in the commit messages
+only; this log stopped at D-067. Recorded here (2026-10-10, during D-071) so the
+numbering has no holes. The commits are the full record.
+
+- **D-068 — a public CV** (`54441b3`). A neutral edition built from
+  `RESUME_MASTER.md` in the owner's LaTeX template — not one of the fourteen
+  JD-tailored copies. No phone number, no CGPA, no C++ (standing decisions).
+  Both CV CTAs self-hide when `cvUrl` is null.
+- **D-069 — the three experience rows** (`7ef26c1`). CDSAML/CCBD research role,
+  SahayAI events, Nexus PES — from the master. The CDSAML highlight deliberately
+  carries no percentage, because the ASMOS figure was unresolved.
+- **D-070 — `question` on every content type** (`aaaa2a7`). The production
+  ingest aborted on `ck_published_has_question` after 21 projects; `question`
+  existed only on `Project`. New guard: `check:content`.
+
+## D-071 — Optimization cycle 1: phones, the accessibility floor, and the profile the site drifted from
+
+- **Date:** 2026-10-10.
+- **Status:** Implemented on `feat/d-071-optimization-cycle-1`, gate-green,
+  PR open against `main`, not merged (merging deploys to production).
+- **Context:** An audit measured against production and against the owner's
+  canonical resume profile (`PESU/resume/profile`, TOML — the source every
+  resume is built from). Everything below was measured, not estimated. The
+  harness was Playwright + Lighthouse 12.8, run against the live site and
+  against a local `CONTENT_SOURCE=file` production build of unchanged `main`,
+  so the before/after numbers compare like with like.
+
+### 1. The nav overflowed every phone
+
+The bar was laid out for two lanes (its own comment said so) and has carried
+five since D-065. Measured at 320, 360, 390 and 430px the document was
+**498–499px wide**: Ask Dex and the theme toggle sat off-screen and the whole
+page panned sideways — on every page, on the device most recruiters open a
+LinkedIn link with.
+
+Below `md` the lanes now live in a bottom sheet — the pattern `docs/04` §11
+already specified ("menu is a sheet, bottom-anchored, thumb-reach, listing the
+lanes + full sitemap groups + theme toggle"), built on the `Sheet` primitive
+whose doc comment named "mobile nav" as its first consumer and which nothing
+had ever used. Ask Dex keeps its label from 360px (a bare dot is a cryptic door
+to the flagship feature). Radix Dialog was already in every page via DexPanel,
+so the sheet cost nothing measurable: `/` First Load JS **157.5 kB before and
+after**.
+
+**Breakpoint, and a correction to my own first attempt:** this project's
+breakpoints are custom (`md` = 1024px, `lg` = 1440px). I first wrote `lg:`
+assuming Tailwind's default 1024, and the re-measure caught desktops at
+1024–1439px getting the phone menu. At 768px the five lanes fit with exactly
+0px to spare, so `md` (1024) is the switch: tablets get the menu, and one longer
+label can no longer break a tablet layout. At 1024px every desktop item sits at
+**the same x-coordinates as before** — desktop is unchanged.
+
+Verified by an 18-check Playwright interaction test: dialog semantics,
+`aria-expanded`, the active lane's `aria-current`, only the sheet's 11 controls
+in the accessibility tree while open, Tab trapped, Escape closes and returns
+focus, tapping a lane navigates and closes, the theme toggle works from the
+sheet, Ask Dex still opens on a phone, zero console errors.
+
+### 2. The accessibility floor the design language already promised
+
+`docs/03` §12: "all text ≥ 4.5:1 (AA hard floor)". The `faint` token — used
+for eyebrows, dates, tags and metadata on every page — measured **3.27:1** on
+canvas and 3.33:1 on cards (Lighthouse `color-contrast` failed on every page
+audited). Raised to the lowest values that clear 4.5:1 on canvas, surface,
+raised and recessed: dark 0.38 → **0.50** (worst case 4.76:1), light 0.42 →
+**0.58** (4.70:1). Light `muted` 0.60 → 0.68 so the muted/faint step stays
+visible (6.67–7.02:1, at the docs/03 7:1 body target on cards). Dark `muted`
+unchanged.
+
+Also: the selected filter chip was white on flat accent (3.21:1, and a flat
+accent fill the design system rules out) — now ink-filled. `/projects` and
+`/posts` jumped h1 → h3 — visually hidden h2s added. `/favicon.ico` 404'd on
+every page, the only console error the site produced — now a provisional "D"
+over the OG card's gradient rule (`app/icon.svg` + a generated `favicon.ico`).
+The monogram is still an open owner decision; this is one file to replace.
+
+**Lighthouse, mobile, local build, before → after:** accessibility 96/96/94/96
+→ **100/100/100/100** (`/`, `/projects/handcode`, `/projects`, `/about`); best
+practices 96 → **100** on all four; SEO 100 unchanged; performance within
+run-to-run noise (70/95/96/94 → 72/94/95/94). CLS on `/projects/handcode` went
+0 → 0.005 — probably the mono face swapping in for the new `<code>` span; 20×
+under the 0.1 threshold, noted rather than chased.
+
+### 3. The site had drifted from the owner's canonical profile — and Dex was repeating it
+
+The resume system retires a superseded figure by listing it in a project's
+`blocked_terms`, and its `claimcheck.py` fails any resume that carries one.
+Nothing applied that rule here. Found:
+
+- **Smart Door Lock — a do-not-ship claim, stated by Dex as fact.** Dex said
+  "RFID, fingerprint and ESP32-CAM face recognition must all pass". The profile
+  records that the committed firmware's face step is a timed placeholder and
+  the camera sketch (Espressif's example) has recognition disabled; it also
+  rules out the Mega↔ESP32 link Dex described. LAW-006.
+- **HandCode** — "502 tests / nine-point chaos / CI on Linux and Windows" in
+  `site.ts` and three Dex cards. The profile (verified 2026-10-07) says **917
+  tests**, a ten-point chaos suite, Ubuntu/Windows/macOS × Python 3.12/3.13, and
+  **released on PyPI** (`handcode` 0.3.1 — confirmed against PyPI's API; docs
+  site confirmed 200). The site was missing its single strongest new signal.
+- **Dental AI** — "97.7M parameters" (retired) in the outcomes; a `u-net` tag
+  (superseded) and a "YOLOv12, U-Net" FAQ answer, where the profile's stack is
+  YOLOv11l + ResNet18.
+- **PESU Vault's repo link 404'd** on the live site. The repository's real name
+  ends in a hyphen — exactly as the profile records it. Found by checking every
+  external URL in the content (26 of them; the other 404 is RIO's organisation
+  repo, a draft project).
+
+All corrected from the profile's `ok` claims only, with HandCode's do-not-claim
+limits (no sandbox, single process, no usage figures, injection resistance not
+tested) written into its card so Dex states them. A new source,
+`resume-profile-2026-10`, cites the profile. **Live-verified:** the three
+questions whose facts changed were put to the real Gemini path and came back
+right (no face factor; 917 tests + PyPI; YOLOv11/ResNet18/RT-DETR+SimAM/Captum).
+`check:dex-v2`'s live battery scored **56/58 on `main`'s corpus and 56/58 on
+this one, with the same two pre-existing failures** (the "working on lately"
+phrasing pair, "what's he bad at"). One extra flake in three runs on this
+branch: the certification case, whose answer quotes a sentence that predates
+this change.
+
+### 4. `check:profile` — the resume system's rule, applied to the site
+
+`scripts/check-profile.ts` reads the profile **through the resume system's own
+`profile_lib`**, so "what is blocked" cannot diverge from what `claimcheck`
+enforces. It matches every blocked term the way `claimcheck.py` does — whole
+word, case-insensitive — across `content/` and the public PDFs. Comment lines in
+`.ts` files are skipped (the verb "render" is not the retired host "Render"). It
+also prints, as a non-failing worklist, profile projects whose repository the
+site never links (today: BRE, RCE, and deepak.ai itself).
+
+**Local only, by design.** The profile holds a phone number, the SRN and
+unresolved notes; it is never copied into this repo, so CI cannot see it and the
+guard prints SKIP and exits 0 there. Proven three ways: 0 hits on this tree
+(exit 0); reintroducing "502 tests" and "U-Net" fails with exact file:line
+(exit 1); an absent profile gives SKIP (exit 0).
+
+**It is red today, correctly:** the public CV is a Sep 19 build carrying "502
+tests" and "97.7M". The CV is a build of the resume system — regenerating it
+needs owner choices (tagline, project selection, whether the public copy
+carries the photo) — so it was flagged, not rebuilt.
+
+### 5. About states the facts a screen starts from
+
+Degree, specialization, university and years appeared nowhere on the site, and
+graduation year is the first filter a recruiter applies. Now a three-line
+definition list under the identity statement, copied from `identity.toml`
+[education] (verified 2026-09-30). No CGPA (standing owner decision).
+`siteContent` is read from the file, so this ships on deploy with no ingest.
+
+### 6. Every shared link previewed as the homepage
+
+Measured on production: every project, every post and `/about` carried
+`og:title="Deepak Labs"`, `og:url` = the homepage, and the site tagline. Next.js
+replaces a child's `openGraph` rather than merging it, and the pages set only
+`title`/`description`. A HandCode link posted on LinkedIn previewed as the
+homepage. No page had a canonical URL. Project descriptions were the full
+problem paragraph (753 chars on HandCode, with raw backticks).
+
+`lib/seo.ts` builds title, bounded description, canonical, Open Graph and
+Twitter from one call, and every public page uses it. Projects describe
+themselves with their LAW-003 question — one sentence stating what the project
+is for. Every published project description is ≤ 160 chars. Separately,
+backtick spans in project prose now render as `<code>` (`InlineCode`):
+HandCode's card, the first on the landing, opened with literal backticks.
+
+### Not done, and why
+
+- **ASMOS "about 22%" vs 23.84%.** Still the owner's call, but the evidence has
+  moved since D-066: the profile now marks 22.09% superseded and 23.84% ± 0.15
+  `ok` (verified 2026-09-24), and **the CV this site serves says 23.84% while
+  the pages around it say about 22%.** `check:profile` cannot see this — "about
+  22%" is not the literal blocked "22.09".
+- **`/timeline` and `/publications` are empty in production**, though `site.ts`
+  has the three roles and the survey paper. **The rows are missing from the
+  database — not merely stale pages.** Settled on the PR #16 preview: built
+  fresh from the database on 2026-10-10, it still rendered both shelves empty
+  and `/about` with no Experience block, and `vercel env ls` shows one
+  `DATABASE_URL` shared by Production and Preview. (D-070 records the
+  production ingest aborting midway; it was evidently never re-run.) A redeploy
+  alone will not fill them. Owner: run the ingest or create the rows in the
+  admin, then redeploy.
+- **After merge, Dex and the HandCode page will disagree** until the database
+  is updated: the preview's project page, read from Neon, still shows "502
+  tests / nine-point / Linux and Windows", while the file-read Dex corpus says
+  917 tests and PyPI. Dex Phase 4 also feeds the live (old) project into the
+  prompt beside the corrected card. Update HandCode, Dental and PESU Vault in
+  the admin (or ingest) right after merging.
+- **Preview verification (PR #16, 2026-10-10)** — on the deployed preview: the
+  document is 375px at 375px, the sheet opens bottom-anchored with the right
+  lanes and `aria-current`, a lane navigates and closes it; `faint` measured
+  4.91:1 (dark) and 4.79:1 / 4.69:1 (light, canvas / recessed); `/about` shows
+  the Education block; project metadata and `<code>` render; `/favicon.ico`
+  200; only the pre-existing `THREE.Clock` warning in the console. Canonical
+  and `og:url` read `localhost:3000` on previews only, because
+  `NEXT_PUBLIC_SITE_URL` is set for Production alone — pre-existing, and
+  production emits the real domain.
+- **Analytics.** None exists, and `docs/02` requires privacy-respecting,
+  aggregate page views and referrers. Vercel Web Analytics fits (cookieless,
+  aggregate, served same-origin) but needs a dashboard toggle and has plan
+  limits to confirm — an owner decision, not a change to make unasked.
+- **Per-page OG images**, ISR for DB-backed pages, and BRE/RCE as projects
+  (each needs its LAW-003 question and owner approval) — next cycle.

@@ -4,16 +4,19 @@ import { Section } from "@/components/layout/section";
 import { PostRow } from "@/components/content/post-row";
 import { EmptyState } from "@/components/content/empty-state";
 import { contentService } from "@/services";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * /posts — the Posts index (Index archetype, docs/24 Part 10; D-021 lane
  * "Posts"). Zero posts is a legitimate state (LAW-008): an honest empty
  * state, never a fabricated placeholder.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Posts",
-  description: "Writing on what's being built and why.",
-};
+  description:
+    "Writing on what's being built and why.",
+  path: "/posts",
+});
 
 export default async function PostsIndexPage() {
   const posts = await contentService.getPosts();
@@ -32,6 +35,8 @@ export default async function PostsIndexPage() {
 
         {posts.length > 0 ? (
           <div className="mt-12">
+            {/* Rows are h3; this keeps the outline from jumping h1 → h3. */}
+            <h2 className="sr-only">All posts</h2>
             {posts.map((post) => (
               <PostRow key={post.slug} post={post} />
             ))}

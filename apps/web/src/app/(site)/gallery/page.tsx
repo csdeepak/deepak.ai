@@ -3,11 +3,14 @@ import { Container } from "@/components/layout/container";
 import { EmptyState } from "@/components/content/empty-state";
 import { GalleryBrowser } from "@/features/gallery/gallery-browser";
 import { getGalleryPhotos } from "@/services/gallery";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Gallery",
-  description: "Moments from the work — projects, builds, and the people around them.",
-};
+  description:
+    "Moments from the work — projects, builds, and the people around them.",
+  path: "/gallery",
+});
 
 /**
  * Gallery (D-056) — a cluster, not an archive.
