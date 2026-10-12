@@ -74,7 +74,7 @@ never reach `/`'s client bundle.
 - **Conventional Commits.** Feature branch → PR → `main`. Don't commit or push
   unless asked, and don't commit onto `main` directly.
 - **Decisions get a D-number** in [`memory/DECISIONS.md`](memory/DECISIONS.md).
-  Currently at D-071. Nothing architectural lands undocumented.
+  Currently at D-072. Nothing architectural lands undocumented.
 - **Update `memory/` and `CHANGELOG.md` as part of finishing**, not after.
 - **Measure, don't estimate.** The handoff log is full of "browser-MEASURED",
   "ported the real scoring against the real JSON", "proven to fail when the fix
@@ -86,6 +86,11 @@ never reach `/`'s client bundle.
 
 ## Traps that have already cost time
 
+- **Local Windows builds emit no font preloads** (empty next-font manifest),
+  unlike Vercel's. Font-loading changes can only be measured on a preview.
+- **`useId` is not stable across a hydrate and a client render** — tree-based
+  when hydrating, counter-based on a client navigation. D-072 needed a key
+  that survived Back and found this the hard way.
 - **Breakpoints are custom: `md` is 1024px and `lg` is 1440px** (`@theme` in
   `globals.css`). `lg:` written with Tailwind's default 1024 in mind hides
   things on every laptop narrower than 1440. D-071 shipped that once and the

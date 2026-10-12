@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+- **Performance (D-072).** `/` First Load JS 157.5 → 122.8 kB: the landing's scroll reveal is CSS instead of Motion, and Motion loads only on `/memory`. The 3D hero stops rendering while scrolled out of view (script below the hero −96% on a phone). Gallery tiles no longer preload ahead of the hero poster. Lighthouse `/` mobile 65 → 79.
+- **The theme switch is instant and atomic**, as is the nav's flip at the hero edge — both passed through 10–15 half-applied states before.
+
+### Fixed
+- Focus rings faded in from white; focus and anchor targets landed under the sticky nav; buttons showed the arrow cursor.
+- The landing timeline's gap under its heading (a stray `margin: 0`), and the gallery's hover lift, which a filled entrance animation had blocked since it shipped.
+- Carousels: arrows on rows that cannot scroll, clipped focus rings, cards cut off inside the phone screen edge.
+- Reveal blocks reached before hydration sat blank (median 1.45 s on a throttled phone); returning with Back replayed reveals already seen.
+
+### Added
+- Press feedback on cards, chips and pills; balanced headings and fewer one-word last lines; a Dex entrance from the edge it lives on.
+
 ### Added
 - **A mobile menu (D-071).** The five-lane nav made every page 498px wide on 320–430px phones, hiding Ask Dex and the theme toggle and letting the page pan sideways. Below 1024px the lanes, the footer's other routes, the CV and the theme toggle live in the bottom sheet `docs/04` §11 specified. Desktop is unchanged; `/` First Load JS is unchanged at 157.5 kB.
 - **`check:profile`** — applies the resume system's retired-figure rule (`blocked_terms`, matched as `claimcheck.py` matches them) to the site's content and public PDFs, reading the owner's canonical profile through its own `profile_lib`. Local only: the profile is private, so CI prints SKIP.
