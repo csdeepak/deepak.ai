@@ -77,6 +77,14 @@ interface SceneProps {
   onLost?: () => void;
   /** Up to 3 DOM label slots (from the client) the scene positions from 3D. */
   labelSlots?: MutableRefObject<(HTMLElement | null)[]>;
+  /**
+   * False once the hero has scrolled fully out of view. The render loop then
+   * stops (D-072): the canvas cannot be seen, so every frame drawn there is
+   * main-thread and GPU time taken from the page the visitor is actually
+   * reading. Frames resume the moment any part of the hero is back on screen;
+   * `useFrame` already clamps the first delta to 50ms, so nothing jumps.
+   */
+  active?: boolean;
 }
 
 export default function NeuralFace3DScene({
@@ -85,6 +93,7 @@ export default function NeuralFace3DScene({
   offsetRef,
   onLost,
   labelSlots,
+  active = true,
 }: SceneProps) {
   const isMobile = tier <= 1;
   const bloom = !isMobile;
@@ -92,6 +101,7 @@ export default function NeuralFace3DScene({
   return (
     <Canvas
       className="!absolute inset-0"
+      frameloop={active ? "always" : "never"}
       dpr={[1, isMobile ? DPR_MOBILE : DPR_DESKTOP]}
       gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
       camera={{ fov: 55, near: 0.01, far: 50, position: [0, 0.02, CAM_START_Z] }}

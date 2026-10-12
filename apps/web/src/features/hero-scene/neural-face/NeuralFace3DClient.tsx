@@ -56,6 +56,9 @@ export default function NeuralFace3DClient() {
   const labelSlots = useRef<(HTMLElement | null)[]>([null, null, null]);
 
   const [mounted, setMounted] = useState(false);
+  // Whether any part of the hero is on screen — drives the scene's render
+  // loop (D-072). Starts true: the hero is the first thing on the page.
+  const [onScreen, setOnScreen] = useState(true);
   const [data, setData] = useState<HeroFace3D | null>(null);
   const [tier, setTier] = useState<0 | 1 | 2>(0);
   // D-058 Phase A: ?herodebug=1 self-report overlay, so a visitor's own phone
@@ -109,6 +112,20 @@ export default function NeuralFace3DClient() {
       controller.abort();
     };
   }, []);
+
+  // Pause the 3D render loop while the hero is entirely off screen (D-072).
+  // Measured before this: the scene kept drawing every frame while the visitor
+  // read the sections below, where the canvas cannot be seen.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !mounted) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry?.isIntersecting ?? true),
+      { threshold: 0 },
+    );
+    io.observe(section);
+    return () => io.disconnect();
+  }, [mounted]);
 
   // Native-scroll → offsetRef + direct DOM copy fade (no React re-renders).
   useEffect(() => {
@@ -179,6 +196,7 @@ export default function NeuralFace3DClient() {
             tier={tier}
             offsetRef={offsetRef}
             labelSlots={labelSlots}
+            active={onScreen}
             onLost={() => setMounted(false)}
           />
         )}

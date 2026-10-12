@@ -596,6 +596,26 @@
     }
   }
 
+  /* Scroll reveal (D-072) — the DESIGN_SYSTEM §4 recipe: 400ms fade + 12px
+     rise on ease-instrument, once. `ScrollReveal` sets `data-revealed` from
+     one shared IntersectionObserver; everything visual lives here, on
+     transform/opacity only, so it composites without the main thread. The
+     hidden state needs scripting to be undone, so it only applies when
+     scripting is on — a visitor without JS sees the content, where the old
+     Motion version left it at opacity 0 for good. Reduced motion: never
+     hidden, never animated. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      transition:
+        opacity var(--duration-reveal) var(--ease-instrument),
+        transform var(--duration-reveal) var(--ease-instrument);
+    }
+    [data-reveal]:not([data-revealed]) {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
   /* Mobile menu sheet (D-071): rises into place on open — a state change, not
      decoration (LAW-007). Entrance only; Radix unmounts on close. */
   @media (prefers-reduced-motion: no-preference) {
