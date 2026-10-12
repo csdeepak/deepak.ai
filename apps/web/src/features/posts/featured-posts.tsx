@@ -40,7 +40,7 @@ export async function FeaturedPosts() {
             <Link
               href={ROUTES.posts}
               data-carousel-item
-              className="flex w-72 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-surface p-5 text-center transition-colors duration-(--duration-hover) hover:border-border-emphasis theme-surface sm:w-80"
+              className="flex w-72 shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-surface p-5 text-center transition-colors duration-(--duration-hover) hover:border-border-emphasis active:border-border-emphasis active:duration-(--duration-instant) theme-surface sm:w-80"
             >
               <span className="text-body font-medium text-ink">See all posts</span>
               <span className="text-accent" aria-hidden>→</span>

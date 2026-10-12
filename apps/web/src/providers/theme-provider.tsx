@@ -23,7 +23,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
       attribute="class"
       defaultTheme="dark"
       enableSystem
-      disableTransitionOnChange={false}
+      // Instant, atomic theme swap (D-072). Component colour transitions sat
+      // out of step with each other and with the page: a toggle measured 10
+      // intermediate states over ~245ms. next-themes suspends every
+      // transition for the frame of the switch.
+      disableTransitionOnChange
     >
       {children}
     </NextThemesProvider>

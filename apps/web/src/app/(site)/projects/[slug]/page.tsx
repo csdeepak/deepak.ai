@@ -477,7 +477,7 @@ export default async function ProjectDetailPage({
             {previous ? (
               <Link
                 href={`/projects/${previous.slug}`}
-                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis"
+                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis active:border-border-emphasis active:duration-(--duration-instant)"
               >
                 <span className="flex items-center gap-1.5 text-micro text-faint">
                   <ArrowLeft className="size-3.5" aria-hidden />
@@ -495,7 +495,7 @@ export default async function ProjectDetailPage({
             {next && (
               <Link
                 href={`/projects/${next.slug}`}
-                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis sm:text-right"
+                className="group rounded-md border border-border bg-surface p-5 transition-colors duration-(--duration-hover) hover:border-border-emphasis active:border-border-emphasis active:duration-(--duration-instant) sm:text-right"
               >
                 <span className="flex items-center gap-1.5 text-micro text-faint sm:justify-end">
                   Older
