@@ -33,7 +33,7 @@ export function SheetContent({
 }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-(--z-scrim) bg-scrim" />
+      <DialogPrimitive.Overlay className="scrim-enter fixed inset-0 z-(--z-scrim) bg-scrim" />
       <DialogPrimitive.Content
         className={cn(
           "fixed z-(--z-overlay) bg-raised p-6 shadow-overlay",

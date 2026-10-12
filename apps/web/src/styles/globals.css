@@ -264,15 +264,61 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Smooth theme transition — removed under reduced motion */
-  @media (prefers-reduced-motion: no-preference) {
-    body,
-    .theme-surface {
-      transition:
-        background-color var(--duration-base) var(--ease-in-out-std),
-        color var(--duration-base) var(--ease-in-out-std),
-        border-color var(--duration-base) var(--ease-in-out-std);
-    }
+  /* Theme changes are instant (D-072). The 220ms per-property transition that
+     lived here was not a cross-fade: measured on /projects, a toggle passed
+     through 10 intermediate states over ~245ms, text settling at a different
+     moment from the surface behind it — near-black text on mid-grey at about
+     95ms. docs/08: a janky animation ships as no animation; Brand §5: a
+     well-made switch is immediate. The provider also sets
+     disableTransitionOnChange, so component transitions sit out the swap. */
+
+  /* The nav's own dark↔light flip at the hero edge, made atomic the same way:
+     NavShell sets data-theme-snap for the two frames around the switch, so
+     the glass, wordmark, lanes and Dex trigger change in one frame instead
+     of at four different speeds. Hover transitions are untouched. */
+  [data-theme-snap],
+  [data-theme-snap] * {
+    transition: none !important;
+  }
+
+  /* Anchor jumps and keyboard focus stop below the sticky nav (WCAG 2.2
+     SC 2.4.11, technique C43). Measured before D-072: #q-heading landed at
+     top 0, under the 65px bar, and a reverse Tab walk on / hid 5 stops. */
+  html {
+    scroll-padding-top: 5.5rem;
+  }
+
+  /* Buttons look clickable. Tailwind v4 made `cursor: default` the button
+     default, so the hero's two identical pills showed different cursors —
+     the link a hand, the Dex button an arrow. DESIGN_SYSTEM §5 "Cursor:
+     default everywhere" rules out a custom cursor, not the system pointer. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  /* Headings balance; body copy avoids one-word last lines (D-072). The
+     hero keeps its owner-tuned line breaks exactly. */
+  :where(h1, h2, h3) {
+    text-wrap: balance;
+  }
+  :where(p, li, dd, figcaption, blockquote) {
+    text-wrap: pretty;
+  }
+  [data-hero-section] :where(h1, h2, h3, p, li) {
+    text-wrap: wrap;
+  }
+
+  /* The focus ring's colour is set on everything, not only on :focus-visible
+     (D-072). Tailwind v4's transition-colors includes outline-color, so an
+     element whose resting outline colour was currentColor faded its ring in
+     from white to blue — 8 of 40 stops on / showed a non-signal ring at the
+     instant of focus. With the resting colour already the signal, the ring
+     appears in its final colour on the first frame. */
+  *,
+  ::before,
+  ::after {
+    outline-color: var(--signal-solid);
   }
 
   /* The focus ring — one recipe, never suppressed. Solid signal (blue). */
@@ -354,9 +400,14 @@
     transform-origin: left;
     transition: transform var(--duration-hover) var(--ease-instrument);
   }
-  .group:hover .gradient-underline-hover::after,
-  .gradient-underline-hover:hover::after {
-    transform: scaleX(1);
+  /* Hover-capable pointers only (DSVL Law 20, D-072): on touch, :hover
+     sticks to whatever was last tapped, leaving an underline drawn under a
+     card the visitor has already left. */
+  @media (hover: hover) {
+    .group:hover .gradient-underline-hover::after,
+    .gradient-underline-hover:hover::after {
+      transform: scaleX(1);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .gradient-underline-hover::after {
@@ -392,12 +443,30 @@
     transition: opacity var(--duration-hover) var(--ease-instrument);
     z-index: -1;
   }
-  .cta-pill--energy:hover {
+  @media (hover: hover) {
+    .cta-pill--energy:hover {
+      color: #ffffff;
+      border-color: transparent;
+    }
+    .cta-pill--energy:hover::before {
+      opacity: 1;
+    }
+  }
+  /* Press feedback (D-072, docs/08 motion-instant): a tap shows the
+     active-CTA fill DESIGN_SYSTEM §1 permits, at once — before this a tap on
+     a phone showed nothing until the next page arrived, 200-500ms later on a
+     throttled connection. The plain pill firms its edge instead. */
+  .cta-pill:active {
+    border-color: rgb(var(--stage-ink) / 0.4);
+    transition-duration: var(--duration-instant);
+  }
+  .cta-pill--energy:active {
     color: #ffffff;
     border-color: transparent;
   }
-  .cta-pill--energy:hover::before {
+  .cta-pill--energy:active::before {
     opacity: 1;
+    transition-duration: var(--duration-instant);
   }
 
   /* True gradient focus outline for chrome that opts in. */
@@ -486,14 +555,23 @@
     object-fit: cover;
   }
 
-  /* Hover: the photo straightens and lifts, as if picked up off the pile. */
-  .gallery-photo:hover,
+  /* Hover: the photo straightens and lifts, as if picked up off the pile.
+     Keyboard focus gets the same; touch does not get a sticky hover. */
   .gallery-photo:focus-visible {
     rotate: 0deg;
     scale: 1.04;
     filter: brightness(1.05);
     box-shadow: 0 2rem 4rem -1.25rem rgb(0 0 0 / 0.55);
     z-index: 2;
+  }
+  @media (hover: hover) {
+    .gallery-photo:hover {
+      rotate: 0deg;
+      scale: 1.04;
+      filter: brightness(1.05);
+      box-shadow: 0 2rem 4rem -1.25rem rgb(0 0 0 / 0.55);
+      z-index: 2;
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -515,7 +593,10 @@
       }
     }
     .gallery-photo {
-      animation: gallery-photo-in var(--duration-narrative) var(--ease-instrument) both;
+      /* backwards, not both (D-072): a filled-forwards animation outranks
+         :hover in the cascade, so the lift above never played (0/11 tiles).
+         The final keyframe equals the resting style, so nothing else moves. */
+      animation: gallery-photo-in var(--duration-narrative) var(--ease-instrument) backwards;
       animation-delay: calc(var(--i, 0) * 65ms);
     }
 
@@ -596,6 +677,26 @@
     }
   }
 
+  /* Scroll reveal (D-072) — the DESIGN_SYSTEM §4 recipe: 400ms fade + 12px
+     rise on ease-instrument, once. `ScrollReveal` sets `data-revealed` from
+     one shared IntersectionObserver; everything visual lives here, on
+     transform/opacity only, so it composites without the main thread. The
+     hidden state needs scripting to be undone, so it only applies when
+     scripting is on — a visitor without JS sees the content, where the old
+     Motion version left it at opacity 0 for good. Reduced motion: never
+     hidden, never animated. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      transition:
+        opacity var(--duration-reveal) var(--ease-instrument),
+        transform var(--duration-reveal) var(--ease-instrument);
+    }
+    [data-reveal]:not([data-revealed]) {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
   /* Mobile menu sheet (D-071): rises into place on open — a state change, not
      decoration (LAW-007). Entrance only; Radix unmounts on close. */
   @media (prefers-reduced-motion: no-preference) {
@@ -611,6 +712,40 @@
     }
     .sheet-enter {
       animation: sheet-enter var(--duration-base) var(--ease-instrument) both;
+    }
+
+    /* Dex arrives from where it lives (D-072, docs/08 "Dex panel opens
+       slow"): rising as a bottom sheet on a phone, sliding in from the right
+       edge as a side panel from 1024px (md here). The scrim fades rather than
+       snapping. Closing stays instant (Brand §10: Dex yields instantly). */
+    @keyframes dex-enter-side {
+      from {
+        opacity: 0;
+        transform: translateX(24px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes scrim-enter {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .dex-enter {
+      animation: sheet-enter var(--duration-slow) var(--ease-instrument) both;
+    }
+    @media (min-width: 64rem) {
+      .dex-enter {
+        animation-name: dex-enter-side;
+      }
+    }
+    .scrim-enter {
+      animation: scrim-enter var(--duration-base) var(--ease-instrument) both;
     }
   }
 
@@ -673,7 +808,9 @@
     flex-direction: column;
     gap: 2.75rem;
     padding: 0;
-    margin: 0;
+    /* No margin here (D-072): this rule is emitted after Tailwind's
+       utilities, so a `margin: 0` silently beat the list's mt-16 / md:mt-20
+       and glued the spine to its heading. Preflight already zeroes it. */
   }
   .timeline-list::before {
     content: "";
@@ -731,12 +868,19 @@
      so pointing anywhere on the row lights its sphere — the link's ::after
      overlay makes that same area clickable, sphere included. Keyboard
      parity via :focus-visible so this isn't mouse-only. */
-  .timeline-node:hover .timeline-dot,
   .timeline-node:has(.timeline-card:focus-visible) .timeline-dot {
     scale: 1.32;
     box-shadow:
       0 0 14px 3px color-mix(in srgb, var(--grad-1) 85%, transparent),
       0 0 40px 12px color-mix(in srgb, var(--grad-2) 55%, transparent);
+  }
+  @media (hover: hover) {
+    .timeline-node:hover .timeline-dot {
+      scale: 1.32;
+      box-shadow:
+        0 0 14px 3px color-mix(in srgb, var(--grad-1) 85%, transparent),
+        0 0 40px 12px color-mix(in srgb, var(--grad-2) 55%, transparent);
+    }
   }
   .timeline-node:active .timeline-dot {
     scale: 1.1;

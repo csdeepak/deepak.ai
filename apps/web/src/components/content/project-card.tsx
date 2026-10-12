@@ -36,11 +36,15 @@ export function ProjectCard({ project }: { project: Project }) {
   const overflowTagCount = project.tags.length - visibleTags.length;
 
   return (
-    <div className="group relative flex h-full flex-col rounded-md border border-border bg-surface p-6 transition-colors duration-(--duration-hover) hover:border-border-emphasis theme-surface">
+    // The focus ring wraps the whole card (D-072): the title link's ::after
+    // covers the card, but its own ring hugged only the title text, so a
+    // keyboard user saw a 432x48 box inside a 520x280 target. `:active` gives
+    // touch a press state at motion-instant (docs/08).
+    <div className="group relative flex h-full flex-col rounded-md border border-border bg-surface p-6 transition-colors duration-(--duration-hover) hover:border-border-emphasis has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 active:border-border-emphasis active:duration-(--duration-instant) theme-surface">
       <h3 className="text-card-title font-display font-semibold text-ink">
         <Link
           href={`/projects/${project.slug}`}
-          className="after:absolute after:inset-0"
+          className="after:absolute after:inset-0 focus-visible:outline-none"
         >
           <span className="gradient-underline-hover">{project.title}</span>
         </Link>

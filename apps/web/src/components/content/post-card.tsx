@@ -14,7 +14,7 @@ export function PostCard({ post }: { post: Post }) {
     <Link
       href={`/posts/${post.slug}`}
       data-carousel-item
-      className="group flex w-72 shrink-0 snap-start flex-col overflow-hidden rounded-md border border-border bg-surface transition-colors duration-(--duration-hover) hover:border-border-emphasis theme-surface sm:w-80"
+      className="group flex w-72 shrink-0 snap-start flex-col overflow-hidden rounded-md border border-border bg-surface transition-colors duration-(--duration-hover) hover:border-border-emphasis active:border-border-emphasis active:duration-(--duration-instant) theme-surface sm:w-80"
     >
       {post.coverImage && (
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden border-b border-border">

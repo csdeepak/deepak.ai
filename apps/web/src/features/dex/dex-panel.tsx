@@ -294,10 +294,10 @@ export function DexPanel() {
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && closeOverlays()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-(--z-scrim) bg-scrim" />
+        <Dialog.Overlay className="scrim-enter fixed inset-0 z-(--z-scrim) bg-scrim" />
         <Dialog.Content
           className={cn(
-            "fixed inset-x-0 bottom-0 z-(--z-overlay) flex max-h-[88svh] flex-col rounded-t-lg border-t border-border bg-raised/95 shadow-overlay backdrop-blur-xl",
+            "dex-enter fixed inset-x-0 bottom-0 z-(--z-overlay) flex max-h-[88svh] flex-col rounded-t-lg border-t border-border bg-raised/95 shadow-overlay backdrop-blur-xl",
             "md:inset-y-0 md:left-auto md:right-0 md:h-full md:max-h-none md:w-full md:max-w-[30rem] md:rounded-none md:border-l md:border-t-0",
           )}
           aria-describedby="dex-scope"

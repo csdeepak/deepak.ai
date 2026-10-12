@@ -2,7 +2,7 @@
 
 > Known gaps, constraints, and open risks. Keep this honest and current so no one is surprised.
 >
-> **Last reviewed:** 2026-10-10 (D-071).
+> **Last reviewed:** 2026-10-13 (D-072).
 
 This file had drifted badly — until this review it still read "No application
 code exists. Tech stack undecided. Product scope undefined." for a site that is
@@ -27,6 +27,10 @@ of its job.
 | 11 | `THREE.Clock` deprecation warning on `/`. | One console warning from inside the 3D stack. | Comes from three.js / R3F internals, not app code; clears with a dependency upgrade. |
 | 12 | Local dev cannot exercise Dex v2 without setup. | `npm run dev` renders no Turnstile widget and `getDexLlmConfig()` returns null. | The six v2 vars live in the **repo-root** `.env.local`, but `next dev` runs in `apps/web` and reads `apps/web/.env.local`. Copy them across, or load the root file from `next.config.ts`. |
 | 13 | License is provisional ("All Rights Reserved"). | May change before public release. | Unchanged from the original entry. |
+| 14 | **Local builds cannot measure fonts.** On this Windows machine `next build` emits no font preloads (empty next-font manifest, even on unmodified `main`); Vercel's Linux build emits three. | Any font-loading change is unmeasurable locally. | D-072. Test font changes on a Vercel preview. |
+| 15 | **Opening Dex costs one ~100ms frame** at 4× CPU, with or without its entrance animation. | A brief hitch on the first frame of every open on slow phones. | D-072 measured it both ways: it is the panel mounting. Pre-rendering or lightening the panel is the fix. |
+| 16 | **Touch press states unverified on a real iPhone.** | `:active` was verified with a pointer press; CDP touch never triggers it. | D-072 adds the passive `touchstart` listener iOS Safari needs. Check on a device. |
+| 17 | `animations/tokens.ts` durations drift from the CSS tokens (130/120, 220/200, 320/300, 560/550 ms). | None visible — only `/memory`'s Motion code reads `tokens.ts`. | globals.css is the source of truth (DESIGN_SYSTEM §8). Left deliberately (D-072, C22). |
 
 Resolved since the last review: the CV now exists (D-068); `/about`,
 `/skills`, `/publications` and `/timeline` are built (D-063–D-065); `/projects`

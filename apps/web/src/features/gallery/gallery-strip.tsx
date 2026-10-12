@@ -70,6 +70,14 @@ export async function GalleryStrip() {
                 // A photo that silently never appears is worse than the small
                 // upfront cost; /gallery stays lazy, where the set can grow.
                 loading="eager"
+                // Low priority (D-072): React 19's server renderer emits a
+                // <link rel="preload"> for every non-lazy <img> in the HTML,
+                // so eager tiles were preloaded at the very start of the page
+                // load — nine of them, ahead of the hero poster that is the
+                // LCP element, for a section near the bottom of the page.
+                // "low" keeps them eager (no blank tiles) but behind the
+                // critical path, and React skips the preload for it.
+                fetchPriority="low"
                 style={{ viewTransitionName: `photo-${photo.id}` }}
               />
             </Link>

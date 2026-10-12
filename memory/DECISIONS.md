@@ -1266,3 +1266,53 @@ HandCode's card, the first on the landing, opened with literal backticks.
   limits to confirm — an owner decision, not a change to make unasked.
 - **Per-page OG images**, ISR for DB-backed pages, and BRE/RCE as projects
   (each needs its LAW-003 question and owner approval) — next cycle.
+
+## D-072 — Performance and the feel of moving through the site
+
+- **Date:** 2026-10-13.
+- **Status:** Implemented on `perf/d-072-performance-and-polish`, gate-green,
+  uncommitted pending owner review.
+- **How it was decided:** the owner asked for "small key details — the things
+  you feel when scrolling or moving across the portfolio", every animation
+  meaningful, and better performance. A Research agent audited the live site
+  (24 candidates, all measured on production); a separate Decision agent ruled
+  on each against the Constitution, DESIGN_SYSTEM and docs/08 (11 groups to
+  ship, 7 deferred to the owner, 3 rejected). Every shipped item had an
+  acceptance test, run before and after on the same local production build
+  (`CONTENT_SOURCE=file`, Playwright + Lighthouse 12.8).
+
+### Performance
+
+| Change | Measured |
+|---|---|
+| `ScrollReveal` is CSS (`[data-reveal]`) + one shared IntersectionObserver; `MotionConfig` moved from the root provider to `/memory`, the only Motion consumer | `/` First Load JS **157.5 → 122.8 kB** (−22%); JS requested before first paint 186 → 150 KB. Recipe unchanged (400ms, 12px, ease-instrument, once) — 8/8 parity checks. Visible with JS off, which the Motion version was not. |
+| The 3D hero's render loop stops (`frameloop="never"`) while the hero is fully off screen | Phone, reading below the hero: script **358–375 → 15–22 ms per 5s** (−96%, at the no-3D floor). Desktop (software GL): **~4 → ~57 fps** below the hero. CPU profile with the hero off screen: 0.6ms of JS in 4s. |
+| Gallery-strip tiles `fetchPriority="low"` | React 19 preloads every non-lazy `<img>` in the HTML: image preloads on `/` **12 → 1** (the poster). Latent in production — the strip self-hides until photos are featured. |
+| Reveal blocks are observed from the HTML before hydration (`RevealBootstrap`, a 0.4 kB inline script) | A block reached early on a 4×-CPU, slow-4G phone sat blank for a median **1,447 → 75 ms**. |
+
+Lighthouse `/`, mobile, median of 3 — simulated: score **65 → 79**, LCP **5.52 → 3.47 s**, Speed Index **3.18 → 2.08 s**, TBT 501 → 446 ms, CLS 0. Applied throttling: score 65 → 69, LCP 2.99 → 2.67 s, TBT 1.88 → 1.31 s.
+
+**Honest limits of those numbers.** Local builds are file mode, whose landing differs from production's (the gallery strip renders locally, posts do not). Headless Chrome renders WebGL in software, which inflates the hero's TBT far beyond a real phone's GPU; the remaining TBT is that. And on this Windows machine `next build` emits **no font preloads at all** (the next-font manifest is empty even on unmodified `main`), while Vercel's Linux build emits three — so font changes cannot be measured locally. A `preload: false` experiment on JetBrains Mono was reverted for that reason, not because it failed.
+
+### Feel — what shipped, before → after (same build, same harness)
+
+- **Focus:** rings in a non-signal colour at the instant of focus 8/40 → **0** (Tailwind v4 `transition-colors` faded `outline-color` in from white); stops hidden under the sticky nav on a reverse Tab walk 5 → **0**, `#q-heading` anchor lands at **88px** instead of 0 (`scroll-padding-top`, WCAG 2.2 SC 2.4.11). The project card's ring wraps the whole card (**524×317**, was 432×48 around the title text).
+- **Cursor:** buttons without a pointer 4 → **0**, `/memory` nodes `default` → `pointer`. DESIGN_SYSTEM §5 "Cursor: default everywhere" was read as ruling out a *custom* cursor, not the system pointer — the hero's two identical pills had shown different cursors.
+- **Theme toggle:** 10 intermediate states over ~245ms → **2 states in 6–10ms**. It was not a cross-fade; text and the surfaces behind it settled at different moments (near-black on mid-grey at ~95ms). Instant is Brand §5's "well-made switch"; docs/08's literal cross-fade is recorded below as not adopted. `next-themes`' own `disableTransitionOnChange` was not enough — it lifts its blocker after recomputing `<body>` only — so the toggle holds `data-theme-snap` on `<html>` for two frames.
+- **Nav at the hero edge:** in light theme its parts flipped dark→light at four speeds (0/130/180/220ms) — 13 mixed frames per crossing → **0** (`data-theme-snap` for the two frames of the flip; set only on a real flip, so a no-op observer callback cannot leave transitions off).
+- **Timeline:** `.timeline-list { margin: 0 }` beat `mt-16 md:mt-20` (emitted later in the same layer) and glued the spine to its heading: margin **0 → 64 / 80px**.
+- **Gallery hover:** a finished `fill: both` entrance outranks `:hover` in the cascade, so "picked up off the pile" never played: tiles lifting on hover **0/11 → 11/11** (`backwards` fill).
+- **Hover on touch:** the four custom `:hover` rules are gated to `(hover: hover)` (DSVL Law 20); keyboard `:focus-visible` paths stay ungated. Tailwind's own `hover:` variant was already gated in v4. Sticky hover could not be reproduced in emulation either way — verified only that desktop hover is unchanged.
+- **Press feedback:** cards, post cards, prev/next, unselected chips and the CTA pills get an `:active` state at `--duration-instant` (docs/08); none existed except the timeline dot. Card border **0.08 → 0.16** within 100ms of a press, transform `none`. CDP touch events never trigger `:active` in Chrome, so this was verified with a pointer press; an empty passive `touchstart` listener is added because iOS Safari applies `:active` only when one exists — **unverified on a real iPhone**.
+- **Carousels:** dead arrows on a non-scrolling carousel **2 → 0**; clipped card focus rings **13 → 0**; on a phone the scroller bleeds to the screen edge (**24/366 → 0/390**) while the first card still rests at 24px; `overscroll-behavior-x: contain`; the arrow at an end is `aria-disabled` and lets clicks through instead of covering the first card; the off-system `shadow-sm` is gone. No sideways pan at 320–1440px. Verified on a temporary fixture page (file mode has no posts), deleted before the final build.
+- **Text wrapping:** headings `balance`, copy `pretty`, the hero excluded. Single-word last lines: phone `/` 2 → 1, desktop `/` 2 → 1, phone `/about` 2 → 0, phone `/projects/handcode` 1 → 0; no page got worse.
+- **Back navigation:** returning to `/` faded already-seen blocks in again (min opacity **0 → 1**). Reveals are now once per visit, keyed by route + order among the page's blocks. Two keys that did not work, both measured: "is it in view at mount" (Next restores scroll after the layout effect) and `useId` (tree-based when hydrating, counter-based on a client render — the first visit and the return never shared a key). Blocks never reached still reveal on scroll.
+- **Dex:** enters from where it lives — rising as a bottom sheet, sliding in from the right as the side panel from 1024px — with the scrim fading in (`--duration-slow`, ease-instrument, not docs/08's off-system spring). Closing stays instant (Brand §10). Each open has one ~100ms frame at 4× CPU **with or without** the animation — it is the panel mounting, not the entrance (measured both ways), so the entrance stays.
+
+**The hero is unchanged.** The hero copy region is pixel-identical at 1440px in every run. At 390px the capture differs between runs *of the same build* (Chrome samples the responsive poster differently; max delta 144 on ~24k poster pixels); every word, line break and control position matches.
+
+### Not done
+
+- **Deferred to the owner** (the Decision agent's questions): an 8px icon gap in the hero's Dex pill (C13); balanced wrapping for the hero headline (C14 hero part); scroll-triggered pop-in for the landing photo strip (C11b); one canonical inline-link style (C15); 56px section headings on `/` (C18); a Vercel preview to measure the mono-font preload (C19); a cross-fading hero sub-line (C23).
+- **Rejected:** asymmetric hover (C21 — DESIGN_SYSTEM §4's symmetric 180ms, D-052, postdates docs/08's "out at instant"; the conflict is noted here rather than resolved by changing every hover); reconciling `animations/tokens.ts` with the CSS durations (C22 — invisible; globals.css is the source of truth per DESIGN_SYSTEM §8; drift noted in KNOWN_LIMITATIONS); scrollbar compensation in the gallery detail (C24 — the shift happens under a 97%-opaque overlay in the same frame).
+- **Hero TBT** — deliberately left: delaying the 3D mount would change how the owner-tuned hero feels, and headless software GL overstates it.

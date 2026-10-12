@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LivingMemory } from "@/features/memory/experience";
+import { MemoryMotionScope } from "@/features/memory/motion-scope";
 import { asmosMemory } from "../../../content/asmos";
 import { pageMetadata } from "@/lib/seo";
 
@@ -18,5 +19,9 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function MemoryPage() {
-  return <LivingMemory memory={asmosMemory} />;
+  return (
+    <MemoryMotionScope>
+      <LivingMemory memory={asmosMemory} />
+    </MemoryMotionScope>
+  );
 }

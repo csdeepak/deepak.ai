@@ -18,10 +18,24 @@ export function ThemeToggle() {
   }
 
   const isDark = resolvedTheme === "dark";
+
+  // One frame, one state (D-072). next-themes' disableTransitionOnChange lifts
+  // its blocker after recomputing <body> only, so cards and text still ran
+  // their own colour transitions — 9 intermediate states, measured. Holding
+  // `data-theme-snap` on <html> for two frames covers the whole recalc.
+  const toggle = () => {
+    const root = document.documentElement;
+    root.setAttribute("data-theme-snap", "");
+    setTheme(isDark ? "light" : "dark");
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => root.removeAttribute("data-theme-snap")),
+    );
+  };
+
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       // size-11 (44px) is the touch target; the icon stays 18px, so this
       // reads identically and simply stops being a 32px miss on a phone.

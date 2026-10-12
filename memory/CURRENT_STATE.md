@@ -2,6 +2,41 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-10-13 (D-072 — performance and the feel of moving
+through the site)
+
+## D-072 — performance and feel (latest)
+
+On `perf/d-072-performance-and-polish`, **uncommitted, pending owner review**.
+Full reasoning, every before/after number and the honest limits:
+`DECISIONS.md` → `D-072`.
+
+- **`/` First Load JS 157.5 → 122.8 kB** — the landing reveal is CSS, and
+  Motion now loads only on `/memory`.
+- **The 3D hero stops drawing once scrolled out of view** — script below the
+  hero −96% on a phone; ~4 → ~57 fps there on desktop (software GL).
+- **Lighthouse `/` (mobile, median of 3): 65 → 79**, LCP 5.5 → 3.5 s.
+- **Fifteen feel details**, each with a measured before/after: focus rings in
+  their final colour and never under the nav, pointer cursors, an atomic
+  theme switch and nav flip, the timeline gap restored, the gallery hover
+  that never played, press states on touch, carousels without dead arrows
+  or clipped rings, balanced headings, no reveal replay on Back, a Dex
+  entrance. The hero is unchanged.
+- **Gates:** typecheck clean · build exit 0, no new warnings · `/` 122.8 kB
+  ≤ 170 · `check:dex` 34/34 · `check:typography` 22/22 · `check:content` 0
+  problems · no hydration warnings in dev on 7 page/viewport checks ·
+  `check:profile` red only on the public CV (D-071 owner action).
+
+### Owner decisions waiting (from the Decision agent)
+
+An 8px icon gap in the hero's Dex pill · balanced wrapping for the hero
+headline · scroll-triggered pop-in for the landing photo strip · one
+canonical inline-link style · 56px section headings on `/` · a Vercel
+preview to measure the mono-font preload · a cross-fading hero sub-line.
+D-071's owner actions below are all still open.
+
+---
+
 **Last updated:** 2026-10-10 (D-071 — optimization cycle 1: phones, the
 accessibility floor, and drift from the owner's canonical profile)
 

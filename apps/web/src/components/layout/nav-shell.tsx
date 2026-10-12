@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Container } from "@/components/layout/container";
@@ -63,19 +63,56 @@ export function NavShell({ cvUrl }: { cvUrl?: string | null }) {
   // In light mode the default glass tint is warm-white; the IntersectionObserver
   // switches the header to `.dark` so `bg-glass` resolves to dark-glass instead.
   const [overHero, setOverHero] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const overHeroRef = useRef(false);
   useEffect(() => {
     const hero = document.querySelector("[data-hero-section]");
     if (!hero) return;
     const io = new IntersectionObserver(
-      ([entry]) => setOverHero(entry?.isIntersecting ?? false),
+      ([entry]) => {
+        const next = entry?.isIntersecting ?? false;
+        // The observer also fires once on mount; only a real flip snaps, or
+        // the attribute would outlive a render that React skips and leave
+        // the nav's hover transitions switched off.
+        if (next === overHeroRef.current) return;
+        overHeroRef.current = next;
+        // Suspend transitions for the flip (D-072): otherwise the glass,
+        // wordmark, lanes and Dex trigger changed at four different speeds
+        // (0 / 130 / 180 / 220ms) — 13 mixed frames per crossing in light
+        // theme, measured. The attribute is cleared after the swap paints.
+        headerRef.current?.setAttribute("data-theme-snap", "");
+        setOverHero(next);
+      },
       { threshold: 0.01 },
     );
     io.observe(hero);
     return () => io.disconnect();
   }, []);
+  // iOS Safari only applies :active to a tapped element when some touch
+  // listener exists; without one the D-072 press states never show there.
+  // Passive and empty, so it costs nothing and never delays scrolling.
+  useEffect(() => {
+    const noop = () => {};
+    document.addEventListener("touchstart", noop, { passive: true });
+    return () => document.removeEventListener("touchstart", noop);
+  }, []);
+
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    if (!header?.hasAttribute("data-theme-snap")) return;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => header.removeAttribute("data-theme-snap"));
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [overHero]);
 
   return (
     <header
+      ref={headerRef}
       className={cn(
         "sticky top-0 z-(--z-nav) border-b border-border bg-glass backdrop-blur-[8px] theme-surface",
         overHero && "dark",

@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { DexPanel } from "@/features/dex/dex-panel";
 import { KeyboardShortcuts } from "@/components/overlays/keyboard-shortcuts";
 import { siteContent } from "../../../content/site";
+import { RevealBootstrap } from "@/animations/reveal-bootstrap";
 
 /**
  * Site chrome layout — the standard public frame (nav · main · footer)
@@ -25,6 +26,8 @@ export default function SiteLayout({
       <NavShell cvUrl={siteContent.cvUrl} />
       <main id="main">{children}</main>
       <Footer />
+      {/* After every ScrollReveal block, so it can find them all (D-072). */}
+      <RevealBootstrap />
       <DexPanel />
       <KeyboardShortcuts />
     </>
