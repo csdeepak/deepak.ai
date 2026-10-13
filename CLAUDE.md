@@ -74,7 +74,7 @@ never reach `/`'s client bundle.
 - **Conventional Commits.** Feature branch → PR → `main`. Don't commit or push
   unless asked, and don't commit onto `main` directly.
 - **Decisions get a D-number** in [`memory/DECISIONS.md`](memory/DECISIONS.md).
-  Currently at D-072. Nothing architectural lands undocumented.
+  Currently at D-073. Nothing architectural lands undocumented.
 - **Update `memory/` and `CHANGELOG.md` as part of finishing**, not after.
 - **Measure, don't estimate.** The handoff log is full of "browser-MEASURED",
   "ported the real scoring against the real JSON", "proven to fail when the fix

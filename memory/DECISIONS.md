@@ -1316,3 +1316,107 @@ Lighthouse `/`, mobile, median of 3 — simulated: score **65 → 79**, LCP **5.
 - **Deferred to the owner** (the Decision agent's questions): an 8px icon gap in the hero's Dex pill (C13); balanced wrapping for the hero headline (C14 hero part); scroll-triggered pop-in for the landing photo strip (C11b); one canonical inline-link style (C15); 56px section headings on `/` (C18); a Vercel preview to measure the mono-font preload (C19); a cross-fading hero sub-line (C23).
 - **Rejected:** asymmetric hover (C21 — DESIGN_SYSTEM §4's symmetric 180ms, D-052, postdates docs/08's "out at instant"; the conflict is noted here rather than resolved by changing every hover); reconciling `animations/tokens.ts` with the CSS durations (C22 — invisible; globals.css is the source of truth per DESIGN_SYSTEM §8; drift noted in KNOWN_LIMITATIONS); scrollbar compensation in the gallery detail (C24 — the shift happens under a 97%-opaque overlay in the same frame).
 - **Hero TBT** — deliberately left: delaying the 3D mount would change how the owner-tuned hero feels, and headless software GL overstates it.
+
+## D-073 — A safe ingest, and the Dex open measured honestly
+
+- **Date:** 2026-10-13.
+- **Status:** Implemented on `feat/d-073-safe-ingest-and-dex` (stacked on
+  D-072's branch), gate-green, uncommitted pending owner review.
+- **Context:** the top open owner action since D-071 is filling the empty
+  `/timeline` and `/publications` in production. The only tool for it,
+  `db:ingest`, overwrote **every project** with the file's version on every
+  run — including projects edited since in the admin — and wrote row by row
+  with no transaction (D-070's constraint failure left 21 projects written and
+  nothing after them). Running it to add three roles would have silently
+  reverted admin edits elsewhere.
+
+### The ingest now plans, protects, and writes atomically
+
+- **Plan first.** Every item is listed as INSERT, UPDATE (naming the fields
+  that differ), UNCHANGED, PROTECTED or CONFLICT before anything is written.
+  `--dry-run` stops there.
+- **Protect admin edits.** Every admin save, publish, unpublish and restore
+  writes a `content_versions` row; the ingest never does. An item with version
+  rows therefore holds edits the file does not know about, and is skipped
+  unless `--force`. Site settings are protected the same way by
+  `site_settings_versions`. A slug owned by a different content type is a
+  CONFLICT and is never touched.
+- **Scope.** `--only=projects,publications,timeline,settings` (any subset).
+- **Atomic.** The whole write phase is one transaction. Unchanged items are
+  not rewritten (no needless `updated_at` churn).
+- **Runbook.** `docs/DEPLOY_RUNBOOK.md` §2a documents the procedure — it had
+  never mentioned the ingest at all. The documented command was run as
+  written.
+
+**Verified against a real Postgres** (the local Docker database, backed up
+with `pg_dump` first and restored byte-for-byte afterwards — checksums and
+version-row count matched the original). Checksums are md5 over the
+`projects`, `content_items` and `abandoned_branches` tables:
+
+1. `--dry-run`, all kinds: a plan of 7 insert / 7 update / 14 unchanged; all
+   three checksums identical afterwards.
+2. `--only=timeline,publications`: exactly 4 inserts in one transaction; the
+   `projects` checksum unchanged.
+3. The same run again: 4 unchanged, nothing written — the comparison
+   round-trips exactly through Postgres types.
+4. A `content_versions` row added for `asmos` (what an admin save writes):
+   a full run reported it PROTECTED with the five fields that would change,
+   wrote the other 9 items, and left the `asmos` row byte-identical.
+   `--force --dry-run` reports it as OVERWRITE.
+5. The last of four writes made to violate `ck_published_has_question` (a
+   temporary blanked question, restored afterwards): the first three writes
+   succeeded, the fourth failed, and all three checksums equal the starting
+   state — D-070's half-ingested outcome can no longer happen.
+
+No CI guard: these tests need a database, which CI does not have. They are
+recorded here as a protocol to repeat when the script changes.
+
+### Dex: one fix, and a cost left in place with the numbers
+
+The suggested questions were refetched on **every** open — measured twice on
+each reopen — though they are static JSON that only changes on a deploy. They
+are now fetched once per page (a failed request clears the cache, so the next
+open retries): **2 → 0 requests per reopen**.
+
+The ~100–160ms long frame on every open (4× CPU, real GPU) was profiled. It is
+Radix Dialog mounting: `Presence` reads the content's computed
+`animationName` (a forced style recalc) and `FocusScope` focuses on mount (a
+forced layout). Click-to-paint, via the Event Timing API with trusted clicks:
+**112–296ms** across runs, run-to-run noise about ±50ms.
+
+One attempt was tried and reverted: moving the input focus from a 120ms timer
+into Radix's `onOpenAutoFocus`, to focus once instead of twice. Reopen
+click-to-paint measured 176–200ms against 112–176ms before — within the noise,
+so it is not claimed as a regression, but it pulls the focus layout into the
+click's own frame, where the timer leaves it after the first paint. The timer
+stays, with a comment saying why.
+
+Removing the mount cost would mean keeping the dialog permanently mounted,
+which re-opens the Turnstile widget lifecycle D-059/D-060 had to fix.
+Recorded in KNOWN_LIMITATIONS rather than attempted.
+
+### Tried and not shipped: a figure-traceability check
+
+`check:profile` catches figures the profile has formally retired, not stale
+ones it never retired. A claimcheck-style rule — every figure on the site must
+appear in a verified claim — was prototyped against the real content and
+rejected. Of 24 outcome lines it flagged 3, all format variants of verified
+figures (0.810 vs the profile's 81.0%, 0.9233 vs 92.3%, a ± margin). And it
+would not have caught the case that motivated it: ASMOS's "about 22%" contains
+a 22 that the profile uses elsewhere. A guard with false positives and a blind
+spot on the real case is not a guard.
+
+### Gates
+
+typecheck clean · build exit 0 · `/` 122.8 kB · `check:dex` 34/34 ·
+`check:typography` 22/22 · `check:content` 0 problems · Dex chips render on
+first open and from the cache on reopen, focus lands in the input, no errors.
+`check:dex-v2` live battery: one run at 41/56 during a Gemini free-tier outage
+(provider errors), the re-run **52/57**: 3 `provider_error`, the pre-existing
+"what's he bad at", and one **false positive** — the open-source check matches
+the substring "merged into", which also fires on a correctly *negated* answer
+(the card's own wording is "not a record of contributions merged into other
+people's repositories"). Three live re-asks of that question, read in full,
+all stayed honest ("rather than contributing to existing third-party
+repositories"). The check could learn to ignore negated mentions; left as is
+and noted, since D-073 changes nothing on the answer path.

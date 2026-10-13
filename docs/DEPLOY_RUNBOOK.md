@@ -83,6 +83,31 @@ Apply to local first, verify, then production. A schema change that reaches
 production before the code that reads it will break the public site — the DB
 service is used **unwrapped at runtime** (see §5).
 
+## 2a. Content Ingest (`content/site.ts` → database)
+
+Production reads content from Neon, so a change to `site.ts` reaches the live
+site only after an ingest. Since D-073 the ingest plans before it writes,
+protects anything edited in the admin, and writes in one transaction.
+
+Always look at the plan first, scoped to what you mean to change:
+
+```bash
+DATABASE_URL=<neon-connection-string> npm run db:ingest --workspace=web -- --dry-run --only=timeline,publications
+```
+
+Each item is listed as INSERT, UPDATE (with the fields that would change),
+UNCHANGED, PROTECTED (edited in the admin — skipped, so the file cannot
+overwrite those edits) or CONFLICT (the slug belongs to another content type —
+never touched). `--only` takes any of `projects`, `publications`, `timeline`,
+`settings`. If the plan is what you expect, run the same command without
+`--dry-run`. A failure part-way rolls the whole run back.
+
+For a PROTECTED item, prefer bringing the change across in the admin. Only
+`--force` overwrites it, and it overwrites the admin's edits with the file.
+
+Then **redeploy**: public pages are static, and an ingest does not revalidate
+them (admin saves do).
+
 ## 3. Environment Variables
 
 Set in Vercel → project → Settings → Environment Variables.

@@ -20,6 +20,25 @@ import type {
 } from "@/lib/dex/types";
 
 const DEX_INTAKE_STORAGE_KEY = "dex-intake-status";
+
+/**
+ * The suggested questions are static JSON that only changes on a deploy (the
+ * role-aware ordering happens client-side), so one request per page is
+ * enough (D-073). The panel used to refetch them on every open — measured
+ * twice on a reopen. A failed request clears the cache so the next open
+ * retries.
+ */
+let suggestedRequest: Promise<DexSuggestedQuestion[]> | null = null;
+function loadSuggested(): Promise<DexSuggestedQuestion[]> {
+  suggestedRequest ??= fetch("/api/dex/suggested")
+    .then((response) => response.json())
+    .then((json: { questions?: DexSuggestedQuestion[] }) => json.questions ?? [])
+    .catch(() => {
+      suggestedRequest = null;
+      return [];
+    });
+  return suggestedRequest;
+}
 const DEX_ROLE_STORAGE_KEY = "dex-intake-role";
 
 /**
@@ -184,15 +203,15 @@ export function DexPanel() {
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    fetch("/api/dex/suggested")
-      .then((response) => response.json())
-      .then((json: { questions?: DexSuggestedQuestion[] }) => {
-        if (!cancelled) setSuggested(json.questions ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setSuggested([]);
-      });
+    loadSuggested().then((questions) => {
+      if (!cancelled) setSuggested(questions);
+    });
 
+    // Kept on a timer deliberately (D-073 measured the alternative): focusing
+    // the input from Radix's onOpenAutoFocus pulled its forced layout into
+    // the click's own frame, and reopen click-to-paint rose from 112-176ms to
+    // 176-200ms at 4x CPU. After the panel has painted, the same work no
+    // longer delays the first visible response.
     const focus = window.setTimeout(() => inputRef.current?.focus(), 120);
     return () => {
       cancelled = true;
