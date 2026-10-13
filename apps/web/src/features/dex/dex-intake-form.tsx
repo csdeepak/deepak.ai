@@ -139,7 +139,7 @@ export function DexIntakeForm({
         <button
           type="button"
           onClick={() => onDone("skipped")}
-          className="text-small text-faint underline-offset-4 hover:text-muted hover:underline"
+          className="text-small text-faint underline-offset-4 underline decoration-transparent hover:text-muted hover:decoration-current transition-[color,text-decoration-color] duration-(--duration-hover)"
         >
           Skip
         </button>

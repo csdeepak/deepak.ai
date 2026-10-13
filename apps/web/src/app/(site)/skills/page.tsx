@@ -204,7 +204,7 @@ export default async function SkillsPage() {
                               <li key={project.slug}>
                                 <Link
                                   href={`/projects/${project.slug}`}
-                                  className="text-small text-accent underline-offset-4 hover:underline"
+                                  className="text-small text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
                                 >
                                   {project.title}
                                 </Link>

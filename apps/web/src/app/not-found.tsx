@@ -22,7 +22,7 @@ export default function NotFound() {
           <li key={lane.href}>
             <Link
               href={lane.href}
-              className="text-body text-accent underline-offset-2 hover:underline"
+              className="text-body text-accent underline-offset-2 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
             >
               {lane.label} →
             </Link>

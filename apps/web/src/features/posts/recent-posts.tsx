@@ -33,16 +33,21 @@ export async function RecentPosts() {
     <Section aria-labelledby="recent-posts-heading" className="py-24 md:py-40">
       <Container width="content">
         <ScrollReveal>
-          <div className="flex items-baseline justify-between">
-            <h2
-              id="recent-posts-heading"
-              className="text-h4 font-display font-medium text-ink"
-            >
-              Posts
-            </h2>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
+                Latest
+              </p>
+              <h2
+                id="recent-posts-heading"
+                className="mt-3 max-w-2xl text-section font-display font-medium text-ink"
+              >
+                Posts
+              </h2>
+            </div>
             <Link
               href={ROUTES.posts}
-              className="text-small text-accent underline-offset-4 hover:underline"
+              className="text-small text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
             >
               More posts
             </Link>

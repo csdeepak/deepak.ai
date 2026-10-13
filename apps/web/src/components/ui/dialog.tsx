@@ -34,7 +34,7 @@ export function DialogContent({
       >
         {children}
         <DialogPrimitive.Close
-          className="absolute right-4 top-4 text-muted hover:text-ink"
+          className="absolute right-4 top-4 text-muted transition-colors duration-(--duration-hover) hover:text-ink"
           aria-label="Close"
         >
           <X size={20} aria-hidden />

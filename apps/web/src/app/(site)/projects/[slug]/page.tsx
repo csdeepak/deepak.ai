@@ -176,7 +176,7 @@ export default async function ProjectDetailPage({
         {/* Fast path: identity of the artifact in one glance (LAW-009). */}
         <header>
           <div className="flex items-center gap-3 text-micro text-faint">
-            <Link href={ROUTES.projects} className="hover:text-ink">
+            <Link href={ROUTES.projects} className="transition-colors duration-(--duration-hover) hover:text-ink">
               Work
             </Link>
             <span aria-hidden>/</span>
@@ -432,7 +432,7 @@ export default async function ProjectDetailPage({
                     href={pdf.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-accent underline-offset-4 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
                   >
                     <FileText className="size-4" aria-hidden />
                     {pdf.caption || "Document"} (PDF)
@@ -444,7 +444,7 @@ export default async function ProjectDetailPage({
                 <li key={`${relation.toType}:${relation.toSlug}`}>
                   <Link
                     href={href as string}
-                    className="text-accent underline-offset-4 hover:underline"
+                    className="text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
                   >
                     {relation.toTitle}
                   </Link>
@@ -512,7 +512,7 @@ export default async function ProjectDetailPage({
         <p className="mt-8 text-small">
           <Link
             href={ROUTES.projects}
-            className="text-accent underline-offset-4 hover:underline"
+            className="text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
           >
             ← All projects
           </Link>
@@ -528,7 +528,7 @@ function ExternalEvidence({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1.5 text-accent underline-offset-4 hover:underline"
+      className="inline-flex items-center gap-1.5 text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
     >
       {label}
       <ArrowUpRight className="size-4" aria-hidden />

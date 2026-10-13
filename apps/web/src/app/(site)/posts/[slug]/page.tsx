@@ -81,7 +81,7 @@ export default async function PostDetailPage({
 
         <header>
           <div className="flex items-center gap-3 text-micro text-faint">
-            <Link href={ROUTES.posts} className="hover:text-ink">
+            <Link href={ROUTES.posts} className="transition-colors duration-(--duration-hover) hover:text-ink">
               Posts
             </Link>
             <span aria-hidden>/</span>

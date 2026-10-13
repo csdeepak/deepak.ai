@@ -31,7 +31,7 @@ export function Collaborate() {
             <p className="mt-8 flex items-center gap-3">
               <a
                 href={`mailto:${contactEmail}`}
-                className="font-mono text-body text-accent underline-offset-4 hover:underline"
+                className="font-mono text-body text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
               >
                 {contactEmail}
               </a>

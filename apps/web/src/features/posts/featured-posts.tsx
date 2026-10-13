@@ -22,11 +22,11 @@ export async function FeaturedPosts() {
       <Container width="content">
         <ScrollReveal>
           <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
-            Featured
+            The writing
           </p>
           <h2
             id="featured-posts-heading"
-            className="mt-3 text-h4 font-display font-medium text-ink"
+            className="mt-3 max-w-2xl text-section font-display font-medium text-ink"
           >
             Featured posts
           </h2>

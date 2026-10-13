@@ -87,7 +87,7 @@ export function Footer() {
                       <li key={link.href} className="-my-1.5">
                         <Link
                           href={link.href}
-                          className="inline-block py-1.5 text-small text-muted hover:text-ink"
+                          className="inline-block py-1.5 text-small text-muted transition-colors duration-(--duration-hover) hover:text-ink"
                         >
                           {link.label}
                         </Link>
@@ -110,14 +110,14 @@ export function Footer() {
             {siteContent.outbound.github && (
               <a href={siteContent.outbound.github} target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-block py-2 hover:text-ink">
+                className="inline-block py-2 transition-colors duration-(--duration-hover) hover:text-ink">
                 GitHub
               </a>
             )}
             {siteContent.outbound.scholar && (
               <a href={siteContent.outbound.scholar} target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-block py-2 hover:text-ink">
+                className="inline-block py-2 transition-colors duration-(--duration-hover) hover:text-ink">
                 Scholar
               </a>
             )}
@@ -126,7 +126,7 @@ export function Footer() {
                 href={siteContent.outbound.linkedin}
                 target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-block py-2 hover:text-ink"
+                className="inline-block py-2 transition-colors duration-(--duration-hover) hover:text-ink"
               >
                 LinkedIn
               </a>
@@ -134,7 +134,7 @@ export function Footer() {
             {siteContent.outbound.x && (
               <a href={siteContent.outbound.x} target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-block py-2 hover:text-ink">
+                className="inline-block py-2 transition-colors duration-(--duration-hover) hover:text-ink">
                 X
               </a>
             )}
@@ -143,7 +143,7 @@ export function Footer() {
                 href={siteContent.outbound.instagram}
                 target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-block py-2 hover:text-ink"
+                className="inline-block py-2 transition-colors duration-(--duration-hover) hover:text-ink"
               >
                 Instagram
               </a>
