@@ -1313,7 +1313,7 @@ Lighthouse `/`, mobile, median of 3 — simulated: score **65 → 79**, LCP **5.
 
 ### Not done
 
-- **Deferred to the owner** (the Decision agent's questions): an 8px icon gap in the hero's Dex pill (C13); balanced wrapping for the hero headline (C14 hero part); scroll-triggered pop-in for the landing photo strip (C11b); one canonical inline-link style (C15); 56px section headings on `/` (C18); a Vercel preview to measure the mono-font preload (C19); a cross-fading hero sub-line (C23).
+- **Deferred to the owner** (the Decision agent's questions): an 8px icon gap in the hero's Dex pill (C13); balanced wrapping for the hero headline (C14 hero part); scroll-triggered pop-in for the landing photo strip (C11b); one canonical inline-link style (C15); 56px section headings on `/` (C18); a Vercel preview to measure the mono-font preload (C19); a cross-fading hero sub-line (C23). The owner said yes to all: see D-074.
 - **Rejected:** asymmetric hover (C21 — DESIGN_SYSTEM §4's symmetric 180ms, D-052, postdates docs/08's "out at instant"; the conflict is noted here rather than resolved by changing every hover); reconciling `animations/tokens.ts` with the CSS durations (C22 — invisible; globals.css is the source of truth per DESIGN_SYSTEM §8; drift noted in KNOWN_LIMITATIONS); scrollbar compensation in the gallery detail (C24 — the shift happens under a 97%-opaque overlay in the same frame).
 - **Hero TBT** — deliberately left: delaying the 3D mount would change how the owner-tuned hero feels, and headless software GL overstates it.
 
@@ -1420,3 +1420,99 @@ people's repositories"). Three live re-asks of that question, read in full,
 all stayed honest ("rather than contributing to existing third-party
 repositories"). The check could learn to ignore negated mentions; left as is
 and noted, since D-073 changes nothing on the answer path.
+
+## D-074 — The seven design questions, answered
+
+- **Date:** 2026-10-13.
+- **Status:** Implemented on `feat/d-074-design-answers`, gate-green,
+  uncommitted pending owner review.
+- **Context:** D-072's Decision agent left seven visual changes to the owner
+  rather than making them unasked (D-072 → "Deferred to the owner"). The owner
+  answered "yes to all". Each was measured before and after with the same
+  script (phone 390px and desktop 1440px, the landing in file mode); C19 was a
+  measurement, not a change, and its answer was to change nothing.
+
+### What changed, with the measurement
+
+| # | Change | Before | After |
+|---|---|---|---|
+| C13 | `.cta-pill` gets `gap: 0.5rem` | The hero's Dex pill icon touched its label: **0px** | **8px**. "Before" measured by switching the rule off in the built page; the markup is unchanged. |
+| C14 | The hero takes the site's `text-wrap: balance` / `pretty`; its exclusion is removed | On a phone the support line ended on **"evolve."** alone | Ends on **"and evolve."**. The phone headline is four lines either way: balance evens them (7/14/7/8 → 7/9/12/8 characters), but "systems." still ends alone because "working systems." does not fit one line at that size. Desktop unchanged. |
+| C11b | The landing photo strip's pop-in waits until the strip is seen | At load **11/11** tiles ran their entrance far below the fold, and **all 11 had finished** before anyone got there; **0** animating when reached | **11/11 paused** at load, **0** finished unseen, **11/11 animating** when scrolled to |
+| C15 | One inline-link style: the underline fades in (`decoration-transparent` → `current` over the 180ms hover token); colour-only links transition | The underline snapped from `none` to `underline` | Present at rest in transparent, part-way at 60ms, complete by 180ms. 11 files moved to the pattern; footer, nav, breadcrumbs and the dialog's close button gained the colour transition they lacked |
+| C18 | `/` section headings share one style and each section has its own eyebrow | "Selected work" was **20px** on both viewports beside 32/56px neighbours; the gallery reused the timeline's eyebrow "The record" | **32px phone / 56px desktop** like its neighbours, its link aligned to the heading; eyebrows "The work", "The record", "The gallery", and on the posts rows "The writing" and "Latest" (new) |
+| C23 | The hero sub-line fades out, swaps and fades back at a beat change (opacity, 130ms each way) | A hard cut: 0 frames below full opacity | Fades out over 130ms, swaps at opacity 0 (151ms), back at full by ~234ms. A fast scroll across three beats is **one** fade that lands on the final line. Reduced motion: an instant swap, never dimmed |
+| C19 | Measure dropping the JetBrains Mono preload | — | **Kept.** Dropping it makes LCP later (below) |
+
+### C11b: how the strip waits
+
+`ScrollReveal` gained `variant="trigger"`: never hidden itself, it only marks
+when it is first seen, for children that run their own entrance. It fires on
+the first visible pixel rather than at 20%, or a tall cluster would sit blank
+while most of it was on screen. The tiles are held with
+`animation-play-state: paused` until then, and only under
+`@media (scripting: enabled)`, so a visitor without JavaScript is never left
+with hidden photos. The HTML bootstrap script (D-072) handles triggers too, so
+the strip does not wait for hydration. Coming back with Back marks an
+already-seen trigger `data-reveal-seen`, and its tiles skip the entrance —
+the once-per-visit rule every reveal follows. Five checks pass: first visit
+plays and settles; after Back nothing replays; reduced motion shows the tiles
+at once; with JavaScript off the tiles are visible and never paused; the
+trigger itself is never hidden. Cost: `/` 122.8 → 123.0 kB.
+
+### C23: a bug the measurement caught
+
+The first version read `--duration-fast` with `parseFloat`. The build minifies
+the token to `.13s`, so the delay was 0.13ms and the text swapped one frame
+into the fade (measured: at 18ms, opacity 0.51). It now reads the unit.
+A swap already under way lands on the newest line, so a fast scroll is one
+fade, not a queue. The first paint keeps the instant swap, so a reload
+mid-hero does not fade.
+
+### C19: the Mono preload stays
+
+Windows builds emit no font preloads (KNOWN_LIMITATIONS 14), and the Vercel
+preview is behind Deployment Protection, so the comparison was built locally:
+the page's HTML was rewritten in flight to carry exactly the three preload
+links production ships (checked against production's HTML: same three files,
+same hashes), against the two Inter links alone. Both arms went through the
+same rewrite. Phone viewport, devtools throttling (150ms RTT, 1.6 Mbps, 4×
+CPU), cold, 15 alternating runs per arm, medians:
+
+| | all three preloaded | without Mono |
+|---|---|---|
+| Inter Tight done | 1447ms | 1393ms (−54) |
+| Inter done | 1522ms | 1490ms (−32) |
+| Mono done | 1343ms | 1964ms (+621) |
+| FCP | 1356ms | 1376ms (noise) |
+| **LCP** (the hero poster image) | **1856ms** | **1936ms (+80)** |
+| CLS | 0 | 0 |
+
+LCP was later without the preload in all 15 pairs (1836–1908ms against
+1892–1976ms). Unpreloaded, Mono is discovered at first layout — the hero's name
+eyebrow uses it — and downloads while the poster is downloading, sharing the
+bandwidth. The owner's rule was "keep only if it measurably helps"; it
+measurably hurts. Limits: a local server over HTTP/1.1 without a CDN, where
+Vercel serves HTTP/2 from an edge and contention differs. The direction was
+consistent in every pair.
+
+### Gates
+
+typecheck clean · build exit 0 · `/` 123.0 kB ≤ 170 · `check:dex` 34/34 ·
+`check:typography` 22/22 · `check:content` 0 problems · `check:dex-v2`
+offline, as CI runs it, 27/27 · the live battery 32/54 during a Gemini outage: all 22 misses are provider errors (HTTP 503) or timeouts, none a judged answer, and D-074 changes nothing on the answer path · the D-072 reveal parity test
+8/8 · no hydration warnings in dev on 20 page/viewport checks, including a
+`/` → `/gallery` → Back round trip · `check:profile` red only on the public CV
+(the D-071 owner action, unchanged).
+
+**Not verified here:** the featured and recent posts headers. File mode has no
+published posts and the local Postgres needs Docker, which is not running;
+check them on the PR preview, which reads the database.
+
+**Found, not changed:** `/skills` logs React duplicate-key errors, and
+production shows a project twice in 4 of its 33 evidence lists (ASMOS three
+times, Dental AI once). `effectiveProjectSkills` (`content/skills.ts`)
+concatenates a project's tags with the audited additions without
+de-duplicating, which also inflates the evidence counts that order the page.
+It predates D-074 and also feeds the hero-network generator, so it is flagged
+as its own task rather than folded in here.
