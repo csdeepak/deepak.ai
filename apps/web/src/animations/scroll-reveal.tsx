@@ -6,6 +6,13 @@ import { usePathname } from "next/navigation";
 interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
+  /**
+   * "trigger" (D-074): never hidden itself. It only marks when it is first
+   * seen, for children that run their own entrance (the landing gallery
+   * strip). It fires on the first visible pixel, not at 20%: a tall cluster
+   * would otherwise sit blank while most of it is already on screen.
+   */
+  variant?: "fade" | "trigger";
 }
 
 /**
@@ -43,14 +50,15 @@ interface ScrollRevealProps {
 
 type Reveal = (element: Element, onReveal: () => void) => () => void;
 
-let observe: Reveal | null = null;
+/** One observer per threshold for the whole page, created on first use. */
+const observers = new Map<number, Reveal>();
 /** Blocks revealed during this visit, as `pathname#order`. */
 const seen = new Set<string>();
 const callbacks = new WeakMap<Element, () => void>();
 
-/** One observer for the whole page, created on first use. */
-function getObserver(): Reveal {
-  if (observe) return observe;
+function getObserver(threshold: number): Reveal {
+  const existing = observers.get(threshold);
+  if (existing) return existing;
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -60,28 +68,31 @@ function getObserver(): Reveal {
         io.unobserve(entry.target);
       }
     },
-    { threshold: 0.2 },
+    { threshold },
   );
-  observe = (element, onReveal) => {
+  const observe: Reveal = (element, onReveal) => {
     callbacks.set(element, onReveal);
     io.observe(element);
     return () => io.unobserve(element);
   };
+  observers.set(threshold, observe);
   return observe;
 }
 
-export function ScrollReveal({ children, className }: ScrollRevealProps) {
+export function ScrollReveal({ children, className, variant = "fade" }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const keyOf = (element: Element) =>
     `${pathname}#${[...document.querySelectorAll("[data-reveal]")].indexOf(element)}`;
 
   // Before paint: a block already revealed this visit returns in its final
-  // state instead of fading in again.
+  // state instead of fading in again. `data-reveal-seen` lets the children of
+  // a trigger skip their own entrance the same way.
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element || element.hasAttribute("data-revealed") || !seen.has(keyOf(element))) return;
     element.style.transition = "none";
+    element.setAttribute("data-reveal-seen", "");
     element.setAttribute("data-revealed", "");
     void element.offsetHeight; // commit the final state without a transition
     element.style.transition = "";
@@ -101,12 +112,17 @@ export function ScrollReveal({ children, className }: ScrollRevealProps) {
       element.setAttribute("data-revealed", "");
       return remember();
     }
-    return getObserver()(element, remember);
+    return getObserver(variant === "trigger" ? 0 : 0.2)(element, remember);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyOf reads only pathname
   }, [pathname]);
 
   return (
-    <div ref={ref} data-reveal="" className={className} suppressHydrationWarning>
+    <div
+      ref={ref}
+      data-reveal={variant === "trigger" ? "trigger" : ""}
+      className={className}
+      suppressHydrationWarning
+    >
       {children}
     </div>
   );

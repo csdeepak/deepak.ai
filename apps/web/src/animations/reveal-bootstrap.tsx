@@ -7,8 +7,9 @@
  *
  * Measured before: a visitor who reached the Mission block on a throttled
  * phone saw it blank (opacity 0) for a median 1.45s while hydration ran.
+ * Triggers (`data-reveal="trigger"`, D-074) fire on the first visible pixel.
  */
-const BOOTSTRAP = `(function(){var q=document.querySelectorAll("[data-reveal]:not([data-revealed])");if(!q.length)return;function show(e){e.setAttribute("data-revealed","")}if(!("IntersectionObserver"in window)){q.forEach(show);return}var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){show(en.target);io.unobserve(en.target)}})},{threshold:0.2});q.forEach(function(e){io.observe(e)})})();`;
+const BOOTSTRAP = `(function(){var q=document.querySelectorAll("[data-reveal]:not([data-revealed])");if(!q.length)return;function show(e){e.setAttribute("data-revealed","")}if(!("IntersectionObserver"in window)){q.forEach(show);return}function make(t){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){show(en.target);io.unobserve(en.target)}})},{threshold:t});return io}var fade=make(0.2),trigger=make(0);q.forEach(function(e){(e.getAttribute("data-reveal")==="trigger"?trigger:fade).observe(e)})})();`;
 
 export function RevealBootstrap() {
   return <script dangerouslySetInnerHTML={{ __html: BOOTSTRAP }} />;

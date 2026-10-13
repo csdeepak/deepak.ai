@@ -592,6 +592,17 @@
         translate: 0 0;
       }
     }
+    /* The landing strip plays its entrance when it is seen, not at load
+       while off screen (D-074). Its cluster is a ScrollReveal "trigger"; only
+       with scripting, so nothing is held hidden for a visitor without JS. */
+    @media (scripting: enabled) {
+      [data-reveal="trigger"]:not([data-revealed]) .gallery-photo {
+        animation-play-state: paused;
+      }
+      [data-reveal-seen] .gallery-photo {
+        animation: none;
+      }
+    }
     .gallery-photo {
       /* backwards, not both (D-072): a filled-forwards animation outranks
          :hover in the cascade, so the lift above never played (0/11 tiles).
@@ -691,7 +702,7 @@
         opacity var(--duration-reveal) var(--ease-instrument),
         transform var(--duration-reveal) var(--ease-instrument);
     }
-    [data-reveal]:not([data-revealed]) {
+    [data-reveal=""]:not([data-revealed]) {
       opacity: 0;
       transform: translateY(12px);
     }
