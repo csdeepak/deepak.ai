@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Changed
+- **`db:ingest` is safe (D-073).** It plans before writing (`--dry-run`), never overwrites an item edited in the admin unless `--force`, takes `--only=projects,publications,timeline,settings`, skips unchanged items, and writes in one transaction — a failure part-way leaves the database untouched. Documented in `docs/DEPLOY_RUNBOOK.md` §2a, which had never mentioned the ingest.
+
+### Fixed
+- Dex refetched its suggested questions on every open (twice on a reopen); once per page now.
+
+### Changed
 - **Performance (D-072).** `/` First Load JS 157.5 → 122.8 kB: the landing's scroll reveal is CSS instead of Motion, and Motion loads only on `/memory`. The 3D hero stops rendering while scrolled out of view (script below the hero −96% on a phone). Gallery tiles no longer preload ahead of the hero poster. Lighthouse `/` mobile 65 → 79.
 - **The theme switch is instant and atomic**, as is the nav's flip at the hero edge — both passed through 10–15 half-applied states before.
 

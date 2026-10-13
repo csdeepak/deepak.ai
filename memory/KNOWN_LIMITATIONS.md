@@ -2,7 +2,7 @@
 
 > Known gaps, constraints, and open risks. Keep this honest and current so no one is surprised.
 >
-> **Last reviewed:** 2026-10-13 (D-072).
+> **Last reviewed:** 2026-10-13 (D-073).
 
 This file had drifted badly — until this review it still read "No application
 code exists. Tech stack undecided. Product scope undefined." for a site that is
@@ -15,7 +15,7 @@ of its job.
 | # | Limitation | Impact | Notes |
 | --- | --- | --- | --- |
 | 1 | **Dex v2's LLM path does not run in production.** The Turnstile widget renders but never produces a token, so every question fails closed to the v1 cached matcher. | Dex answers are the older lexical-match quality, on every page. | Diagnosed 2026-09-18: the sitekey is set and Cloudflare is reached, but the challenge never completes. Top suspect is the hostname allowlist (`docs/32` Step 4) — owner-side, needs the Cloudflare dashboard. The error code is now logged to the console to identify it. |
-| 2 | **`/timeline` and `/publications` render empty in production** (measured 2026-10-10), though `content/site.ts` holds the three roles and the survey paper. | The two shelves a recruiter checks first — experience and research — look empty. | **The database has no published rows** — proved on the PR #16 preview, built fresh from the same `DATABASE_URL` as production. Owner: ingest (or create rows in the admin), then redeploy; public pages are static and `db-ingest` does not revalidate them. The ingest upserts every project, so it overwrites admin edits. D-071. |
+| 2 | **`/timeline` and `/publications` render empty in production** (measured 2026-10-10), though `content/site.ts` holds the three roles and the survey paper. | The two shelves a recruiter checks first — experience and research — look empty. | **The database has no published rows** — proved on the PR #16 preview, built fresh from the same `DATABASE_URL` as production. Owner: the scoped, admin-safe ingest in `docs/DEPLOY_RUNBOOK.md` §2a (D-073), then redeploy. |
 | 3 | **The public CV carries retired figures** ("502 tests", "97.7M"), and says ASMOS 23.84% where the site says about 22%. | The most-downloaded recruiter artifact disagrees with the site and with the owner's own profile. | It is a Sep 19 build of the resume system. Regenerate there and copy over `public/cv-c-s-deepak.pdf`; `check:profile` stays red until then. D-071. |
 | 4 | **`check:profile` is local-only.** | CI cannot catch drift from the canonical profile. | By design: the profile is private (phone, SRN, notes) and never enters this repo. On CI the guard prints SKIP. Run it before shipping content. |
 | 5 | **No visitor analytics.** | No page views, referrers or device mix, so no design change can be judged by outcome. `docs/02` lists privacy-respecting aggregate analytics as a requirement. | Owner decision: Vercel Web Analytics (cookieless, aggregate) needs a dashboard toggle. Dex's own question and intake logs are the only behavioural data today. |
@@ -28,7 +28,7 @@ of its job.
 | 12 | Local dev cannot exercise Dex v2 without setup. | `npm run dev` renders no Turnstile widget and `getDexLlmConfig()` returns null. | The six v2 vars live in the **repo-root** `.env.local`, but `next dev` runs in `apps/web` and reads `apps/web/.env.local`. Copy them across, or load the root file from `next.config.ts`. |
 | 13 | License is provisional ("All Rights Reserved"). | May change before public release. | Unchanged from the original entry. |
 | 14 | **Local builds cannot measure fonts.** On this Windows machine `next build` emits no font preloads (empty next-font manifest, even on unmodified `main`); Vercel's Linux build emits three. | Any font-loading change is unmeasurable locally. | D-072. Test font changes on a Vercel preview. |
-| 15 | **Opening Dex costs one ~100ms frame** at 4× CPU, with or without its entrance animation. | A brief hitch on the first frame of every open on slow phones. | D-072 measured it both ways: it is the panel mounting. Pre-rendering or lightening the panel is the fix. |
+| 15 | **Opening Dex costs one ~100–160ms frame** at 4× CPU, with or without its entrance animation. Click-to-paint 112–296ms across runs. | A brief hitch on every open on slow phones; near INP's 200ms "good" line. | D-073 profiled it: Radix Dialog's mount (Presence reads computed `animationName`, FocusScope focuses — each forces style/layout). Removing it means keeping the dialog mounted, which reopens the Turnstile lifecycle D-059/D-060 fixed. |
 | 16 | **Touch press states unverified on a real iPhone.** | `:active` was verified with a pointer press; CDP touch never triggers it. | D-072 adds the passive `touchstart` listener iOS Safari needs. Check on a device. |
 | 17 | `animations/tokens.ts` durations drift from the CSS tokens (130/120, 220/200, 320/300, 560/550 ms). | None visible — only `/memory`'s Motion code reads `tokens.ts`. | globals.css is the source of truth (DESIGN_SYSTEM §8). Left deliberately (D-072, C22). |
 

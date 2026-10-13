@@ -2,6 +2,28 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-10-13 (D-073 — a safe ingest, and the Dex open
+measured)
+
+## D-073 — safe ingest (latest)
+
+On `feat/d-073-safe-ingest-and-dex`, stacked on D-072, **uncommitted**.
+Details: `DECISIONS.md` → `D-073`.
+
+- **`db:ingest` is safe to run against production now.** It plans before it
+  writes (`--dry-run`), never overwrites an item edited in the admin unless
+  `--force`, can be scoped (`--only=timeline,publications`), and writes in one
+  transaction. Verified five ways against a real Postgres.
+- **This unblocks owner action #1 below**, with the exact command in
+  `docs/DEPLOY_RUNBOOK.md` §2a:
+  `DATABASE_URL=<neon> npm run db:ingest --workspace=web -- --dry-run --only=timeline,publications`,
+  then the same without `--dry-run`, then redeploy.
+- Dex no longer refetches its suggested questions on every open (2 → 0
+  requests per reopen). Its ~100–160ms mount frame is Radix Dialog itself;
+  measured and documented, not removed.
+
+---
+
 **Last updated:** 2026-10-13 (D-072 — performance and the feel of moving
 through the site)
 
@@ -73,11 +95,10 @@ Full reasoning and every measurement: `DECISIONS.md` → `D-071`.
 1. **`/timeline` and `/publications` are empty on the live site** although
    `site.ts` has the three roles and the survey paper. **The database has no
    published rows** (proved on the PR #16 preview, which shares production's
-   `DATABASE_URL`), so a redeploy alone will not fill them. Run the
-   D-070-fixed ingest against Neon (or create the rows in `/admin`), then
-   redeploy — public pages are static and `db-ingest` does not revalidate them.
-   ⚠️ The ingest upserts every project from `site.ts`, so it will overwrite any
-   project edited in the admin since.
+   `DATABASE_URL`), so a redeploy alone will not fill them. Since D-073 the
+   ingest is scoped and protects admin edits: follow `docs/DEPLOY_RUNBOOK.md`
+   §2a (`--dry-run --only=timeline,publications` first), then redeploy —
+   public pages are static and the ingest does not revalidate them.
 2. **Regenerate the public CV** in the resume system and copy it to
    `apps/web/public/cv-c-s-deepak.pdf`. The current one (Sep 19) carries "502
    tests" and "97.7M"; `check:profile` stays red until it is replaced.
