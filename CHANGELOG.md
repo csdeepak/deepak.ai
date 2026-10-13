@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Changed
+- **The seven design answers (D-074).** The hero's Dex pill has a gap between its icon and label. The hero headline and support line wrap like the rest of the site. The landing photo strip plays its entrance when it is seen, not off screen at load. Inline links share one underline that fades in. "Selected work" matches the other section headings, and each landing section has its own eyebrow. The hero sub-line cross-fades between beats.
+- The JetBrains Mono preload was measured and kept: without it the hero poster paints ~80ms later.
+
+### Changed
 - **`db:ingest` is safe (D-073).** It plans before writing (`--dry-run`), never overwrites an item edited in the admin unless `--force`, takes `--only=projects,publications,timeline,settings`, skips unchanged items, and writes in one transaction — a failure part-way leaves the database untouched. Documented in `docs/DEPLOY_RUNBOOK.md` §2a, which had never mentioned the ingest.
 
 ### Fixed

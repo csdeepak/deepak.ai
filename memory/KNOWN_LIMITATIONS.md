@@ -2,7 +2,7 @@
 
 > Known gaps, constraints, and open risks. Keep this honest and current so no one is surprised.
 >
-> **Last reviewed:** 2026-10-13 (D-073).
+> **Last reviewed:** 2026-10-13 (D-074).
 
 This file had drifted badly — until this review it still read "No application
 code exists. Tech stack undecided. Product scope undefined." for a site that is
@@ -27,10 +27,11 @@ of its job.
 | 11 | `THREE.Clock` deprecation warning on `/`. | One console warning from inside the 3D stack. | Comes from three.js / R3F internals, not app code; clears with a dependency upgrade. |
 | 12 | Local dev cannot exercise Dex v2 without setup. | `npm run dev` renders no Turnstile widget and `getDexLlmConfig()` returns null. | The six v2 vars live in the **repo-root** `.env.local`, but `next dev` runs in `apps/web` and reads `apps/web/.env.local`. Copy them across, or load the root file from `next.config.ts`. |
 | 13 | License is provisional ("All Rights Reserved"). | May change before public release. | Unchanged from the original entry. |
-| 14 | **Local builds cannot measure fonts.** On this Windows machine `next build` emits no font preloads (empty next-font manifest, even on unmodified `main`); Vercel's Linux build emits three. | Any font-loading change is unmeasurable locally. | D-072. Test font changes on a Vercel preview. |
+| 14 | **Local builds cannot measure fonts.** On this Windows machine `next build` emits no font preloads (empty next-font manifest, even on unmodified `main`); Vercel's Linux build emits three. | Font-loading changes cannot be measured from a local build as it is. | D-072. D-074 measured a preload change locally anyway by rewriting the HTML in flight to carry production's exact links (`<link rel=preload>` for the same three files); that works for preload order, not for changes to the font files themselves. A Vercel preview remains the real test. |
 | 15 | **Opening Dex costs one ~100–160ms frame** at 4× CPU, with or without its entrance animation. Click-to-paint 112–296ms across runs. | A brief hitch on every open on slow phones; near INP's 200ms "good" line. | D-073 profiled it: Radix Dialog's mount (Presence reads computed `animationName`, FocusScope focuses — each forces style/layout). Removing it means keeping the dialog mounted, which reopens the Turnstile lifecycle D-059/D-060 fixed. |
 | 16 | **Touch press states unverified on a real iPhone.** | `:active` was verified with a pointer press; CDP touch never triggers it. | D-072 adds the passive `touchstart` listener iOS Safari needs. Check on a device. |
 | 17 | `animations/tokens.ts` durations drift from the CSS tokens (130/120, 220/200, 320/300, 560/550 ms). | None visible — only `/memory`'s Motion code reads `tokens.ts`. | globals.css is the source of truth (DESIGN_SYSTEM §8). Left deliberately (D-072, C22). |
+| 18 | **`/skills` shows a project twice in 4 of 33 evidence lists in production** (ASMOS three times, Dental AI once), with React duplicate-key errors in dev. | A visitor sees a repeated link, and the doubled counts change the page's most-evidenced-first order. | `effectiveProjectSkills` in `content/skills.ts` joins a project's tags with the audited additions without de-duplicating. Found in D-074; flagged as its own task, because the same function feeds the hero-network generator. |
 
 Resolved since the last review: the CV now exists (D-068); `/about`,
 `/skills`, `/publications` and `/timeline` are built (D-063–D-065); `/projects`

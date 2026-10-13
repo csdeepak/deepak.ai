@@ -212,7 +212,7 @@ function MobileMenu({
             </SheetTitle>
             <SheetClose
               aria-label="Close menu"
-              className="-mr-3 inline-flex size-11 items-center justify-center rounded-sm text-muted hover:text-ink"
+              className="-mr-3 inline-flex size-11 items-center justify-center rounded-sm text-muted transition-colors duration-(--duration-hover) hover:text-ink"
             >
               <X size={20} aria-hidden />
             </SheetClose>
@@ -230,7 +230,7 @@ function MobileMenu({
                           href={lane.href}
                           aria-current={active ? "page" : undefined}
                           className={cn(
-                            "flex min-h-12 items-center py-2 font-display text-card-title font-semibold",
+                            "flex min-h-12 items-center py-2 font-display text-card-title font-semibold transition-colors duration-(--duration-hover)",
                             active ? "text-ink" : "text-muted hover:text-ink",
                           )}
                         >
@@ -254,7 +254,7 @@ function MobileMenu({
                     <Link
                       href={link.href}
                       aria-current={isActive(pathname, link.href) ? "page" : undefined}
-                      className="inline-block py-2.5 text-small text-muted hover:text-ink aria-[current=page]:text-ink"
+                      className="inline-block py-2.5 text-small text-muted transition-colors duration-(--duration-hover) hover:text-ink aria-[current=page]:text-ink"
                     >
                       {link.label}
                     </Link>

@@ -131,7 +131,7 @@ export default async function TimelinePage() {
                           href={link.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-small text-accent underline-offset-4 hover:underline"
+                          className="text-small text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
                         >
                           {link.label}
                         </a>

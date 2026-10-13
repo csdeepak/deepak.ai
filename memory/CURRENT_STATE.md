@@ -2,6 +2,30 @@
 
 > Keep this file current. Update it after every significant piece of work.
 
+**Last updated:** 2026-10-13 (D-074 — the seven design questions, answered)
+
+## D-074 — design answers (latest)
+
+On `feat/d-074-design-answers`, **uncommitted, pending owner review**.
+Details and every before/after number: `DECISIONS.md` → `D-074`.
+
+- **The owner said yes to all seven of D-072's design questions.** The hero's
+  Dex pill has an 8px icon gap (was 0); the hero wraps like the rest of the
+  site (the phone support line no longer ends on one word); the landing photo
+  strip plays its entrance when it is seen, not off screen at load; inline
+  links share one underline that fades in; "Selected work" matches the other
+  section headings (20px → 32/56px) and every section has its own eyebrow;
+  the hero sub-line cross-fades between beats.
+- **The JetBrains Mono preload stays.** Measured: without it the hero
+  poster's LCP is ~80ms later (median of 15 per arm, later in every pair).
+- **Found, not fixed:** `/skills` lists a project twice in 4 evidence lists in
+  production (tags and audited additions are joined without de-duplication).
+  Flagged as its own task.
+- To check on the PR preview: the posts rows' new headers (file mode has no
+  posts to render them).
+
+---
+
 **Last updated:** 2026-10-13 (D-073 — a safe ingest, and the Dex open
 measured)
 
@@ -49,7 +73,7 @@ Full reasoning, every before/after number and the honest limits:
   problems · no hydration warnings in dev on 7 page/viewport checks ·
   `check:profile` red only on the public CV (D-071 owner action).
 
-### Owner decisions waiting (from the Decision agent)
+### Owner decisions waiting (from the Decision agent) — answered in D-074
 
 An 8px icon gap in the hero's Dex pill · balanced wrapping for the hero
 headline · scroll-triggered pop-in for the landing photo strip · one

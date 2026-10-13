@@ -106,7 +106,7 @@ export function DexRecall({
               <button
                 type="button"
                 onClick={() => onCite(active.source)}
-                className="mt-4 inline-flex items-center gap-1.5 font-mono text-micro text-accent underline-offset-2 hover:underline"
+                className="mt-4 inline-flex items-center gap-1.5 font-mono text-micro text-accent underline-offset-2 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
               >
                 ↳ recalled from: {stageLabel[active.source] ?? active.source}
               </button>

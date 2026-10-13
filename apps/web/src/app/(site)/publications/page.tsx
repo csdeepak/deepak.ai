@@ -116,7 +116,7 @@ export default async function PublicationsPage() {
 
                 {publication.abstract && (
                   <details className="group mt-4">
-                    <summary className="cursor-pointer text-small text-accent underline-offset-4 hover:underline">
+                    <summary className="cursor-pointer text-small text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)">
                       Abstract
                     </summary>
                     <p className="mt-3 max-w-[68ch] text-body text-muted">
@@ -178,7 +178,7 @@ function EvidenceLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1.5 text-accent underline-offset-4 hover:underline"
+      className="inline-flex items-center gap-1.5 text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
     >
       {icon && <FileText className="size-4 shrink-0" aria-hidden />}
       {label}

@@ -11,11 +11,13 @@ import { getGalleryPhotos } from "@/services/gallery";
  * vary by nearly 2x, and each carries its own tilt and vertical nudge so no
  * two share a baseline.
  *
- * Motion is pure CSS bound to `animation-timeline: view()` (see the gallery
- * block in globals.css) — a presentation-style pop-in on first view, then a
- * scroll-driven Ken Burns zoom whose rate varies per photo by depth. This
- * component ships no client JavaScript of its own, so the landing cluster
- * costs nothing against the / First Load JS budget.
+ * Motion is pure CSS (see the gallery block in globals.css) — a
+ * presentation-style pop-in, then a scroll-driven Ken Burns zoom bound to
+ * `animation-timeline: view()` whose rate varies per photo by depth. The
+ * pop-in starts when the cluster is first seen: it is a ScrollReveal
+ * "trigger" (D-074), because at load it ran, and finished, while the strip
+ * was still far below the fold, so nobody ever saw it. ScrollReveal is
+ * already on the page, so this adds no client JavaScript of its own.
  *
  * Deliberately not autoplay. Google Photos gets its "alive" feel from a story
  * player; here the same feel comes from the visitor's own scroll, which keeps
@@ -30,15 +32,15 @@ export async function GalleryStrip() {
     <section className="section-rhythm overflow-hidden" aria-labelledby="gallery-heading">
       <Container width="content">
         <ScrollReveal>
-          <p className="font-mono text-micro uppercase tracking-[0.14em] text-faint">
-            The record
+          <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
+            The gallery
           </p>
-          <h2 id="gallery-heading" className="mt-3 max-w-2xl text-section text-ink">
+          <h2 id="gallery-heading" className="mt-3 max-w-2xl text-section font-display font-medium text-ink">
             Moments from the work.
           </h2>
         </ScrollReveal>
 
-        <div className="gallery-cluster mt-14">
+        <ScrollReveal variant="trigger" className="gallery-cluster mt-14">
           {featuredPhotos.map((photo, index) => (
             <Link
               key={photo.id}
@@ -82,7 +84,7 @@ export async function GalleryStrip() {
               />
             </Link>
           ))}
-        </div>
+        </ScrollReveal>
 
         <div className="mt-14">
           <Link

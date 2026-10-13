@@ -45,21 +45,21 @@ export async function SelectedWork() {
     <Section aria-labelledby="selected-work-heading" className="py-24 md:py-40">
       <Container width="content">
         <ScrollReveal>
-          <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-mono text-micro uppercase tracking-[0.2em] text-faint">
                 The work
               </p>
               <h2
                 id="selected-work-heading"
-                className="mt-3 text-h4 font-display font-medium text-ink"
+                className="mt-3 max-w-2xl text-section font-display font-medium text-ink"
               >
                 Selected work
               </h2>
             </div>
             <Link
               href={ROUTES.projects}
-              className="inline-flex items-center gap-1.5 py-2 text-small text-accent underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1.5 py-2 text-small text-accent underline-offset-4 underline decoration-transparent hover:decoration-current transition-[text-decoration-color] duration-(--duration-hover)"
             >
               All projects
               <span aria-hidden>→</span>

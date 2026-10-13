@@ -74,7 +74,7 @@ never reach `/`'s client bundle.
 - **Conventional Commits.** Feature branch → PR → `main`. Don't commit or push
   unless asked, and don't commit onto `main` directly.
 - **Decisions get a D-number** in [`memory/DECISIONS.md`](memory/DECISIONS.md).
-  Currently at D-073. Nothing architectural lands undocumented.
+  Currently at D-074. Nothing architectural lands undocumented.
 - **Update `memory/` and `CHANGELOG.md` as part of finishing**, not after.
 - **Measure, don't estimate.** The handoff log is full of "browser-MEASURED",
   "ported the real scoring against the real JSON", "proven to fail when the fix
@@ -87,7 +87,8 @@ never reach `/`'s client bundle.
 ## Traps that have already cost time
 
 - **Local Windows builds emit no font preloads** (empty next-font manifest),
-  unlike Vercel's. Font-loading changes can only be measured on a preview.
+  unlike Vercel's. Measure font-loading changes on a preview, or (for preload
+  order only) by rewriting the HTML to carry production's links, as D-074 did.
 - **`useId` is not stable across a hydrate and a client render** — tree-based
   when hydrating, counter-based on a client navigation. D-072 needed a key
   that survived Back and found this the hard way.
@@ -98,6 +99,9 @@ never reach `/`'s client bundle.
 - **Writing files with Python on Windows converts LF to CRLF**, which turns a
   three-line edit into a whole-file diff. Pass `newline=''`, or normalise
   afterwards.
+- **The build minifies CSS durations: `130ms` ships as `.13s`.** JS that
+  reads a duration token with `parseFloat` gets 0.13, not 130 — D-074's first
+  sub-line fade swapped one frame in because of it. Read the unit.
 - **The dev server holds a lock on `.next`** — stop it before `npm run build`,
   or the build fails with no useful error.
 - **`apps/web/.env.local` vs the repo-root `.env.local`.** `next dev` runs in
