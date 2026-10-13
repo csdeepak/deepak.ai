@@ -133,6 +133,35 @@ export default function NeuralFace3DClient() {
     if (!section) return;
     let raf = 0;
     let lastSub = "";
+    let swap = 0;
+    let first = true;
+    // D-074: a beat change fades the sub-line out, swaps the text and fades
+    // it back over --duration-fast, instead of cutting mid-read. Opacity only,
+    // so it composites. A swap already under way lands on the newest line, so
+    // a fast scroll across several beats is one fade, not a queue. Reduced
+    // motion, and the first paint, keep the instant swap.
+    const fade = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+    // The build minifies the token to ".13s", so read the unit too.
+    const fastToken = getComputedStyle(section).getPropertyValue("--duration-fast").trim();
+    const fastValue = parseFloat(fastToken);
+    const fadeMs = Number.isFinite(fastValue)
+      ? fastToken.endsWith("ms")
+        ? fastValue
+        : fastValue * 1000
+      : 130;
+    const showSub = (el: HTMLElement, s: string) => {
+      if (!fade || first) {
+        el.textContent = s;
+        return;
+      }
+      if (swap) return;
+      el.style.opacity = "0";
+      swap = window.setTimeout(() => {
+        swap = 0;
+        el.textContent = lastSub;
+        el.style.opacity = "";
+      }, fadeMs);
+    };
     const tick = () => {
       raf = 0;
       const rect = section.getBoundingClientRect();
@@ -151,10 +180,11 @@ export default function NeuralFace3DClient() {
       if (sublineRef.current) {
         const s = sublineFor(off);
         if (s !== lastSub) {
-          sublineRef.current.textContent = s;
           lastSub = s;
+          showSub(sublineRef.current, s);
         }
       }
+      first = false;
     };
     const onScroll = () => {
       if (!raf) raf = window.requestAnimationFrame(tick);
@@ -166,6 +196,7 @@ export default function NeuralFace3DClient() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
+      window.clearTimeout(swap);
     };
   }, []);
 
